@@ -1,0 +1,39 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo-container
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+      - mongo-configdb:/data/configdb
+    networks:
+      - backend-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: dockerfile.backend
+    image: backend
+    container_name: server-container
+    volumes:
+      - ./src:/src  # Mount the local src directory to /src in the container
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/foodmine-db
+    depends_on:
+      - mongo
+    networks:
+      - backend-network
+    command: npm run dev  # Run 'npm run dev' to start nodemon for hot reloading
+
+volumes:
+  mongo-data:
+  mongo-configdb:
+
+networks:
+  backend-network:
+    driver: bridge

@@ -1,0 +1,35 @@
+.input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-bottom: 0 solid var(--black75);
+    transition: border-width 0.15s ease-out;
+    background-color: transparent;
+    font-size: var(--h5-size);
+    font-weight: 700;
+    color: var(--black100);
+    outline: none;
+  }
+  
+  .input::placeholder {
+    color: #dfdfdf;
+    font-size: 0.95rem;
+  }
+  
+  .input:focus {
+    border-width: 2.9px;
+  }
+  
+  .error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    right: 1rem;
+    height: 100%;
+    width: 12rem;
+    color: red;
+    text-align: center;
+    font-size: 0.95rem;
+  }

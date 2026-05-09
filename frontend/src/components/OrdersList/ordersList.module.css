@@ -1,0 +1,14 @@
+.list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #f9f9f9;
+    width: 300px;
+  }
+  

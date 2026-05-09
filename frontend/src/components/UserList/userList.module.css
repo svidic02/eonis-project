@@ -1,0 +1,51 @@
+.wrapper {
+  display: block;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  text-align: center; /* Center-align the text */
+}
+
+.button {
+  display: block; /* Make the button a block-level element */
+  margin-top: 10px; /* Add space between title and button */
+}
+
+.headerWrapper {
+  display: flex;
+  flex-direction: column; /* Arrange items in a column */
+  align-items: center;
+}
+
+.items {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px;
+  background-color: #f9f9f9;
+  flex-basis: calc(25% - 20px); /* This sets the width for 3-4 items in a row */
+  box-sizing: border-box; /* Include padding and border in the width calculation */
+}
+
+.itemsWrapper {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap; /* Wrap items to the next row when there's no space */
+  gap: 20px; /* Gap between items */
+}
+
+.deleteBtn {
+  background-color: red;
+  color: black;
+}
+
+
+.numberOf{
+  margin: auto;
+  text-align: center;
+  padding: 20px;
+  border: 1px solid #909090;
+  background-color: #f9f9f9;
+  width:fit-content;
+}

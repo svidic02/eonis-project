@@ -1,0 +1,38 @@
+.user-input-container {
+  max-width: 900px;
+  margin: 0 auto; /* Center the form */
+  padding: 20px;
+  border: 1px solid #ccc; /* Light border around the form */
+  border-radius: 8px; /* Rounded corners */
+  background-color: #f9f9f9; /* Light background color */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.user-input-title {
+  text-align: center; /* Center the title */
+  margin-bottom: 20px; /* Space below the title */
+  font-size: 24px; /* Title size */
+}
+
+.user-input-form {
+  display: flex;
+  flex-direction: column; /* Stack form elements vertically */
+}
+
+.user-input-field {
+  margin-bottom: 15px; /* Space between fields */
+}
+
+.user-input-button {
+  background-color: #7e57c2; /* Primary color */
+  color: white; /* Text color */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners for button */
+  padding: 10px 15px; /* Padding around the button text */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 16px; /* Button text size */
+}
+
+.user-input-button:hover {
+  background-color: #5e35b1; /* Darker shade on hover */
+}

@@ -1,0 +1,48 @@
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  width: 48%;
+  border: 2px solid var(--black50);
+  align-items: center;
+}
+
+.input_wrapper{
+  display: flex;
+  align-items: start;
+}
+
+.inputs {
+  display: flex;
+  flex-direction: column;
+  padding: 0px 8px;
+  gap: 8px;
+}
+
+.inputs {
+  width: 100%;
+}
+
+.oil_wrapper{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 8px;
+}
+
+/* .buttons_container {
+  flex-basis: 100%;
+  display: flex;
+  justify-content: center;
+} */
+
+.oil_wrapper Button{
+  border-radius: 64px;
+}

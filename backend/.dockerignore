@@ -1,0 +1,21 @@
+# Ignore node modules and dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Ignore logs and temp files
+logs
+*.log
+*.pid
+*.seed
+*.swp
+.DS_Store
+
+# Ignore local build artifacts
+dist
+build
+coverage
+
+# Ignore Docker-related files
+docker-compose.override.yml

@@ -1,36 +1,44 @@
 .container {
   display: flex;
-  justify-content: center;
-  margin-top: 3rem;
-  margin-bottom: 1.5rem;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.container:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .container input {
-  border-radius: 10rem 0 0 10rem;
+  flex: 1;
   border: none;
-  height: 3rem;
-  width: 20rem;
-  background-color: #f1f1f1;
-  padding: 1.2rem;
-  font-size: 1rem;
-  font-weight: bold;
+  background: transparent;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text);
   outline: none;
+  font-family: inherit;
+  min-width: 0;
+}
+
+.container input::placeholder {
+  color: var(--text-muted);
 }
 
 .container button {
-  color: grey;
-  height: 3rem;
-  width: 5rem;
-  font-size: 1rem;
-  border-radius: 0 10rem 10rem 0;
   border: none;
-  background-color: #e72929;
-  color: white;
-  opacity: 0.8;
-  outline: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 0 0.85rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .container button:hover {
-  opacity: 1;
-  cursor: pointer;
+  color: var(--accent);
 }

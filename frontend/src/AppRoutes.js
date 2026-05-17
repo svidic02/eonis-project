@@ -16,6 +16,7 @@ import OrdersPage from "./pages/Admin/Orders/OrdersPage";
 import AdminRoute from "./components/AdminRoute/AdminRoute";
 import UserInfo from "./pages/Admin/UserInfo/UserInfo";
 import ProductInfoPage from "./pages/Admin/ProductInfo/ProductInfoPage";
+import TagInfoPage from "./pages/Admin/TagInfo/TagInfoPage";
 
 export default function AppRoutes() {
   return (
@@ -103,6 +104,22 @@ export default function AppRoutes() {
           </AdminRoute>
         }
       /> */}
+      <Route
+        path="/tag/add"
+        element={
+          <AdminRoute>
+            <TagInfoPage add={true} />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/tags/:id"
+        element={
+          <AdminRoute>
+            <TagInfoPage add={false} />
+          </AdminRoute>
+        }
+      />
       <Route
         path="/checkout"
         element={

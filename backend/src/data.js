@@ -115,24 +115,17 @@ export const sample_products = [
     name: "Timberland 6-Inch Premium",
     brand: "Timberland",
     category: "men",
-    description:
-      "The original yellow boot. Waterproof premium leather, padded collar, seam-sealed construction.",
+    description: "The original yellow boot. Waterproof premium leather, padded collar, seam-sealed construction.",
     price: 210,
     images: ["image-1.jpg"],
     tags: ["Boots", "Men"],
-    variants: [
-      v("Wheat", 41, 3),
-      v("Wheat", 42, 4),
-      v("Wheat", 43, 2),
-      v("Wheat", 44, 5),
-    ],
+    variants: [v("Wheat", 41, 3), v("Wheat", 42, 4), v("Wheat", 43, 2), v("Wheat", 44, 5)],
   },
   {
     name: "Clarks Tilden Cap Oxford",
     brand: "Clarks",
     category: "men",
-    description:
-      "A classic cap-toe oxford in polished leather. Cushioned footbed and rubber sole for all-day comfort.",
+    description: "A classic cap-toe oxford in polished leather. Cushioned footbed and rubber sole for all-day comfort.",
     price: 120,
     images: ["image-1.jpg"],
     tags: ["Formal", "Men"],

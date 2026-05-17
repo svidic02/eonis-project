@@ -2,6 +2,7 @@ import { dbconnect } from "./config/database.config.js";
 import express from "express";
 import cors from "cors";
 import productRouter from "./routers/product.router.js";
+import tagRouter from "./routers/tag.router.js";
 import userRouter from "./routers/user.router.js";
 import orderRouter from "./routers/order.router.js";
 import adminRouter from "./routers/admin.router.js";
@@ -20,6 +21,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use("/api/products", productRouter);
+app.use("/api/tags", tagRouter);
 app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/admin", adminRouter);

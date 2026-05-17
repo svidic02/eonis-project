@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { edit, getById, getAllTags } from "../../services/productService";
-import Title from "../Title/Title";
 import Input from "../Input/Input";
 import { toast } from "react-toastify";
-import Button from "../Button/Button";
 import VariantsEditor from "../VariantsEditor/VariantsEditor";
+import classes from "./productForm.module.css";
 
 export default function ProductInput() {
   const { id } = useParams();
@@ -19,7 +18,7 @@ export default function ProductInput() {
   const {
     handleSubmit,
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm();
 
   useEffect(() => {
@@ -42,31 +41,25 @@ export default function ProductInput() {
 
   const submit = async (data) => {
     try {
-      await edit({
-        ...data,
-        tags: selectedTags,
-        variants,
-      });
-      toast.success("Product edited successfully!");
+      await edit({ id, ...data, tags: selectedTags, variants });
+      toast.success("Product updated.");
       navigate("/products");
-    } catch (err) {
-      toast.error("Failed to update product");
+    } catch {
+      toast.error("Failed to update product.");
     }
   };
 
+  if (!product) return null;
+
   return (
-    product && (
-      <div>
-        <Title title="Edit product" />
-        <form onSubmit={handleSubmit(submit)}>
-          <Input
-            type="text"
-            defaultValue={product.id}
-            label="Id"
-            {...register("id", { required: true })}
-            error={errors.id}
-            readOnly
-          />
+    <div className={classes.page}>
+      <div className={classes.heading}>
+        <h1>Edit product</h1>
+        <Link to="/products" className={classes.cancelLink}>← Back to products</Link>
+      </div>
+
+      <div className={classes.card}>
+        <form className={classes.form} onSubmit={handleSubmit(submit)}>
           <Input
             type="text"
             defaultValue={product.name}
@@ -80,13 +73,21 @@ export default function ProductInput() {
             label="Brand"
             {...register("brand")}
           />
-          <label>Category</label>
-          <select defaultValue={product.category ?? ""} {...register("category")}>
-            <option value="">—</option>
-            <option value="men">Men</option>
-            <option value="women">Women</option>
-            <option value="kids">Kids</option>
-          </select>
+
+          <div>
+            <label className={classes.fieldLabel}>Category</label>
+            <select
+              defaultValue={product.category ?? ""}
+              className={classes.select}
+              {...register("category")}
+            >
+              <option value="">—</option>
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+              <option value="kids">Kids</option>
+            </select>
+          </div>
+
           <Input
             type="text"
             defaultValue={product.description}
@@ -100,25 +101,48 @@ export default function ProductInput() {
             {...register("price", { required: true, valueAsNumber: true })}
             error={errors.price}
           />
-          <label>Tags</label>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", margin: "0.5rem 0 1rem" }}>
-            {tagOptions.map((tag) => (
-              <label key={tag.name} style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                <input
-                  type="checkbox"
-                  checked={selectedTags.includes(tag.name)}
-                  onChange={() => toggleTag(tag.name)}
-                />
-                {tag.name}
-              </label>
-            ))}
+
+          <div>
+            <label className={classes.fieldLabel}>Tags</label>
+            <div className={classes.tagChips}>
+              {tagOptions.map((tag) => {
+                const selected = selectedTags.includes(tag.name);
+                return (
+                  <label
+                    key={tag.name}
+                    className={`${classes.tagChip} ${selected ? classes.selected : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={() => toggleTag(tag.name)}
+                    />
+                    {tag.name}
+                  </label>
+                );
+              })}
+            </div>
           </div>
 
-          <VariantsEditor variants={variants} onChange={setVariants} />
+          <div>
+            <label className={classes.fieldLabel}>Variants</label>
+            <VariantsEditor variants={variants} onChange={setVariants} hideLabel />
+          </div>
 
-          <Button text="Update" type="submit" />
+          <div className={classes.actions}>
+            <button
+              type="button"
+              className={classes.cancelBtn}
+              onClick={() => navigate("/products")}
+            >
+              Cancel
+            </button>
+            <button type="submit" className={classes.saveBtn} disabled={isSubmitting}>
+              Save changes
+            </button>
+          </div>
         </form>
       </div>
-    )
+    </div>
   );
 }

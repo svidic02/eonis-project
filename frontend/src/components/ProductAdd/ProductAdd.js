@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import Title from "../Title/Title";
 import { useForm } from "react-hook-form";
-import Input from "../Input/Input";
-import Button from "../Button/Button";
+import { useNavigate, Link } from "react-router-dom";
 import { addProduct, getAllTags } from "../../services/productService";
+import Input from "../Input/Input";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 import VariantsEditor from "../VariantsEditor/VariantsEditor";
+import classes from "../ProductInput/productForm.module.css";
 
 export default function ProductAdd() {
   const navigate = useNavigate();
@@ -17,7 +16,7 @@ export default function ProductAdd() {
   const {
     handleSubmit,
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm();
 
   useEffect(() => {
@@ -34,66 +33,90 @@ export default function ProductAdd() {
 
   const submit = async (data) => {
     try {
-      await addProduct({
-        ...data,
-        tags: selectedTags,
-        variants,
-      });
-      toast.success("Product added successfully!");
+      await addProduct({ ...data, tags: selectedTags, variants });
+      toast.success("Product added.");
       navigate("/products");
-    } catch (error) {
-      toast.error("Failed to add product");
+    } catch {
+      toast.error("Failed to add product.");
     }
   };
 
   return (
-    <div>
-      <Title title="Add product" />
-      <form onSubmit={handleSubmit(submit)}>
-        <Input
-          type="text"
-          label="Name"
-          {...register("name", { required: true })}
-          error={errors.name}
-        />
-        <Input type="text" label="Brand" {...register("brand")} />
-        <label>Category</label>
-        <select defaultValue="" {...register("category")}>
-          <option value="">—</option>
-          <option value="men">Men</option>
-          <option value="women">Women</option>
-          <option value="kids">Kids</option>
-        </select>
-        <Input
-          type="text"
-          label="Description"
-          {...register("description")}
-        />
-        <Input
-          type="number"
-          label="Price in $"
-          {...register("price", { required: true, valueAsNumber: true })}
-          error={errors.price}
-        />
+    <div className={classes.page}>
+      <div className={classes.heading}>
+        <h1>Add product</h1>
+        <Link to="/products" className={classes.cancelLink}>← Back to products</Link>
+      </div>
 
-        <label>Tags</label>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", margin: "0.5rem 0 1rem" }}>
-          {tagOptions.map((tag) => (
-            <label key={tag.name} style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-              <input
-                type="checkbox"
-                checked={selectedTags.includes(tag.name)}
-                onChange={() => toggleTag(tag.name)}
-              />
-              {tag.name}
-            </label>
-          ))}
-        </div>
+      <div className={classes.card}>
+        <form className={classes.form} onSubmit={handleSubmit(submit)}>
+          <Input
+            type="text"
+            label="Name"
+            {...register("name", { required: true })}
+            error={errors.name}
+          />
+          <Input type="text" label="Brand" {...register("brand")} />
 
-        <VariantsEditor variants={variants} onChange={setVariants} />
+          <div>
+            <label className={classes.fieldLabel}>Category</label>
+            <select defaultValue="" className={classes.select} {...register("category")}>
+              <option value="">—</option>
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+              <option value="kids">Kids</option>
+            </select>
+          </div>
 
-        <Button text="Add" type="submit" />
-      </form>
+          <Input type="text" label="Description" {...register("description")} />
+          <Input
+            type="number"
+            label="Price in $"
+            {...register("price", { required: true, valueAsNumber: true })}
+            error={errors.price}
+          />
+
+          <div>
+            <label className={classes.fieldLabel}>Tags</label>
+            <div className={classes.tagChips}>
+              {tagOptions.map((tag) => {
+                const selected = selectedTags.includes(tag.name);
+                return (
+                  <label
+                    key={tag.name}
+                    className={`${classes.tagChip} ${selected ? classes.selected : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={() => toggleTag(tag.name)}
+                    />
+                    {tag.name}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <label className={classes.fieldLabel}>Variants</label>
+            <VariantsEditor variants={variants} onChange={setVariants} hideLabel />
+          </div>
+
+          <div className={classes.actions}>
+            <button
+              type="button"
+              className={classes.cancelBtn}
+              onClick={() => navigate("/products")}
+            >
+              Cancel
+            </button>
+            <button type="submit" className={classes.saveBtn} disabled={isSubmitting}>
+              Add product
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

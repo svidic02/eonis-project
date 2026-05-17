@@ -3,22 +3,23 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 1.5rem;
-  font-weight: 100;
+  font-size: 1.1rem;
+  color: var(--text-muted);
   height: 15rem;
+  gap: 0.5rem;
 }
 
 .container a {
-  font-size: 1rem;
-  background-color: #e72929;
+  font-size: 0.95rem;
+  background: var(--accent);
   color: white;
-  border-radius: 10rem;
-  padding: 0.7rem 1rem;
-  margin: 1rem;
-  opacity: 0.8;
+  border-radius: var(--radius);
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  transition: background 0.15s;
 }
 
 .container a:hover {
-  opacity: 1;
-  cursor: pointer;
+  background: var(--accent-hover);
+  color: white;
 }

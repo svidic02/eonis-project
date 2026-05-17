@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { getAllTags } from "../../../services/productService";
+import { getAllTagsAdmin } from "../../../services/tagService";
 import TagsList from "../../../components/TagsList/TagsList";
 
 export default function TagsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [tags, setTags] = useState([]);
-  // const [filteredTags, setFilteredTags] = useState(tags);
 
   useEffect(() => {
     if (user && user.isAdmin) {
-      getAllTags()
+      getAllTagsAdmin()
         .then((data) => {
           setTags(data);
         })
@@ -22,10 +21,7 @@ export default function TagsPage() {
     } else {
       navigate("/");
     }
-
-    // setFilteredTags(tags.filter((tag) => tag.name !== "All"));
   }, [user, navigate]);
 
   return <TagsList tags={tags} />;
-  // <>{filteredTags && <TagsList tags={tags} />}</>;
 }

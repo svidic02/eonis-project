@@ -1,69 +1,78 @@
 .header {
-  background-color: var(--background);
-  padding: 0;
-  border-bottom: 2px solid #e17e4d83;
-}
-
-.header a {
-  color: #e17e4d;
-  transition: all 0.3s ease-in;
-}
-
-.header a:hover {
-  background: #e17e4d;
-  color: white;
-  cursor: pointer;
-  font-weight: bold;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.5rem;
 }
 
 .container {
+  max-width: 1280px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 64px;
 }
 
-.container div {
-  height: 100%;
+.titleWrapper {
+  display: flex;
+  align-items: center;
 }
 
 .title {
-  font-weight: bold;
-  padding: 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
 }
 
-.logoImg {
-  max-width: 40px;
-  margin-right: 0px;
+.title:hover {
+  color: var(--text);
 }
-.imgWrapper {
+
+.brandDot {
+  color: var(--accent);
+}
+
+.optionsWrapper nav ul {
   display: flex;
-  align-items: center; /* Vertically center the content */
-  justify-content: center; /* Horizontally center the content */
-  width: 30%;
-}
-.optionsWrapper {
-  display: flex-end;
-}
-.header ul {
-  display: flex;
-  list-style-type: none;
+  align-items: center;
+  gap: 0.25rem;
+  list-style: none;
   margin: 0;
+  padding: 0;
 }
 
-.header ul a {
-  padding: 1rem;
+.optionsWrapper nav a {
   display: inline-block;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.95rem;
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+}
+
+.optionsWrapper nav a:hover {
+  background: var(--surface-alt);
+  color: var(--accent);
 }
 
 .menu_container {
   position: relative;
 }
+
 .menu {
   position: absolute;
-  z-index: 1;
-  background-color: whitesmoke;
+  right: 0;
+  top: 100%;
+  z-index: 10;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
   display: none;
+  min-width: 9rem;
+  padding: 0.25rem;
 }
 
 .menu_container:hover .menu {
@@ -71,32 +80,17 @@
 }
 
 .menu a {
-  width: 100%;
-  min-width: 8rem;
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
 }
 
 .cart_count {
-  background-color: #e17e4d;
+  background: var(--accent);
   color: white;
-  padding: 0.1rem 0.45rem;
-  border-radius: 100rem;
-  font-size: 0.9rem;
-  margin-left: 8%;
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  margin-left: 0.4rem;
+  font-weight: 600;
 }
-
-.header li {
-  list-style-type: none;
-  transition: all 0.1s;
-}
-
-.themeWrapper{
-  display: flex;
-  align-items: center;  
-}
-
-.themeWrapper label{
-  margin: 10px;
-  color: var(--text_color);
-}
-
-

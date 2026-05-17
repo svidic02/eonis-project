@@ -5,6 +5,7 @@ import admin from "../middleware/admin.mid.js";
 import { UserModel } from "../models/user.model.js";
 import { ProductModel } from "../models/product.model.js";
 import { OrderModel } from "../models/order.model.js";
+import { TagModel } from "../models/tag.model.js";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import JWT from "jsonwebtoken";
@@ -56,18 +57,19 @@ router.put(
     const address = data.address;
     const isAdmin = data.isAdmin;
 
-    const hashedPassword = await bcrypt.hash(
-      password,
-      PASSWORD_HASH_SALT_ROUNDS
-    );
-
     const updatedUser = {
       name,
       email: email.toLowerCase(),
-      password: hashedPassword,
       address,
       isAdmin,
     };
+
+    if (password) {
+      updatedUser.password = await bcrypt.hash(
+        password,
+        PASSWORD_HASH_SALT_ROUNDS
+      );
+    }
 
     const user = await UserModel.findByIdAndUpdate({ _id: id }, updatedUser, {
       new: true,
@@ -214,6 +216,69 @@ router.get(
   handler(async (req, res) => {
     const orders = await OrderModel.find();
     res.send(orders);
+  })
+);
+
+// ==================== TAG MANAGEMENT ====================
+
+router.post(
+  "/tags",
+  handler(async (req, res) => {
+    const { name, description } = req.body;
+    if (!name || !name.trim()) return res.status(400).send("Name is required");
+    const trimmed = name.trim();
+    const existing = await TagModel.findOne({ name: trimmed });
+    if (existing) return res.status(409).send("Tag already exists");
+    const tag = await TagModel.create({ name: trimmed, description });
+    res.send(tag);
+  })
+);
+
+router.put(
+  "/tags/:id",
+  handler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid tag ID");
+    }
+    const { name, description } = req.body;
+    const trimmed = name?.trim();
+    if (!trimmed) return res.status(400).send("Name is required");
+
+    const existing = await TagModel.findById(id);
+    if (!existing) return res.status(404).send("Tag not found");
+
+    const collision = await TagModel.findOne({ name: trimmed, _id: { $ne: id } });
+    if (collision) return res.status(409).send("A tag with that name already exists");
+
+    const oldName = existing.name;
+    existing.name = trimmed;
+    if (description !== undefined) existing.description = description;
+    await existing.save();
+
+    if (oldName !== trimmed) {
+      await ProductModel.updateMany(
+        { tags: oldName },
+        { $set: { "tags.$[el]": trimmed } },
+        { arrayFilters: [{ el: oldName }] }
+      );
+    }
+
+    res.send(existing);
+  })
+);
+
+router.delete(
+  "/tags/:id",
+  handler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid tag ID");
+    }
+    const tag = await TagModel.findByIdAndDelete(id);
+    if (!tag) return res.status(404).send("Tag not found");
+    await ProductModel.updateMany({ tags: tag.name }, { $pull: { tags: tag.name } });
+    res.send(tag);
   })
 );
 

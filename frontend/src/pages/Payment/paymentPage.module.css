@@ -1,37 +1,50 @@
 .container {
-    display: flex;
-    margin: 0 2rem 6rem 2rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  
-  .content {
-    width: 35rem;
-    margin: 0 3rem 0 0;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .summary > div {
-    display: flex;
-    margin-top: 0.7rem;
-  }
-  
-  .summary span {
-    font-size: 1.2rem;
-  }
-  .summary h3 {
-    margin: 0 1rem 0 0;
-    flex-basis: 5rem;
-  }
-  
-  .buttons_container {
-    flex-basis: 100%;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .buttons {
-    margin: 2rem;
-    width: 35rem;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1.5rem 4rem;
+}
+
+.content {
+  flex: 1 1 360px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
+
+.summary > div {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-top: 0.7rem;
+}
+
+.summary span {
+  font-size: 1rem;
+}
+
+.summary h3 {
+  margin: 0;
+  flex-basis: 6rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.buttons_container {
+  flex-basis: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.buttons {
+  margin: 1.5rem 0;
+  width: 100%;
+  max-width: 500px;
+}

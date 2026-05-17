@@ -5,6 +5,7 @@ import Search from "../../components/Search/Search";
 import Tags from "../../components/Tags/Tags";
 import Thumbnails from "../../components/Thumbnails/Thumbnails";
 import NotFound from "../../components/NotFound/NotFound";
+import classes from "./homePage.module.css";
 
 const initialState = { products: [], tags: [] };
 
@@ -33,11 +34,18 @@ export default function HomePage() {
   }, [searchTerm, tag]);
 
   return (
-    <>
-      <Search />
-      <Tags tags={tags} />
-      {products.length === 0 && <NotFound linkText="Reset Search" />}
-      <Thumbnails products={products} />
-    </>
+    <div className={classes.layout}>
+      <aside className={classes.sidebar}>
+        <Search />
+        <Tags tags={tags} />
+      </aside>
+      <main className={classes.content}>
+        {products.length === 0 ? (
+          <NotFound linkText="Reset Search" />
+        ) : (
+          <Thumbnails products={products} />
+        )}
+      </main>
+    </div>
   );
 }

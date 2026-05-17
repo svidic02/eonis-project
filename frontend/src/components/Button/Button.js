@@ -1,4 +1,4 @@
-import classes from './button.module.css';
+import classes from "./button.module.css";
 
 export default function Button({
   type,
@@ -11,33 +11,31 @@ export default function Button({
   width,
   height,
 }) {
+  const isDanger = backgroundColor === "red";
+  const cls = isDanger
+    ? `${classes.btn} ${classes.danger}`
+    : `${classes.btn} ${classes.primary}`;
+  const overrides = {
+    fontSize,
+    fontWeight,
+    width,
+    height,
+  };
+  if (color && !isDanger) overrides.color = color;
   return (
     <div className={classes.container}>
-      <button
-        style={{
-          color,
-          backgroundColor,
-          fontSize,
-          fontWeight,
-          width,
-          height,
-        }}
-        type={type}
-        onClick={onClick}
-      >
+      <button className={cls} style={overrides} type={type} onClick={onClick}>
         {text}
       </button>
-      
     </div>
   );
 }
 
 Button.defaultProps = {
-  type: 'button',
-  text: 'Submit',
-  backgroundColor: '#e5201c',
-  color: 'white',
-  fontSize: '1.3rem',
-  width: '12rem',
-  height: '3.5rem',
+  type: "button",
+  text: "Submit",
+  fontSize: "1rem",
+  fontWeight: 600,
+  width: "12rem",
+  height: "2.75rem",
 };

@@ -19,7 +19,7 @@ router.get(
       { $unwind: "$tags" },
       { $group: { _id: "$tags", count: { $sum: 1 } } },
       { $project: { _id: 0, name: "$_id", count: "$count" } },
-    ]).sort({ count: -1 });
+    ]).sort({ count: -1, name: 1 });
 
     const all = {
       name: "All",

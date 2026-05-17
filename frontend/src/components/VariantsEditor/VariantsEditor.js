@@ -2,7 +2,7 @@ import React from "react";
 import classes from "./variantsEditor.module.css";
 import Button from "../Button/Button";
 
-export default function VariantsEditor({ variants, onChange }) {
+export default function VariantsEditor({ variants, onChange, hideLabel }) {
   const update = (idx, field, value) => {
     const next = variants.map((v, i) =>
       i === idx ? { ...v, [field]: value } : v
@@ -18,7 +18,7 @@ export default function VariantsEditor({ variants, onChange }) {
 
   return (
     <div className={classes.wrapper}>
-      <div className={classes.label}>Variants</div>
+      {!hideLabel && <div className={classes.label}>Variants</div>}
       <table className={classes.table}>
         <thead>
           <tr>

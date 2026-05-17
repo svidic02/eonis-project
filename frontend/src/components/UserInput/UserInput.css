@@ -1,38 +1,44 @@
 .user-input-container {
-  max-width: 900px;
-  margin: 0 auto; /* Center the form */
-  padding: 20px;
-  border: 1px solid #ccc; /* Light border around the form */
-  border-radius: 8px; /* Rounded corners */
-  background-color: #f9f9f9; /* Light background color */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  max-width: 720px;
+  margin: 1.5rem auto;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .user-input-title {
-  text-align: center; /* Center the title */
-  margin-bottom: 20px; /* Space below the title */
-  font-size: 24px; /* Title size */
+  text-align: left;
+  margin: 0 0 1.25rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .user-input-form {
   display: flex;
-  flex-direction: column; /* Stack form elements vertically */
+  flex-direction: column;
+  gap: 0.85rem;
 }
 
 .user-input-field {
-  margin-bottom: 15px; /* Space between fields */
+  margin-bottom: 0;
 }
 
 .user-input-button {
-  background-color: #7e57c2; /* Primary color */
-  color: white; /* Text color */
-  border: none; /* Remove border */
-  border-radius: 5px; /* Rounded corners for button */
-  padding: 10px 15px; /* Padding around the button text */
-  cursor: pointer; /* Pointer cursor on hover */
-  font-size: 16px; /* Button text size */
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.65rem 1.25rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  align-self: flex-start;
+  transition: background 0.15s;
 }
 
 .user-input-button:hover {
-  background-color: #5e35b1; /* Darker shade on hover */
+  background: var(--accent-hover);
 }

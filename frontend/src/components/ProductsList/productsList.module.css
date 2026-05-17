@@ -1,51 +1,208 @@
 .wrapper {
-  display: block;
-  flex-direction: column;
-  align-items: center;
-}
-
-.title {
-  text-align: center; /* Center-align the text */
-}
-
-.button {
-  display: block; /* Make the button a block-level element */
-  margin-top: 10px; /* Add space between title and button */
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem;
 }
 
 .headerWrapper {
   display: flex;
-  flex-direction: column; /* Arrange items in a column */
   align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.items {
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin: 10px;
-  background-color: #f9f9f9;
-  flex-basis: calc(25% - 20px); /* This sets the width for 3-4 items in a row */
-  box-sizing: border-box; /* Include padding and border in the width calculation */
+.title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
-.itemsWrapper {
+.headerRight {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap; /* Wrap items to the next row when there's no space */
-  gap: 20px; /* Gap between items */
+  align-items: center;
+  gap: 1rem;
+}
+
+.numberOf {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.addBtn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+
+.addBtn:hover {
+  background: var(--accent-hover);
+}
+
+.tableWrapper {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: left;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable:hover {
+  color: var(--accent-hover);
+}
+
+.arrow {
+  margin-left: 0.25rem;
+  font-size: 0.7rem;
+  color: var(--accent);
+}
+
+.table tbody td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover td {
+  background: var(--surface-alt);
+}
+
+.thumbCol {
+  width: 56px;
+}
+
+.thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  background: var(--surface-alt);
+  display: block;
+}
+
+.nameCell {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.muted {
+  color: var(--text-muted);
+  max-width: 18rem;
+}
+
+.price {
+  font-weight: 600;
+  color: var(--accent-hover);
+  white-space: nowrap;
+}
+
+.stockText {
+  color: var(--text);
+}
+
+.badgeOut,
+.badgeLow {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badgeOut {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.badgeLow {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+}
+
+.actionsCol {
+  text-align: right;
+  white-space: nowrap;
+  width: 1%;
+}
+
+.editBtn,
+.deleteBtn {
+  border-radius: var(--radius);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-left: 0.35rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.editBtn {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+
+.editBtn:hover {
+  background: var(--surface-alt);
+  border-color: var(--accent);
+  color: var(--accent-hover);
 }
 
 .deleteBtn {
-  background-color: red;
-  color: black;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
 }
 
+.deleteBtn:hover {
+  background: var(--danger-soft);
+}
 
-.numberOf{
-  margin: auto;
+.empty {
   text-align: center;
-  padding: 20px;
-  border: 1px solid #909090;
-  background-color: #f9f9f9;
-  width:fit-content;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-style: italic;
 }

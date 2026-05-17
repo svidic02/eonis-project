@@ -1,77 +1,94 @@
-/* @import url("https://fonts.googleapis.com/css2?family=Quicksand&display=swap"); */
-@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
+:root {
+  /* Surfaces */
+  --bg: #faf8f4;
+  --surface: #ffffff;
+  --surface-alt: #f3efe8;
 
-:root{
+  /* Text */
+  --text: #1f1d1b;
+  --text-muted: #6b6660;
 
-  /* COLORS */
-  --primary: #ff8e3c;
-  --secondary: #e5201c;
-  --teritary: #fffffe;
-  --white: #eff0f3;
-  --black100: rgb(13, 13, 13, 1);
-  --black75: rgb(13, 13, 13, 0.75);
-  --black50: rgb(13, 13, 13, 0.5);
-  --black25: rgb(13, 13, 13, 0.25);
-  --black10: rgb(13, 13, 13, 0.1);
-  --black5: rgb(13, 13, 13, 0.05);
+  /* Borders */
+  --border: #e6e1d8;
+  --border-strong: #d4cdc0;
 
-  /* FONT SIZE */
-  --h1-size: 61px;
-  --h2-size: 49px;
-  --h3-size: 39px;
-  --h4-size: 31px;
-  --h5-size: 25px;
-  --h6-size: 20px;
-  --paragraph-size: 16px;
+  /* Accent (sage) */
+  --accent: #6f8c6a;
+  --accent-hover: #5b7657;
+  --accent-soft: #e6ede2;
 
-  /* FONT WEIGHT */
-  --h1-weight: 900; /* Equivalent to 'heavy' */
-  --h2-weight: 600; /* Equivalent to 'semi-bold' */
-  --h3-weight: 800; /* Equivalent to 'extra-bold' */
-  --h4-weight: 300; /* Equivalent to 'light' */
-  --h5-weight: 700; /* Equivalent to 'bold' */
-  --h6-weight: 600; /* Equivalent to 'semi-bold' */
+  /* Danger (terracotta, sparingly) */
+  --danger: #b14a3a;
+  --danger-soft: #f3dfd9;
+
+  /* Radii & shadows */
+  --radius: 10px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+
+  /* Type scale */
+  --h1-size: 2rem;
+  --h2-size: 1.5rem;
+  --h3-size: 1.25rem;
+  --h4-size: 1.125rem;
+  --h5-size: 1rem;
+  --h6-size: 0.95rem;
   --paragraph-size: 1rem;
-}
-
-[theme="dark"] {
-  --background: #292929;
-  --text_color: #fefefe;
-  --link_color: #985eff;
-  /* --highlight_background:#6e6e6e; */
-}
-
-[theme="light"] {
-  --background: #fafafa;
-  --text_color: black;
-  --link_color: rgb(85, 85, 203);
 }
 
 * {
   box-sizing: border-box;
-  transition: all ease-in 0.25s;
 }
 
 html {
-  font-size: 18;
+  font-size: 16px;
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: "Nunito Sans", sans-serif;
-  color: var(--black100);
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: var(--paragraph-size);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+h1 { font-size: var(--h1-size); font-weight: 700; }
+h2 { font-size: var(--h2-size); font-weight: 600; }
+h3 { font-size: var(--h3-size); font-weight: 600; }
+h4 { font-size: var(--h4-size); font-weight: 600; }
+h5 { font-size: var(--h5-size); font-weight: 600; }
+h6 { font-size: var(--h6-size); font-weight: 600; }
+
 a {
+  color: inherit;
   text-decoration: none;
 }
 
-/* appjs */
+a:hover {
+  color: var(--accent);
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 
 #siteWrapper {
-  background-color: var(--background);
-  /* display: "flex";
-  flex-direction: "column";
-  min-height: "100vh" */
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }

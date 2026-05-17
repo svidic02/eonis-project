@@ -1,204 +1,121 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useForm } from "react-hook-form";
-import { getUserById } from "../../services/userService";
-import Title from "../Title/Title";
+import { addUser, getUserById } from "../../services/userService";
 import Input from "../Input/Input";
-import Button from "../Button/Button";
 import { toast } from "react-toastify";
-import "./UserInput.css"; // Adjust the path according to your folder structure
+import classes from "../ProductInput/productForm.module.css";
 
 export default function UserInput({ flag }) {
+  const isAdd = flag === true;
   const { id } = useParams();
   const [subject, setSubject] = useState(null);
   const auth = useAuth();
-  // const { user } = auth;
   const navigate = useNavigate();
 
   const {
     handleSubmit,
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm();
 
   useEffect(() => {
-    if (flag === false) {
-      const fetchData = async () => {
-        try {
-          const subjectData = await getUserById(id);
-          setSubject(subjectData);
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      fetchData();
-    }
-  }, [flag, id]);
+    if (isAdd) return;
+    (async () => {
+      try {
+        const data = await getUserById(id);
+        setSubject(data);
+      } catch (err) {
+        console.error(err);
+      }
+    })();
+  }, [isAdd, id]);
 
   const submit = async (data) => {
     try {
-      if (flag === true) {
-        // For adding a new user
-        await auth.add(data); // Change to your method for adding a user
-        toast.success(`User added successfully!`);
-      } else if (flag === false) {
-        // For editing an existing user
-        await auth.edit(data); // Change to your method for editing a user
-        toast.success(`User edited successfully!`);
+      if (isAdd) {
+        await addUser(data);
+        toast.success("User added.");
+      } else {
+        const payload = { ...data, id: subject.id };
+        if (!payload.password) delete payload.password;
+        await auth.edit(payload);
+        toast.success("User updated.");
       }
       navigate("/users");
-    } catch (error) {
-      console.error(error);
-      if (flag === true) {
-        toast.error("Error adding user.");
-      } else {
-        toast.error("Error editing user.");
-      }
+    } catch (err) {
+      toast.error(isAdd ? "Failed to add user." : "Failed to update user.");
     }
   };
 
+  if (!isAdd && !subject) return null;
+
+  const passwordLabel = isAdd ? "Password" : "New password (leave blank to keep)";
+  const passwordRules = isAdd
+    ? { required: true, minLength: 5 }
+    : { minLength: { value: 5, message: "At least 5 characters" } };
+
   return (
-    <div className="user-input-container">
-      {flag === true ? (
-        <div>
-          <Title title="Add User" className="user-input-title" />
-          <form className="user-input-form" onSubmit={handleSubmit(submit)}>
-            <Input
-              className="user-input-field"
-              type="text"
-              label="Name"
-              {...register("name", {
-                required: true,
-                minLength: 5,
-              })}
-              error={errors.name}
-            />
-            <Input
-              className="user-input-field"
-              type="text"
-              label="Address"
-              {...register("address", {
-                required: true,
-              })}
-              error={errors.address}
-            />
-            <Input
-              className="user-input-field"
-              type="email"
-              label="Email"
-              {...register("email", {
-                required: true,
-                pattern: {
-                  value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,63}$/i,
-                  message: "Email Is Not Valid",
-                },
-              })}
-              error={errors.email}
-            />
-            <div>
-              <Input
-                className="user-input-field"
-                type="password"
-                label="Password"
-                {...register("password", {
-                  required: true,
-                  minLength: 5,
-                })}
-                error={errors.password}
-              />
-            </div>
-            <Input
-              className="user-input-field"
-              type="checkbox"
-              label="Admin"
-              {...register("isAdmin", {
-                required: false,
-              })}
-              error={errors.admin}
-            />
-            <Button text="Add" type="submit" className="user-input-button" />
-          </form>
-        </div>
-      ) : flag === false ? (
-        subject && (
-          <div>
-            <Title title="Edit User" className="user-input-title" />
-            <form className="user-input-form" onSubmit={handleSubmit(submit)}>
-              <Input
-                className="user-input-field"
-                type="text"
-                defaultValue={subject.name}
-                label="Name"
-                {...register("name", {
-                  required: true,
-                  minLength: 5,
-                })}
-                error={errors.name}
-              />
-              <Input
-                className="user-input-field"
-                type="text"
-                defaultValue={subject.id}
-                label="Id:"
-                {...register("id", {
-                  defaultValue: id,
-                })}
-                error={errors.id}
-                readOnly
-              />
-              <Input
-                className="user-input-field"
-                type="text"
-                defaultValue={subject.address}
-                label="Address"
-                {...register("address", {
-                  required: true,
-                })}
-                error={errors.address}
-              />
-              <Input
-                className="user-input-field"
-                type="email"
-                defaultValue={subject.email}
-                label="Email"
-                {...register("email", {
-                  required: true,
-                  pattern: {
-                    value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,63}$/i,
-                    message: "Email Is Not Valid",
-                  },
-                })}
-                error={errors.email}
-              />
-              <div>
-                <Input
-                  className="user-input-field"
-                  type="password"
-                  defaultValue={subject.password}
-                  label="Password"
-                  {...register("password", {
-                    required: true,
-                    minLength: 5,
-                  })}
-                  error={errors.password}
-                />
-              </div>
-              <Input
-                className="user-input-field"
-                type="checkbox"
-                defaultChecked={subject.isAdmin}
-                label="Admin"
-                {...register("isAdmin", {
-                  required: false,
-                })}
-                error={errors.admin}
-              />
-              <Button text="Update" type="submit" className="user-input-button" />
-            </form>
+    <div className={classes.page}>
+      <div className={classes.heading}>
+        <h1>{isAdd ? "Add user" : "Edit user"}</h1>
+        <Link to="/users" className={classes.cancelLink}>
+          ← Back to users
+        </Link>
+      </div>
+
+      <div className={classes.card}>
+        <form className={classes.form} onSubmit={handleSubmit(submit)}>
+          <Input
+            type="text"
+            defaultValue={subject?.name}
+            label="Name"
+            {...register("name", { required: true, minLength: 5 })}
+            error={errors.name}
+          />
+          <Input
+            type="text"
+            defaultValue={subject?.address}
+            label="Address"
+            {...register("address", { required: true })}
+            error={errors.address}
+          />
+          <Input
+            type="email"
+            defaultValue={subject?.email}
+            label="Email"
+            {...register("email", {
+              required: true,
+              pattern: {
+                value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,63}$/i,
+                message: "Email is not valid",
+              },
+            })}
+            error={errors.email}
+          />
+          <Input
+            type="password"
+            label={passwordLabel}
+            {...register("password", passwordRules)}
+            error={errors.password}
+          />
+
+          <label className={classes.checkboxRow}>
+            <input type="checkbox" defaultChecked={subject?.isAdmin} {...register("isAdmin")} />
+            Admin
+          </label>
+
+          <div className={classes.actions}>
+            <button type="button" className={classes.cancelBtn} onClick={() => navigate("/users")}>
+              Cancel
+            </button>
+            <button type="submit" className={classes.saveBtn} disabled={isSubmitting}>
+              {isAdd ? "Add user" : "Save changes"}
+            </button>
           </div>
-        )
-      ) : null}
+        </form>
+      </div>
     </div>
   );
 }

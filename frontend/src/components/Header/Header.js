@@ -3,9 +3,8 @@ import classes from "./header.module.css";
 import { Link } from "react-router-dom";
 import { useCart } from "../../hooks/useCart";
 import { useAuth } from "../../hooks/useAuth";
-// import Theme from "../../Theme/Theme";
 
-export default function Header({ toggle }) {
+export default function Header() {
   const { user, logout } = useAuth();
   const { cart } = useCart();
 
@@ -14,17 +13,8 @@ export default function Header({ toggle }) {
       <div className={classes.container}>
         <div className={classes.titleWrapper}>
           <Link to="/" className={classes.title}>
-            Footprint
+            Footprint<span className={classes.brandDot}>.</span>
           </Link>
-        </div>
-        <div className={classes.themeWrapper}>{toggle}</div>
-        <div className={classes.imgWrapper}>
-          <img
-            className={classes.logoImg}
-            src="basics/logo.png"
-            alt="logo"
-            onError={() => console.log("Image failed to load")}
-          />
         </div>
         <div className={classes.optionsWrapper}>
           <nav>

@@ -2,140 +2,159 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  margin: 1.5rem;
-  margin-top: 0.5rem;
+  gap: 1.25rem;
+  max-width: 1100px;
+  margin: 1.5rem auto;
+  padding: 0 1.5rem;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  flex: 3 0;
-  justify-content: space-evenly;
-  border: 1px solid #ffbbbb;
-  border-radius: 1rem;
-  list-style-type: none;
-  margin: 0.5rem;
+  flex: 3 1 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  list-style: none;
+  margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 .list li {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  border-bottom: 1px solid #e4e4e4;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .list li:last-child {
-  border: none;
+  border-bottom: none;
 }
 
 .list li img {
-  width: 5rem;
-  height: 5rem;
-  border-radius: 100rem;
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--radius);
   object-fit: cover;
+  background: var(--surface-alt);
 }
 
-.list li div {
-  padding: 1rem;
-}
-
-.list li div:not(:first-child) {
-  flex-basis: 18%;
+.list li > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
 .list li select {
-  width: 3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 0.4rem 0.6rem;
+  font-size: 0.95rem;
+  font-family: inherit;
   outline: none;
-  border: none;
-  border-bottom: 1px solid lightgrey;
-  font-size: 1.1rem;
-  font-weight: 100;
+}
+
+.list li select:focus {
+  border-color: var(--accent);
 }
 
 .list .remove_button {
-  border-radius: 1rem;
-  border: none;
-  padding: 0.5rem;
-  color: #e72929;
-  opacity: 0.7;
-  outline: none;
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
 }
 
 .list .remove_button:hover {
-  opacity: 1;
-  cursor: pointer;
+  background: var(--danger-soft);
 }
 
 .checkout {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-  flex: 1 3;
-  height: 20rem;
-  border: 1px solid #ffbbbb;
-  border-radius: 1rem;
-  padding: 0.5rem;
-  margin: 0.5rem;
+  flex: 1 1 260px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  gap: 1rem;
 }
 
 .checkout > div {
-  font-size: 1.4rem;
-  margin: 1rem;
-  flex: 3;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+  gap: 0.5rem;
 }
 
-.checkout .items_count {
-  margin-bottom: 1.5rem;
+.checkout .items_count,
+.checkout .total_price {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
 }
 
 .checkout .items_count::before {
-  content: "Count: ";
-  color: grey;
+  content: "Items";
+  color: var(--text-muted);
 }
 
 .checkout .total_price::before {
-  content: "Price: ";
-  color: grey;
+  content: "Total";
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.checkout .total_price {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--accent-hover);
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
 }
 
 .checkout a {
-  padding: 1rem;
+  padding: 0.85rem;
   color: white;
-  background: #e72929;
+  background: var(--accent);
   display: block;
-  width: 99%;
-  border-radius: 1rem;
+  width: 100%;
+  border-radius: var(--radius);
   text-align: center;
-  justify-self: center;
+  font-weight: 600;
+  transition: background 0.15s;
 }
 
 .checkout a:hover {
-  opacity: 0.8;
-  cursor: pointer;
-  font-weight: bold;
-  filter: contrast(120%);
+  background: var(--accent-hover);
+  color: white;
 }
 
 .clearCart {
-  padding: 1rem;
-  background: #f0bda4;
+  padding: 0.75rem;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
   display: block;
-  width: 99%;
-  border-radius: 1rem;
+  width: 100%;
+  border-radius: var(--radius);
   text-align: center;
-  justify-self: center;
-  margin-bottom: 1rem;
-}
-.clearCart:hover {
+  font-weight: 600;
   cursor: pointer;
-  opacity: 0.9;
-  filter: contrast(120%);
-  font-weight: bold;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.clearCart:hover {
+  background: var(--danger-soft);
 }

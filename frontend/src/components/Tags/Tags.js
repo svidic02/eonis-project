@@ -1,18 +1,25 @@
 import React from "react";
 import classes from "./tags.module.css";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 export default function Tags({ tags, forProductPage }) {
+  const containerClass = forProductPage
+    ? `${classes.container} ${classes.horizontal}`
+    : classes.container;
   return (
-    <div
-      className={classes.container}
-      style={{ justifyContent: forProductPage ? "start" : "center" }}
-    >
-      {tags.map(tag => (
-        <Link key={tag.name} to={`/tag/${tag.name}`}>
-          {tag.name}
-          {!forProductPage && `(${tag.count})`}
-        </Link>
+    <div className={containerClass}>
+      {tags.map((tag) => (
+        <NavLink
+          key={tag.name}
+          to={`/tag/${tag.name}`}
+          className={({ isActive }) => (isActive ? classes.active : undefined)}
+          end
+        >
+          <span>{tag.name}</span>
+          {!forProductPage && tag.count != null && (
+            <span className={classes.count}>{tag.count}</span>
+          )}
+        </NavLink>
       ))}
     </div>
   );

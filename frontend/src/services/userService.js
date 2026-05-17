@@ -25,16 +25,21 @@ export const getAllUsers = async () => {
 };
 
 export const editUser = async (userData) => {
-  const { data } = await axios.put(`api/users/user/${userData.id}`, userData);
+  const { data } = await axios.put(`api/admin/users/${userData.id}`, userData);
   return data;
 };
 
 export const deleteUser = async (userId) => {
-  const { data } = await axios.delete(`api/users/user/${userId}`);
+  const { data } = await axios.delete(`api/admin/users/${userId}`);
   return data;
 };
 
 export const getUserById = async (id) => {
-  const { data } = await axios.get(`api/users/user/${id}`);
+  const { data } = await axios.get(`api/admin/users/${id}`);
+  return data;
+};
+
+export const addUser = async (userData) => {
+  const { data } = await axios.post("api/users/register", userData);
   return data;
 };

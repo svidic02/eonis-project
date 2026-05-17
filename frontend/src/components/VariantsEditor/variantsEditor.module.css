@@ -5,47 +5,83 @@
 .label {
   font-weight: 600;
   margin-bottom: 0.5rem;
+  color: var(--text);
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
 .table th,
 .table td {
-  border: 1px solid rgba(127, 127, 127, 0.3);
-  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
   text-align: left;
+  font-size: 0.9rem;
+}
+
+.table th {
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tr:nth-child(even) td {
+  background: var(--surface-alt);
 }
 
 .table input {
   width: 100%;
-  padding: 0.25rem 0.4rem;
-  background: transparent;
-  color: inherit;
-  border: 1px solid rgba(127, 127, 127, 0.4);
-  border-radius: 3px;
+  padding: 0.35rem 0.5rem;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+}
+
+.table input:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 .sku {
-  font-size: 0.75rem;
-  opacity: 0.7;
-  font-family: monospace;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 .empty {
   text-align: center;
   font-style: italic;
-  opacity: 0.6;
+  color: var(--text-muted);
 }
 
 .remove {
-  background: #c0392b;
-  color: white;
-  border: none;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
   padding: 0.3rem 0.6rem;
-  border-radius: 3px;
+  border-radius: var(--radius);
   cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: background 0.15s;
+}
+
+.remove:hover {
+  background: var(--danger-soft);
 }

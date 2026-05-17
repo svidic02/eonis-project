@@ -1,8 +1,10 @@
 import { connect, set } from "mongoose";
 import { UserModel } from "../models/user.model.js";
 import { ProductModel } from "../models/product.model.js";
+import { TagModel } from "../models/tag.model.js";
 import { sample_users } from "../data.js";
 import { sample_products } from "../data.js";
+import { sample_tags } from "../data.js";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 
@@ -21,6 +23,7 @@ export const dbconnect = async () => {
     });
     await seedUsers();
     await seedProducts();
+    await seedTags();
     console.log("DB connected successfully!");
   } catch (error) {
     console.log(error);
@@ -54,4 +57,17 @@ async function seedProducts() {
     await ProductModel.create(product);
   }
   console.log("Products seed is done!");
+}
+
+async function seedTags() {
+  const tagsCount = await TagModel.countDocuments();
+  if (tagsCount > 0) {
+    console.log("Tags seed is already done!");
+    return;
+  }
+  for (let tag of sample_tags) {
+    if (tag.name === "All") continue;
+    await TagModel.create({ name: tag.name });
+  }
+  console.log("Tags seed is done!");
 }

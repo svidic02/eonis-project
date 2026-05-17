@@ -1,57 +1,68 @@
 .table {
   width: 100%;
-  border: 2px solid var(--black25);
-  /* margin-top: 4px; */
-  /* border-radius: 5px; */
-  padding: 8px 8px;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
 .table td {
-  height: 3rem;
-  font-size: var(--h5-size);
-  align-items: center;
-  justify-content: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+  vertical-align: middle;
 }
 
-.dot{
-  width: 2rem;
-  height: 2rem;
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.dot {
+  width: 1.5rem;
+  height: 1.5rem;
   object-fit: cover;
-  border: transparent;
+  border: none;
+  border-radius: 4px;
 }
 
 .img {
-  width: 4rem;
-  height: 4rem;
+  width: 3.5rem;
+  height: 3.5rem;
   object-fit: cover;
-  border: 2px solid var(--black75);
+  border-radius: var(--radius);
+  background: var(--surface-alt);
 }
-
-
 
 .table h3 {
-  font-size: var(--h5-size);
-  font-weight: var(--h5-weight);
-  color: var(--black75);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
 }
+
 .table a:hover {
-  opacity: 0.6;
+  color: var(--accent);
 }
 
 .notAvailable {
   text-align: center;
-  color: #e4e4e4;
-  font-size: 2.5rem;
-  background-color: #d0342c;
+  color: var(--danger);
+  font-size: 1rem;
+  background: var(--danger-soft);
+  padding: 0.75rem;
+  border-radius: var(--radius);
 }
 
-.bottom_wrapper{
+.bottom_wrapper {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
+  margin-top: 1rem;
 }
 
-.total_price{
-  font-size: var(--h4-size);
-  font-weight: var(--h3-weight);
+.total_price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent-hover);
 }

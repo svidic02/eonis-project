@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import HomePage from "./pages/Home/HomePage";
-import FoodPage from "./pages/Food/FoodPage";
+import ProductPage from "./pages/Product/ProductPage";
 import CartPage from "./pages/Cart/CartPage";
 import LoginPage from "./pages/Login/LoginPage";
 import RegisterPage from "./pages/Register/RegisterPage";
@@ -11,11 +11,11 @@ import PaymentPage from "./pages/Payment/PaymentPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import UsersPage from "./pages/Admin/Users/UsersPage";
 import TagsPage from "./pages/Admin/Tags/TagsPage";
-import MealsPage from "./pages/Admin/Meals/MealsPage";
+import ProductsPage from "./pages/Admin/Products/ProductsPage";
 import OrdersPage from "./pages/Admin/Orders/OrdersPage";
 import AdminRoute from "./components/AdminRoute/AdminRoute";
 import UserInfo from "./pages/Admin/UserInfo/UserInfo";
-import MealInfo from "./pages/Admin/MealInfo/MealInfo";
+import ProductInfoPage from "./pages/Admin/ProductInfo/ProductInfoPage";
 
 export default function AppRoutes() {
   return (
@@ -23,7 +23,7 @@ export default function AppRoutes() {
       <Route path="/" element={<HomePage />}></Route>
       <Route path="/search/:searchTerm" element={<HomePage />}></Route>
       <Route path="/tag/:tag" element={<HomePage />}></Route>
-      <Route path="/food/:id" element={<FoodPage />}></Route>
+      <Route path="/product/:id" element={<ProductPage />}></Route>
       <Route path="/cart" element={<CartPage />}></Route>
       <Route path="/login" element={<LoginPage />}></Route>
       <Route path="/register" element={<RegisterPage />}></Route>
@@ -46,10 +46,10 @@ export default function AppRoutes() {
         }
       />
       <Route
-        path="/meals"
+        path="/products"
         element={
           <AdminRoute>
-            <MealsPage />
+            <ProductsPage />
           </AdminRoute>
         }
       />
@@ -80,18 +80,18 @@ export default function AppRoutes() {
         // true is for add, false is for edit
       />
       <Route
-        path="/meals/:id"
+        path="/products/:id"
         element={
           <AdminRoute>
-            <MealInfo add={false} />
+            <ProductInfoPage add={false} />
           </AdminRoute>
         }
       />
       <Route
-        path="/meal/add"
+        path="/product/add"
         element={
           <AdminRoute>
-            <MealInfo add={true} />
+            <ProductInfoPage add={true} />
           </AdminRoute>
         }
       />
@@ -99,7 +99,7 @@ export default function AppRoutes() {
         path="/tags/:id"
         element={
           <AdminRoute>
-            <MealInfo />
+            <ProductInfoPage />
           </AdminRoute>
         }
       /> */}

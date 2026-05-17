@@ -91,11 +91,11 @@
   align-items: flex-start;
 }
 
-.checkout .foods_count {
+.checkout .items_count {
   margin-bottom: 1.5rem;
 }
 
-.checkout .foods_count::before {
+.checkout .items_count::before {
   content: "Count: ";
   color: grey;
 }

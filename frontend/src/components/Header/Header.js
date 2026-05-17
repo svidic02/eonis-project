@@ -14,7 +14,7 @@ export default function Header({ toggle }) {
       <div className={classes.container}>
         <div className={classes.titleWrapper}>
           <Link to="/" className={classes.title}>
-            PurePlate
+            Footprint
           </Link>
         </div>
         <div className={classes.themeWrapper}>{toggle}</div>
@@ -35,7 +35,7 @@ export default function Header({ toggle }) {
                     <Link to={"/users"}>Users</Link>
                   </li>
                   <li>
-                    <Link to={"/meals"}>Meals</Link>
+                    <Link to={"/products"}>Products</Link>
                   </li>
                   <li>
                     <Link to={"/tags"}>Tags</Link>

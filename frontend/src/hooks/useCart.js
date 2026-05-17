@@ -8,6 +8,9 @@ const EMPTY_CART = {
   totalPrice: 0,
 };
 
+const lineKey = (item) =>
+  `${item.product.id}::${item.selectedColor}::${item.selectedSize}`;
+
 export default function CartProvider({ children }) {
   const initCart = getCartFromLocalStorage();
   const [cartItems, setCartItems] = useState(initCart.items);
@@ -32,42 +35,41 @@ export default function CartProvider({ children }) {
 
   function getCartFromLocalStorage() {
     const storedCart = localStorage.getItem(CART_KEY);
-    return storedCart ? JSON.parse(storedCart) : EMPTY_CART;
+    if (!storedCart) return EMPTY_CART;
+    const parsed = JSON.parse(storedCart);
+    // Drop legacy lines without variant info (Phase 1 cart shape).
+    const items = (parsed.items ?? []).filter(
+      (i) => i.product && i.selectedColor && i.selectedSize != null
+    );
+    return { ...parsed, items };
   }
 
   const sum = (items) => {
     return items.reduce((prevValue, curValue) => prevValue + curValue, 0);
   };
 
-  const removeFromCart = (foodId) => {
-    const filteredCartItems = cartItems.filter(
-      (item) => item.food.id !== foodId
-    );
-    setCartItems(filteredCartItems);
+  const removeFromCart = (key) => {
+    setCartItems(cartItems.filter((item) => lineKey(item) !== key));
   };
 
-  const changeQuantity = (cartItem, newQuantity) => {
-    const { food } = cartItem;
-
-    const changedCartItem = {
-      ...cartItem,
-      quantity: newQuantity,
-      price: food.price * newQuantity,
-    };
-
+  const changeQuantity = (key, newQuantity) => {
     setCartItems(
       cartItems.map((item) =>
-        item.food.id === food.id ? changedCartItem : item
+        lineKey(item) === key
+          ? { ...item, quantity: newQuantity, price: item.product.price * newQuantity }
+          : item
       )
     );
   };
 
-  const addToCart = (food) => {
-    const cartItem = cartItems.find((item) => item.food.id === food.id);
-    if (cartItem) {
-      changeQuantity(cartItem, cartItem.quantity + 1);
+  const addToCart = (product, selectedColor, selectedSize, sku) => {
+    const newItem = { product, selectedColor, selectedSize, sku, quantity: 1, price: product.price };
+    const key = lineKey(newItem);
+    const existing = cartItems.find((item) => lineKey(item) === key);
+    if (existing) {
+      changeQuantity(key, existing.quantity + 1);
     } else {
-      setCartItems([...cartItems, { food, quantity: 1, price: food.price }]);
+      setCartItems([...cartItems, newItem]);
     }
   };
 
@@ -86,7 +88,8 @@ export default function CartProvider({ children }) {
         removeFromCart,
         changeQuantity,
         addToCart,
-        clearCart
+        clearCart,
+        lineKey,
       }}
     >
       {children}

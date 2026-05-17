@@ -1,38 +1,39 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import Price from "../Price/Price";
 import classes from "./orderItemsList.module.css";
-// import { useLoading } from "../../hooks/useLoading";
 
 export default function OrderItemsList({ order }) {
   return (
     <>
-      {/* <p>{order ? ("true"):("false")}</p> */}
       <table className={classes.table}>
         <tbody>
           <tr>
-            <td colSpan="5">
+            <td colSpan="6">
               <h3>Order items:</h3>
             </td>
           </tr>
           {order.items &&
-            order.items.map((item) => (
-              <tr key={item.food.id}>
+            order.items.map((item, idx) => (
+              <tr key={`${item.product.id}-${item.sku ?? idx}`}>
                 <td>
                   <img src="basics/dot.svg" className={classes.dot}></img>
                 </td>
                 <td>
-                  <Link to={`/food/${item.food.id}`}>
+                  <Link to={`/product/${item.product.id}`}>
                     <img
-                      src={item.food.imageUrl}
-                      alt={item.food.name}
+                      src={item.product.imageUrl}
+                      alt={item.product.name}
                       className={classes.img}
                     />
                   </Link>
                 </td>
-                <td>{item.food.name}</td>
+                <td>{item.product.name}</td>
                 <td>
-                  <Price price={item.food.price} />
+                  {item.selectedColor} · Size {item.selectedSize}
+                </td>
+                <td>
+                  <Price price={item.product.price} />
                 </td>
                 <td>{item.quantity}</td>
                 <td>
@@ -40,15 +41,6 @@ export default function OrderItemsList({ order }) {
                 </td>
               </tr>
             ))}
-          {/* <tr>
-            <td colSpan="3"></td>
-            <td>
-              <strong>Total :</strong>
-            </td>
-            <td>
-              
-            </td>
-          </tr> */}
         </tbody>
       </table>
       <div className={classes.bottom_wrapper}>

@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { getAll } from "../../../services/foodService";
-import MealsList from "../../../components/MealsList/MealsList";
+import { getAll } from "../../../services/productService";
+import ProductsList from "../../../components/ProductsList/ProductsList";
 
-export default function MealsPage() {
+export default function ProductsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [meals, setMeals] = useState([]);
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     if (user && user.isAdmin) {
       getAll()
         .then((data) => {
-          setMeals(data);
+          setProducts(data);
         })
         .catch((error) => {
-          console.error("Error fetching meals:", error);
+          console.error("Error fetching products:", error);
         });
     } else {
       navigate("/");
@@ -25,7 +25,7 @@ export default function MealsPage() {
 
   return (
     <>
-      <MealsList meals={meals} />
+      <ProductsList products={products} />
     </>
   );
 }

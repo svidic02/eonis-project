@@ -1,12 +1,15 @@
 import { model, Schema } from "mongoose";
 import { OrderStatus } from "../constants/orderStatus.js";
-import { FoodModel } from "./food.model.js";
+import { ProductModel } from "./product.model.js";
 
 export const OrderItemSchema = new Schema(
   {
-    food: { type: FoodModel.schema, required: true },
+    product: { type: ProductModel.schema, required: true },
     price: { type: Number, required: true },
     quantity: { type: Number, required: true },
+    selectedColor: { type: String, required: true },
+    selectedSize: { type: Number, required: true },
+    sku: { type: String, required: true },
   },
   {
     _id: false,
@@ -14,7 +17,7 @@ export const OrderItemSchema = new Schema(
 );
 
 OrderItemSchema.pre("validate", function (next) {
-  this.price = this.food.price * this.quantity;
+  this.price = this.product.price * this.quantity;
   next();
 });
 

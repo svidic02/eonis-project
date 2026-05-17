@@ -1,17 +1,17 @@
 import React, { useEffect, useReducer } from "react";
-import { getAll, getAllTags, search, getAllByTag } from "../../services/foodService";
+import { getAll, getAllTags, search, getAllByTag } from "../../services/productService";
 import { useParams } from "react-router-dom";
 import Search from "../../components/Search/Search";
 import Tags from "../../components/Tags/Tags";
 import Thumbnails from "../../components/Thumbnails/Thumbnails";
 import NotFound from "../../components/NotFound/NotFound";
 
-const initialState = { foods: [], tags: [] };
+const initialState = { products: [], tags: [] };
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case "FOODS_LOADED":
-      return { ...state, foods: action.payload };
+    case "PRODUCTS_LOADED":
+      return { ...state, products: action.payload };
     case "TAGS_LOADED":
       return { ...state, tags: action.payload };
     default:
@@ -21,23 +21,23 @@ const reducer = (state, action) => {
 
 export default function HomePage() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { foods, tags } = state;
+  const { products, tags } = state;
   const { searchTerm, tag } = useParams();
 
   useEffect(() => {
     getAllTags().then((tags) => dispatch({ type: "TAGS_LOADED", payload: tags }));
 
-    const loadFoods = tag ? getAllByTag(tag) : searchTerm ? search(searchTerm) : getAll();
+    const loadProducts = tag ? getAllByTag(tag) : searchTerm ? search(searchTerm) : getAll();
 
-    loadFoods.then((foods) => dispatch({ type: "FOODS_LOADED", payload: foods }));
+    loadProducts.then((products) => dispatch({ type: "PRODUCTS_LOADED", payload: products }));
   }, [searchTerm, tag]);
 
   return (
     <>
       <Search />
       <Tags tags={tags} />
-      {foods.length === 0 && <NotFound linkText="Reset Search" />}
-      <Thumbnails foods={foods} />
+      {products.length === 0 && <NotFound linkText="Reset Search" />}
+      <Thumbnails products={products} />
     </>
   );
 }

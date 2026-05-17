@@ -1,8 +1,8 @@
 import { connect, set } from "mongoose";
 import { UserModel } from "../models/user.model.js";
-import { FoodModel } from "../models/food.model.js";
+import { ProductModel } from "../models/product.model.js";
 import { sample_users } from "../data.js";
-import { sample_foods } from "../data.js";
+import { sample_products } from "../data.js";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 
@@ -20,7 +20,7 @@ export const dbconnect = async () => {
       useUnifiedTopology: true,
     });
     await seedUsers();
-    await seedFoods();
+    await seedProducts();
     console.log("DB connected successfully!");
   } catch (error) {
     console.log(error);
@@ -42,16 +42,16 @@ async function seedUsers() {
   console.log("User seed is done!");
 }
 
-async function seedFoods() {
-  const foodsCount = await FoodModel.countDocuments();
-  if (foodsCount > 0) {
-    console.log("Foods seed is already done!");
+async function seedProducts() {
+  const productsCount = await ProductModel.countDocuments();
+  if (productsCount > 0) {
+    console.log("Products seed is already done!");
     return;
   }
 
-  for (let food of sample_foods) {
-    food.imageUrl = `/foods/${food.imageUrl}`;
-    await FoodModel.create(food);
+  for (let product of sample_products) {
+    product.images = (product.images ?? []).map((img) => `/products/${img}`);
+    await ProductModel.create(product);
   }
-  console.log("Foods seed is done!");
+  console.log("Products seed is done!");
 }

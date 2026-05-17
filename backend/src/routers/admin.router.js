@@ -3,7 +3,7 @@ import handler from "express-async-handler";
 import auth from "../middleware/auth.mid.js";
 import admin from "../middleware/admin.mid.js";
 import { UserModel } from "../models/user.model.js";
-import { FoodModel } from "../models/food.model.js";
+import { ProductModel } from "../models/product.model.js";
 import { OrderModel } from "../models/order.model.js";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
@@ -99,79 +99,108 @@ router.delete(
   })
 );
 
-// ==================== FOOD MANAGEMENT ====================
+// ==================== PRODUCT MANAGEMENT ====================
 
-// Update food
+// Update product
 router.put(
-  "/foods/:foodId",
+  "/products/:productId",
   handler(async (req, res) => {
-    const { foodId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(foodId)) {
-      return res.status(400).send("Invalid food ID");
+    const { productId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).send("Invalid product ID");
     }
 
     const data = req.body;
-    const name = data.name;
-    const price = data.price;
-    const tags = data.tags;
-    const time = data.cookTime;
-
-    const updatedMeal = {
-      name,
-      price,
-      tags,
-      time,
+    const updatedProduct = {
+      name: data.name,
+      brand: data.brand,
+      category: data.category,
+      description: data.description,
+      price: data.price,
+      tags: data.tags,
+      images: data.images,
+      variants: data.variants,
     };
 
-    const meal = await FoodModel.findByIdAndUpdate(
-      { _id: foodId },
-      updatedMeal,
+    // Strip undefined fields so PUT only overwrites what was sent
+    Object.keys(updatedProduct).forEach(
+      (k) => updatedProduct[k] === undefined && delete updatedProduct[k]
+    );
+
+    const product = await ProductModel.findByIdAndUpdate(
+      { _id: productId },
+      updatedProduct,
       {
         new: true,
       }
     );
 
-    if (!meal) {
-      return res.status(404).send("Meal not found");
+    if (!product) {
+      return res.status(404).send("Product not found");
     }
 
-    res.send(meal);
+    res.send(product);
   })
 );
 
-// Delete food
-router.delete(
-  "/foods/:foodId",
+// Replace variants for a product
+router.put(
+  "/products/:productId/variants",
   handler(async (req, res) => {
-    const { foodId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(foodId)) {
-      return res.status(400).send("Invalid food ID");
+    const { productId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).send("Invalid product ID");
+    }
+    const { variants } = req.body;
+    if (!Array.isArray(variants)) {
+      return res.status(400).send("variants must be an array");
     }
 
-    const result = await FoodModel.findByIdAndDelete(foodId);
+    const product = await ProductModel.findById(productId);
+    if (!product) return res.status(404).send("Product not found");
+    product.variants = variants;
+    await product.save();
+    res.send(product);
+  })
+);
+
+// Delete product
+router.delete(
+  "/products/:productId",
+  handler(async (req, res) => {
+    const { productId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).send("Invalid product ID");
+    }
+
+    const result = await ProductModel.findByIdAndDelete(productId);
     if (!result) {
-      return res.status(400).send("Food couldn't be deleted!");
+      return res.status(400).send("Product couldn't be deleted!");
     }
 
     res.send(result);
   })
 );
 
-// Add food
+// Add product
 router.post(
-  "/foods",
+  "/products",
   handler(async (req, res) => {
-    const { name, price, tags, cookTime, imageUrl } = req.body;
+    const { name, brand, category, description, price, tags, images, variants } =
+      req.body;
 
-    const newMeal = {
+    const newProduct = {
       name,
-      cookTime,
+      brand,
+      category,
+      description,
       price,
-      imageUrl,
       tags,
+      images,
+      variants,
     };
 
-    const result = await FoodModel.create(newMeal);
+    const result = await ProductModel.create(newProduct);
 
     res.send(result);
   })

@@ -13,10 +13,15 @@ import UsersPage from "./pages/Admin/Users/UsersPage";
 import TagsPage from "./pages/Admin/Tags/TagsPage";
 import ProductsPage from "./pages/Admin/Products/ProductsPage";
 import OrdersPage from "./pages/Admin/Orders/OrdersPage";
+import OrderInfoPage from "./pages/Admin/OrderInfo/OrderInfoPage";
 import AdminRoute from "./components/AdminRoute/AdminRoute";
 import UserInfo from "./pages/Admin/UserInfo/UserInfo";
 import ProductInfoPage from "./pages/Admin/ProductInfo/ProductInfoPage";
 import TagInfoPage from "./pages/Admin/TagInfo/TagInfoPage";
+import ColorsPage from "./pages/Admin/Colors/ColorsPage";
+import ColorInfoPage from "./pages/Admin/ColorInfo/ColorInfoPage";
+import BrandsPage from "./pages/Admin/Brands/BrandsPage";
+import BrandInfoPage from "./pages/Admin/BrandInfo/BrandInfoPage";
 
 export default function AppRoutes() {
   return (
@@ -29,6 +34,14 @@ export default function AppRoutes() {
       <Route path="/login" element={<LoginPage />}></Route>
       <Route path="/register" element={<RegisterPage />}></Route>
       <Route path="/profile" element={<ProfilePage />}></Route>
+      <Route
+        path="/orders/:id"
+        element={
+          <AuthRoute>
+            <OrderInfoPage />
+          </AuthRoute>
+        }
+      />
 
       <Route
         path="/users"
@@ -117,6 +130,54 @@ export default function AppRoutes() {
         element={
           <AdminRoute>
             <TagInfoPage add={false} />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/colors"
+        element={
+          <AdminRoute>
+            <ColorsPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/color/add"
+        element={
+          <AdminRoute>
+            <ColorInfoPage add={true} />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/colors/:id"
+        element={
+          <AdminRoute>
+            <ColorInfoPage add={false} />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/brands"
+        element={
+          <AdminRoute>
+            <BrandsPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/brand/add"
+        element={
+          <AdminRoute>
+            <BrandInfoPage add={true} />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/brands/:id"
+        element={
+          <AdminRoute>
+            <BrandInfoPage add={false} />
           </AdminRoute>
         }
       />

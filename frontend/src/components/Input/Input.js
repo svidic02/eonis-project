@@ -6,6 +6,7 @@ function Input(
   {
     label,
     type,
+    value,
     defaultValue,
     onChange,
     onBlur,
@@ -36,7 +37,7 @@ function Input(
   return (
     <InputContainer label={label}>
       <input
-        defaultValue={defaultValue}
+        {...(value !== undefined ? { value } : { defaultValue })}
         className={classes.input}
         type={type}
         placeholder={label}

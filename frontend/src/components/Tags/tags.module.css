@@ -9,7 +9,8 @@
   flex-wrap: wrap;
 }
 
-.container a {
+.container a,
+.container button {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
@@ -21,15 +22,20 @@
   font-size: 0.92rem;
   font-weight: 500;
   border: 1px solid transparent;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
-.container a:hover {
+.container a:hover,
+.container button:hover {
   background: var(--surface-alt);
   color: var(--accent);
 }
 
 .container a.active,
+.container button.active,
 .container a[aria-current="page"] {
   background: var(--accent-soft);
   color: var(--accent-hover);

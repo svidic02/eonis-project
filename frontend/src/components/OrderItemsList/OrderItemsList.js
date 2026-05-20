@@ -17,9 +17,6 @@ export default function OrderItemsList({ order }) {
             order.items.map((item, idx) => (
               <tr key={`${item.product.id}-${item.sku ?? idx}`}>
                 <td>
-                  <img src="basics/dot.svg" className={classes.dot}></img>
-                </td>
-                <td>
                   <Link to={`/product/${item.product.id}`}>
                     <img
                       src={item.product.imageUrl}

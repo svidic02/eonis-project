@@ -23,14 +23,21 @@
   font-weight: 700;
   color: var(--text);
   letter-spacing: -0.01em;
+  transition: color 0.2s, letter-spacing 0.2s;
 }
 
 .title:hover {
-  color: var(--text);
+  color: var(--accent-hover);
+  letter-spacing: 0;
+}
+
+.title:hover .brandDot {
+  color: var(--accent-hover);
 }
 
 .brandDot {
   color: var(--accent);
+  transition: color 0.2s;
 }
 
 .optionsWrapper nav ul {

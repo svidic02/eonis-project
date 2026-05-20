@@ -7,7 +7,12 @@ const router = Router();
 router.get(
   "/",
   handler(async (req, res) => {
-    const products = await ProductModel.find({});
+    const { gender, category, tag } = req.query;
+    const filter = {};
+    if (gender) filter.gender = gender;
+    if (category) filter.category = category;
+    if (tag) filter.tags = tag;
+    const products = await ProductModel.find(filter);
     res.send(products);
   })
 );

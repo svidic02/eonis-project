@@ -38,7 +38,8 @@ export const AuthProvider = ({ children }) => {
 
   const edit = async (user) => {
     try {
-      await userService.editUser(user);
+      const updated = await userService.editSelf(user);
+      setUser(updated);
     } catch (err) {
       console.error(err);
       toast.error("Error editing user!");

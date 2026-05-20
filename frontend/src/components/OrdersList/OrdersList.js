@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from "react";
 import classes from "./ordersList.module.css";
+import { useNavigate } from "react-router-dom";
 
 export default function OrderList({ orders }) {
+  const navigate = useNavigate();
   const [sortKey, setSortKey] = useState("name");
   const [sortDir, setSortDir] = useState("asc");
 
@@ -57,7 +59,11 @@ export default function OrderList({ orders }) {
               <tr><td colSpan={5} className={classes.empty}>No orders yet.</td></tr>
             )}
             {sorted.map((order) => (
-              <tr key={order._id}>
+              <tr
+                key={order._id}
+                onClick={() => navigate(`/orders/${order._id}`)}
+                style={{ cursor: "pointer" }}
+              >
                 <td className={classes.id}>#{String(order._id).slice(-6)}</td>
                 <td className={classes.nameCell}>{order.name}</td>
                 <td className={classes.muted}>{order.address || "—"}</td>

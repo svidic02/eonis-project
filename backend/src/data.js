@@ -4,12 +4,13 @@ export const sample_products = [
   {
     name: "Nike Air Max 90",
     brand: "Nike",
-    category: "men",
+    gender: "men",
+    category: "Sneakers",
     description:
       "Iconic Air cushioning meets timeless street style. The Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details.",
     price: 130,
     images: ["image-1.jpg"],
-    tags: ["Sneakers", "Casual", "Men"],
+    tags: ["Sneakers", "Casual"],
     variants: [
       v("Black", 41, 5),
       v("Black", 42, 8),
@@ -23,12 +24,13 @@ export const sample_products = [
   {
     name: "Adidas Stan Smith",
     brand: "Adidas",
-    category: "men",
+    gender: "men",
+    category: "Sneakers",
     description:
       "A clean court classic. The Stan Smith has stood the test of time as a minimalist tennis shoe turned everyday icon.",
     price: 100,
     images: ["image-1.jpg"],
-    tags: ["Sneakers", "Casual", "Men", "Women"],
+    tags: ["Sneakers", "Casual"],
     variants: [
       v("White", 39, 4),
       v("White", 40, 6),
@@ -42,12 +44,13 @@ export const sample_products = [
   {
     name: "Converse Chuck 70",
     brand: "Converse",
-    category: "women",
+    gender: "women",
+    category: "Sneakers",
     description:
       "A premium take on the original Chuck Taylor. Higher-quality canvas, cushioned insole and vintage detailing.",
     price: 85,
     images: ["image-1.jpg"],
-    tags: ["Sneakers", "Casual", "Women"],
+    tags: ["Sneakers", "Casual"],
     variants: [
       v("Black", 37, 3),
       v("Black", 38, 5),
@@ -60,12 +63,13 @@ export const sample_products = [
   {
     name: "Nike Pegasus 40",
     brand: "Nike",
-    category: "men",
+    gender: "men",
+    category: "Running",
     description:
       "A workhorse running shoe with responsive React foam and dual Air Zoom units for a smooth, springy ride.",
     price: 140,
     images: ["image-1.jpg"],
-    tags: ["Running", "Sport", "Men"],
+    tags: ["Running", "Sport"],
     variants: [
       v("Blue", 41, 4),
       v("Blue", 42, 6),
@@ -78,12 +82,13 @@ export const sample_products = [
   {
     name: "Asics Gel-Kayano 30",
     brand: "Asics",
-    category: "women",
+    gender: "women",
+    category: "Running",
     description:
       "Premium stability running shoe with FF BLAST PLUS ECO foam and PureGEL technology for a soft, supported run.",
     price: 165,
     images: ["image-1.jpg"],
-    tags: ["Running", "Sport", "Women"],
+    tags: ["Running", "Sport"],
     variants: [
       v("Pink", 38, 3),
       v("Pink", 39, 4),
@@ -96,12 +101,13 @@ export const sample_products = [
   {
     name: "Dr. Martens 1460",
     brand: "Dr. Martens",
-    category: "men",
+    gender: "men",
+    category: "Boots",
     description:
       "The original 8-eye boot. Smooth leather, yellow welt stitch, and a Goodyear-welted air-cushioned sole.",
     price: 180,
     images: ["image-1.jpg"],
-    tags: ["Boots", "Casual", "Men", "Women"],
+    tags: ["Boots", "Casual"],
     variants: [
       v("Black", 40, 4),
       v("Black", 41, 5),
@@ -114,21 +120,23 @@ export const sample_products = [
   {
     name: "Timberland 6-Inch Premium",
     brand: "Timberland",
-    category: "men",
+    gender: "men",
+    category: "Boots",
     description: "The original yellow boot. Waterproof premium leather, padded collar, seam-sealed construction.",
     price: 210,
     images: ["image-1.jpg"],
-    tags: ["Boots", "Men"],
+    tags: ["Boots"],
     variants: [v("Wheat", 41, 3), v("Wheat", 42, 4), v("Wheat", 43, 2), v("Wheat", 44, 5)],
   },
   {
     name: "Clarks Tilden Cap Oxford",
     brand: "Clarks",
-    category: "men",
+    gender: "men",
+    category: "Formal",
     description: "A classic cap-toe oxford in polished leather. Cushioned footbed and rubber sole for all-day comfort.",
     price: 120,
     images: ["image-1.jpg"],
-    tags: ["Formal", "Men"],
+    tags: ["Formal"],
     variants: [
       v("Black", 41, 4),
       v("Black", 42, 5),
@@ -141,12 +149,13 @@ export const sample_products = [
   {
     name: "Birkenstock Arizona",
     brand: "Birkenstock",
-    category: "women",
+    gender: "women",
+    category: "Sandals",
     description:
       "Two-strap classic with the famous contoured cork-latex footbed. Adjustable buckles for a perfect fit.",
     price: 110,
     images: ["image-1.jpg"],
-    tags: ["Sandals", "Casual", "Women"],
+    tags: ["Sandals", "Casual"],
     variants: [
       v("Brown", 37, 3),
       v("Brown", 38, 4),
@@ -159,12 +168,13 @@ export const sample_products = [
   {
     name: "Vans Old Skool Kids",
     brand: "Vans",
-    category: "kids",
+    gender: "kids",
+    category: "Sneakers",
     description:
       "The classic side-stripe sneaker, sized for kids. Sturdy canvas and suede uppers, padded collar, signature waffle outsole.",
     price: 60,
     images: ["image-1.jpg"],
-    tags: ["Sneakers", "Kids"],
+    tags: ["Sneakers"],
     variants: [
       v("Black", 30, 3),
       v("Black", 31, 4),
@@ -176,6 +186,32 @@ export const sample_products = [
   },
 ];
 
+export const sample_brands = [
+  { name: "Nike", logoUrl: "" },
+  { name: "Adidas", logoUrl: "" },
+  { name: "Converse", logoUrl: "" },
+  { name: "Asics", logoUrl: "" },
+  { name: "Dr. Martens", logoUrl: "" },
+  { name: "Timberland", logoUrl: "" },
+  { name: "Clarks", logoUrl: "" },
+  { name: "Birkenstock", logoUrl: "" },
+  { name: "Vans", logoUrl: "" },
+];
+
+export const sample_colors = [
+  { name: "Black", hex: "#000000" },
+  { name: "White", hex: "#FFFFFF" },
+  { name: "Green", hex: "#2E7D32" },
+  { name: "Blue", hex: "#1976D2" },
+  { name: "Pink", hex: "#EC407A" },
+  { name: "Grey", hex: "#9E9E9E" },
+  { name: "Cream", hex: "#F5E6CA" },
+  { name: "Cherry", hex: "#8B0000" },
+  { name: "Wheat", hex: "#D2B48C" },
+  { name: "Brown", hex: "#5C3A21" },
+  { name: "Red", hex: "#D32F2F" },
+];
+
 export const sample_tags = [
   { name: "All", count: 10 },
   { name: "Sneakers", count: 4 },
@@ -185,9 +221,6 @@ export const sample_tags = [
   { name: "Formal", count: 1 },
   { name: "Sandals", count: 1 },
   { name: "Casual", count: 5 },
-  { name: "Men", count: 6 },
-  { name: "Women", count: 5 },
-  { name: "Kids", count: 1 },
 ];
 
 export const sample_users = [

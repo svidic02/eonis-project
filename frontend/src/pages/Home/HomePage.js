@@ -1,8 +1,9 @@
 import React, { useEffect, useReducer } from "react";
-import { getAll, getAllTags, search, getAllByTag } from "../../services/productService";
-import { useParams } from "react-router-dom";
+import { getAll, getAllTags, search } from "../../services/productService";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import Search from "../../components/Search/Search";
 import Tags from "../../components/Tags/Tags";
+import FilterBar from "../../components/FilterBar/FilterBar";
 import Thumbnails from "../../components/Thumbnails/Thumbnails";
 import NotFound from "../../components/NotFound/NotFound";
 import classes from "./homePage.module.css";
@@ -23,21 +24,57 @@ const reducer = (state, action) => {
 export default function HomePage() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { products, tags } = state;
-  const { searchTerm, tag } = useParams();
+  const { searchTerm, tag: legacyTag } = useParams();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const gender = searchParams.get("gender");
+  const category = searchParams.get("category");
+  const tag = searchParams.get("tag");
+
+  // Redirect legacy /tag/:tag → /?tag=...
+  useEffect(() => {
+    if (legacyTag) {
+      navigate(`/?tag=${encodeURIComponent(legacyTag)}`, { replace: true });
+    }
+  }, [legacyTag, navigate]);
+
+  const updateParam = (key, value) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    setSearchParams(next, { replace: true });
+  };
 
   useEffect(() => {
     getAllTags().then((tags) => dispatch({ type: "TAGS_LOADED", payload: tags }));
+  }, []);
 
-    const loadProducts = tag ? getAllByTag(tag) : searchTerm ? search(searchTerm) : getAll();
+  useEffect(() => {
+    if (legacyTag) return; // wait for redirect to settle
+    const loadProducts = searchTerm
+      ? search(searchTerm)
+      : getAll({ gender, category, tag });
 
-    loadProducts.then((products) => dispatch({ type: "PRODUCTS_LOADED", payload: products }));
-  }, [searchTerm, tag]);
+    loadProducts.then((products) =>
+      dispatch({ type: "PRODUCTS_LOADED", payload: products })
+    );
+  }, [searchTerm, gender, category, tag, legacyTag]);
 
   return (
     <div className={classes.layout}>
       <aside className={classes.sidebar}>
         <Search />
-        <Tags tags={tags} />
+        <FilterBar
+          gender={gender}
+          category={category}
+          onGenderChange={(v) => updateParam("gender", v)}
+          onCategoryChange={(v) => updateParam("category", v)}
+        />
+        <Tags
+          tags={tags}
+          selected={tag}
+          onSelect={(name) => updateParam("tag", name)}
+        />
       </aside>
       <main className={classes.content}>
         {products.length === 0 ? (

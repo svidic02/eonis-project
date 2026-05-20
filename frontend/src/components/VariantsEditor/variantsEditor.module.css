@@ -43,7 +43,8 @@
   background: var(--surface-alt);
 }
 
-.table input {
+.table input,
+.table select {
   width: 100%;
   padding: 0.35rem 0.5rem;
   background: var(--surface);
@@ -53,7 +54,8 @@
   font-family: inherit;
 }
 
-.table input:focus {
+.table input:focus,
+.table select:focus {
   outline: none;
   border-color: var(--accent);
 }

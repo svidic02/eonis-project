@@ -12,11 +12,16 @@ const VariantSchema = new Schema(
 
 export const ProductSchema = new Schema(
   {
-    name: { type: String, required: true },
-    brand: { type: String },
-    category: { type: String, enum: ["men", "women", "kids"] },
-    description: { type: String },
-    price: { type: Number, required: true },
+    name: { type: String, required: true, trim: true, maxlength: 150 },
+    brand: { type: String, required: true, trim: true, maxlength: 80 },
+    gender: { type: String, enum: ["men", "women", "kids"], required: true },
+    category: {
+      type: String,
+      enum: ["Sneakers", "Boots", "Running", "Formal", "Sandals"],
+      required: true,
+    },
+    description: { type: String, trim: true, maxlength: 2000 },
+    price: { type: Number, required: true, min: 0 },
     tags: { type: [String] },
     images: { type: [String], default: [] },
     variants: { type: [VariantSchema], default: [] },

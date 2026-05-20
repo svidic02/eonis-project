@@ -4,6 +4,7 @@ import Price from "../../components/Price/Price";
 import Tags from "../../components/Tags/Tags";
 import VariantSelector from "../../components/VariantSelector/VariantSelector";
 import { getById } from "../../services/productService";
+import { getAllColorsAdmin } from "../../services/colorService";
 import classes from "./productPage.module.css";
 import { useCart } from "../../hooks/useCart";
 import NotFound from "../../components/NotFound/NotFound";
@@ -11,12 +12,16 @@ import NotFound from "../../components/NotFound/NotFound";
 export default function ProductPage() {
   const [product, setProduct] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [colorMap, setColorMap] = useState({});
   const { id } = useParams();
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
     getById(id).then(setProduct);
+    getAllColorsAdmin()
+      .then((cs) => setColorMap(Object.fromEntries(cs.map((c) => [c.name, c.hex]))))
+      .catch(() => {});
   }, [id]);
 
   const handleAddToCart = () => {
@@ -65,6 +70,7 @@ export default function ProductPage() {
 
         <VariantSelector
           variants={product.variants ?? []}
+          colorMap={colorMap}
           onChange={setSelectedVariant}
         />
 

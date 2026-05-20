@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import classes from "./productsList.module.css";
 import { useNavigate } from "react-router-dom";
 import { deleteProduct } from "../../services/productService";
+import { genderLabel } from "../../constants/productEnums";
 import ConfirmationDialog from "../ConfirmationDialog/ConfirmationDialog";
 import { toast } from "react-toastify";
 
@@ -91,6 +92,12 @@ export default function ProductsList({ products }) {
               <th onClick={() => toggleSort("brand")} className={classes.sortable}>
                 Brand {arrow("brand")}
               </th>
+              <th onClick={() => toggleSort("gender")} className={classes.sortable}>
+                Gender {arrow("gender")}
+              </th>
+              <th onClick={() => toggleSort("category")} className={classes.sortable}>
+                Category {arrow("category")}
+              </th>
               <th onClick={() => toggleSort("price")} className={classes.sortable}>
                 Price {arrow("price")}
               </th>
@@ -104,7 +111,7 @@ export default function ProductsList({ products }) {
           <tbody>
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={7} className={classes.empty}>
+                <td colSpan={9} className={classes.empty}>
                   No products yet.
                 </td>
               </tr>
@@ -125,6 +132,8 @@ export default function ProductsList({ products }) {
                   </td>
                   <td className={classes.nameCell}>{product.name}</td>
                   <td className={classes.muted}>{product.brand || "—"}</td>
+                  <td className={classes.muted}>{genderLabel(product.gender)}</td>
+                  <td className={classes.muted}>{product.category || "—"}</td>
                   <td className={classes.price}>${product.price}</td>
                   <td className={classes.muted}>
                     {(product.tags ?? []).join(", ")}

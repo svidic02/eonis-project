@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { edit, getById, getAllTags } from "../../services/productService";
+import { getAllColorsAdmin } from "../../services/colorService";
+import { getAllBrandsAdmin } from "../../services/brandService";
+import { GENDERS, CATEGORIES } from "../../constants/productEnums";
 import Input from "../Input/Input";
 import { toast } from "react-toastify";
 import VariantsEditor from "../VariantsEditor/VariantsEditor";
@@ -11,6 +14,8 @@ export default function ProductInput() {
   const { id } = useParams();
   const [product, setProduct] = useState();
   const [tagOptions, setTagOptions] = useState([]);
+  const [colorOptions, setColorOptions] = useState([]);
+  const [brandOptions, setBrandOptions] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [variants, setVariants] = useState([]);
   const navigate = useNavigate();
@@ -31,6 +36,8 @@ export default function ProductInput() {
     getAllTags().then((tags) =>
       setTagOptions(tags.filter((t) => t.name !== "All"))
     );
+    getAllColorsAdmin().then(setColorOptions);
+    getAllBrandsAdmin().then(setBrandOptions);
   }, [id]);
 
   const toggleTag = (name) => {
@@ -67,25 +74,58 @@ export default function ProductInput() {
             {...register("name", { required: true })}
             error={errors.name}
           />
-          <Input
-            type="text"
-            defaultValue={product.brand}
-            label="Brand"
-            {...register("brand")}
-          />
-
           <div>
-            <label className={classes.fieldLabel}>Category</label>
+            <label className={classes.fieldLabel}>Brand</label>
             <select
-              defaultValue={product.category ?? ""}
+              key={brandOptions.length}
+              defaultValue={product.brand ?? ""}
               className={classes.select}
-              {...register("category")}
+              {...register("brand", { required: true })}
             >
               <option value="">—</option>
-              <option value="men">Men</option>
-              <option value="women">Women</option>
-              <option value="kids">Kids</option>
+              {brandOptions.map((b) => (
+                <option key={b.name} value={b.name}>
+                  {b.name}
+                </option>
+              ))}
+              {product.brand && !brandOptions.some((b) => b.name === product.brand) && (
+                <option value={product.brand} disabled>
+                  {product.brand} (not in catalog)
+                </option>
+              )}
             </select>
+            {errors.brand && <div style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "0.25rem" }}>Required</div>}
+          </div>
+
+          <div style={{ display: "flex", gap: "1rem" }}>
+            <div style={{ flex: 1 }}>
+              <label className={classes.fieldLabel}>Gender</label>
+              <select
+                defaultValue={product.gender ?? ""}
+                className={classes.select}
+                {...register("gender", { required: true })}
+              >
+                <option value="">—</option>
+                {GENDERS.map((g) => (
+                  <option key={g.value} value={g.value}>{g.label}</option>
+                ))}
+              </select>
+              {errors.gender && <div style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "0.25rem" }}>Required</div>}
+            </div>
+            <div style={{ flex: 1 }}>
+              <label className={classes.fieldLabel}>Category</label>
+              <select
+                defaultValue={product.category ?? ""}
+                className={classes.select}
+                {...register("category", { required: true })}
+              >
+                <option value="">—</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </select>
+              {errors.category && <div style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "0.25rem" }}>Required</div>}
+            </div>
           </div>
 
           <Input
@@ -126,7 +166,7 @@ export default function ProductInput() {
 
           <div>
             <label className={classes.fieldLabel}>Variants</label>
-            <VariantsEditor variants={variants} onChange={setVariants} hideLabel />
+            <VariantsEditor variants={variants} onChange={setVariants} colors={colorOptions} hideLabel />
           </div>
 
           <div className={classes.actions}>

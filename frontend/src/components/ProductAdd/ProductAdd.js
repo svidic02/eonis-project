@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { addProduct, getAllTags } from "../../services/productService";
+import { getAllColorsAdmin } from "../../services/colorService";
+import { getAllBrandsAdmin } from "../../services/brandService";
+import { GENDERS, CATEGORIES } from "../../constants/productEnums";
 import Input from "../Input/Input";
 import { toast } from "react-toastify";
 import VariantsEditor from "../VariantsEditor/VariantsEditor";
@@ -10,6 +13,8 @@ import classes from "../ProductInput/productForm.module.css";
 export default function ProductAdd() {
   const navigate = useNavigate();
   const [tagOptions, setTagOptions] = useState([]);
+  const [colorOptions, setColorOptions] = useState([]);
+  const [brandOptions, setBrandOptions] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [variants, setVariants] = useState([]);
 
@@ -23,6 +28,12 @@ export default function ProductAdd() {
     getAllTags()
       .then((tags) => setTagOptions(tags.filter((t) => t.name !== "All")))
       .catch(() => toast.error("Failed to load tags"));
+    getAllColorsAdmin()
+      .then(setColorOptions)
+      .catch(() => toast.error("Failed to load colors"));
+    getAllBrandsAdmin()
+      .then(setBrandOptions)
+      .catch(() => toast.error("Failed to load brands"));
   }, []);
 
   const toggleTag = (name) => {
@@ -56,16 +67,40 @@ export default function ProductAdd() {
             {...register("name", { required: true })}
             error={errors.name}
           />
-          <Input type="text" label="Brand" {...register("brand")} />
-
           <div>
-            <label className={classes.fieldLabel}>Category</label>
-            <select defaultValue="" className={classes.select} {...register("category")}>
+            <label className={classes.fieldLabel}>Brand</label>
+            <select defaultValue="" className={classes.select} {...register("brand", { required: true })}>
               <option value="">—</option>
-              <option value="men">Men</option>
-              <option value="women">Women</option>
-              <option value="kids">Kids</option>
+              {brandOptions.map((b) => (
+                <option key={b.name} value={b.name}>
+                  {b.name}
+                </option>
+              ))}
             </select>
+            {errors.brand && <div style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "0.25rem" }}>Required</div>}
+          </div>
+
+          <div style={{ display: "flex", gap: "1rem" }}>
+            <div style={{ flex: 1 }}>
+              <label className={classes.fieldLabel}>Gender</label>
+              <select defaultValue="" className={classes.select} {...register("gender", { required: true })}>
+                <option value="">—</option>
+                {GENDERS.map((g) => (
+                  <option key={g.value} value={g.value}>{g.label}</option>
+                ))}
+              </select>
+              {errors.gender && <div style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "0.25rem" }}>Required</div>}
+            </div>
+            <div style={{ flex: 1 }}>
+              <label className={classes.fieldLabel}>Category</label>
+              <select defaultValue="" className={classes.select} {...register("category", { required: true })}>
+                <option value="">—</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </select>
+              {errors.category && <div style={{ color: "var(--danger)", fontSize: "0.8rem", marginTop: "0.25rem" }}>Required</div>}
+            </div>
           </div>
 
           <Input type="text" label="Description" {...register("description")} />
@@ -100,7 +135,7 @@ export default function ProductAdd() {
 
           <div>
             <label className={classes.fieldLabel}>Variants</label>
-            <VariantsEditor variants={variants} onChange={setVariants} hideLabel />
+            <VariantsEditor variants={variants} onChange={setVariants} colors={colorOptions} hideLabel />
           </div>
 
           <div className={classes.actions}>

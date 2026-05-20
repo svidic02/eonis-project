@@ -66,6 +66,29 @@ router.post(
   })
 ); //register
 
+router.put(
+  "/me",
+  authMid,
+  handler(async (req, res) => {
+    const { name, email, address, password } = req.body;
+    const update = {};
+    if (name !== undefined) update.name = name;
+    if (email !== undefined) {
+      const lower = email.toLowerCase();
+      const collision = await UserModel.findOne({ email: lower, _id: { $ne: req.user.id } });
+      if (collision) return res.status(409).send("Email already in use");
+      update.email = lower;
+    }
+    if (address !== undefined) update.address = address;
+    if (password) {
+      update.password = await bcrypt.hash(password, PASSWORD_HASH_SALT_ROUNDS);
+    }
+    const user = await UserModel.findByIdAndUpdate(req.user.id, update, { new: true, runValidators: true });
+    if (!user) return res.status(404).send("User not found");
+    res.send(generateTokenResponse(user));
+  })
+);
+
 // router.get(
 //   "/user/:id",
 //   authMid,

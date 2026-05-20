@@ -44,9 +44,16 @@
 }
 
 .option.selected {
-  background: var(--accent);
-  color: white;
+  background: var(--surface);
+  color: var(--accent-hover);
   border-color: var(--accent);
+  font-weight: 700;
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.option.selected:hover {
+  background: var(--surface);
+  color: var(--accent-hover);
 }
 
 .disabled {
@@ -54,4 +61,14 @@
   text-decoration: line-through;
   cursor: not-allowed;
   background: var(--surface-alt);
+}
+
+.swatch {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  margin-right: 0.45rem;
+  vertical-align: middle;
 }

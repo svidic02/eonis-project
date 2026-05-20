@@ -3,6 +3,7 @@ import { useAuth } from "../../hooks/useAuth";
 import classes from "./profilePage.module.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { getMyOrders } from "../../services/orderService";
 
 const FIELDS = [
   { key: "name", label: "Name", type: "text" },
@@ -18,10 +19,14 @@ export default function ProfilePage() {
   const [editingField, setEditingField] = useState(null);
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
+  const [orders, setOrders] = useState([]);
 
   useEffect(() => {
     if (!user) navigate("/");
-    else setProfile(user);
+    else {
+      setProfile(user);
+      getMyOrders().then(setOrders).catch(() => {});
+    }
   }, [user, navigate]);
 
   if (!profile) return null;
@@ -154,6 +159,42 @@ export default function ProfilePage() {
           </div>
         </section>
       </div>
+
+      <section className={classes.ordersSection}>
+        <h2 className={classes.detailsTitle}>Your orders</h2>
+        {orders.length === 0 ? (
+          <div className={classes.placeholder}>You haven't placed any orders yet.</div>
+        ) : (
+          <ul className={classes.orderList}>
+            {orders.map((o) => (
+              <li
+                key={o._id}
+                className={classes.orderRow}
+                onClick={() => navigate(`/orders/${o._id}`)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className={classes.orderMeta}>
+                  <span className={classes.orderDate}>
+                    {new Date(o.createdAt).toLocaleDateString()}
+                  </span>
+                  <span className={`${classes.orderStatus} ${classes["status_" + o.status]}`}>
+                    {o.status}
+                  </span>
+                </div>
+                <div className={classes.orderItems}>
+                  {o.items.map((it, i) => (
+                    <span key={i}>
+                      {it.product?.name} ({it.selectedColor} · {it.selectedSize}) × {it.quantity}
+                      {i < o.items.length - 1 ? ", " : ""}
+                    </span>
+                  ))}
+                </div>
+                <div className={classes.orderTotal}>${o.totalPrice}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

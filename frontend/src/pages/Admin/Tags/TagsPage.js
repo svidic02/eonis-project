@@ -23,5 +23,10 @@ export default function TagsPage() {
     }
   }, [user, navigate]);
 
-  return <TagsList tags={tags} />;
+  return (
+    <TagsList
+      tags={tags}
+      onDeleted={(id) => setTags((prev) => prev.filter((t) => t._id !== id))}
+    />
+  );
 }

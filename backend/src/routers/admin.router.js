@@ -6,6 +6,8 @@ import { UserModel } from "../models/user.model.js";
 import { ProductModel } from "../models/product.model.js";
 import { OrderModel } from "../models/order.model.js";
 import { TagModel } from "../models/tag.model.js";
+import { ColorModel } from "../models/color.model.js";
+import { BrandModel } from "../models/brand.model.js";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import JWT from "jsonwebtoken";
@@ -116,6 +118,7 @@ router.put(
     const updatedProduct = {
       name: data.name,
       brand: data.brand,
+      gender: data.gender,
       category: data.category,
       description: data.description,
       price: data.price,
@@ -134,8 +137,17 @@ router.put(
       updatedProduct,
       {
         new: true,
+        runValidators: true,
       }
-    );
+    ).catch((err) => {
+      if (err.name === "ValidationError") {
+        const msg = Object.values(err.errors).map((e) => e.message).join("; ");
+        res.status(400).send(msg);
+        return null;
+      }
+      throw err;
+    });
+    if (res.headersSent) return;
 
     if (!product) {
       return res.status(404).send("Product not found");
@@ -188,12 +200,13 @@ router.delete(
 router.post(
   "/products",
   handler(async (req, res) => {
-    const { name, brand, category, description, price, tags, images, variants } =
+    const { name, brand, gender, category, description, price, tags, images, variants } =
       req.body;
 
     const newProduct = {
       name,
       brand,
+      gender,
       category,
       description,
       price,
@@ -202,9 +215,16 @@ router.post(
       variants,
     };
 
-    const result = await ProductModel.create(newProduct);
-
-    res.send(result);
+    try {
+      const result = await ProductModel.create(newProduct);
+      res.send(result);
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const msg = Object.values(err.errors).map((e) => e.message).join("; ");
+        return res.status(400).send(msg);
+      }
+      throw err;
+    }
   })
 );
 
@@ -279,6 +299,153 @@ router.delete(
     if (!tag) return res.status(404).send("Tag not found");
     await ProductModel.updateMany({ tags: tag.name }, { $pull: { tags: tag.name } });
     res.send(tag);
+  })
+);
+
+// ==================== COLOR MANAGEMENT ====================
+
+const HEX_RE = /^#[0-9A-Fa-f]{6}$/;
+
+router.post(
+  "/colors",
+  handler(async (req, res) => {
+    const { name, hex } = req.body;
+    if (!name || !name.trim()) return res.status(400).send("Name is required");
+    if (!hex || !HEX_RE.test(hex))
+      return res.status(400).send("Hex must be in #RRGGBB format");
+    const trimmed = name.trim();
+    const existing = await ColorModel.findOne({ name: trimmed });
+    if (existing) return res.status(409).send("Color already exists");
+    const color = await ColorModel.create({ name: trimmed, hex });
+    res.send(color);
+  })
+);
+
+router.put(
+  "/colors/:id",
+  handler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid color ID");
+    }
+    const { name, hex } = req.body;
+    const trimmed = name?.trim();
+    if (!trimmed) return res.status(400).send("Name is required");
+    if (!hex || !HEX_RE.test(hex))
+      return res.status(400).send("Hex must be in #RRGGBB format");
+
+    const existing = await ColorModel.findById(id);
+    if (!existing) return res.status(404).send("Color not found");
+
+    const collision = await ColorModel.findOne({ name: trimmed, _id: { $ne: id } });
+    if (collision) return res.status(409).send("A color with that name already exists");
+
+    const oldName = existing.name;
+    existing.name = trimmed;
+    existing.hex = hex;
+    await existing.save();
+
+    if (oldName !== trimmed) {
+      await ProductModel.updateMany(
+        { "variants.color": oldName },
+        { $set: { "variants.$[v].color": trimmed } },
+        { arrayFilters: [{ "v.color": oldName }] }
+      );
+    }
+
+    res.send(existing);
+  })
+);
+
+router.delete(
+  "/colors/:id",
+  handler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid color ID");
+    }
+    const color = await ColorModel.findById(id);
+    if (!color) return res.status(404).send("Color not found");
+
+    const inUse = await ProductModel.exists({ "variants.color": color.name });
+    if (inUse) {
+      return res
+        .status(409)
+        .send("Color is in use by one or more product variants. Remove or rename those variants first.");
+    }
+
+    await color.deleteOne();
+    res.send(color);
+  })
+);
+
+// ==================== BRAND MANAGEMENT ====================
+
+router.post(
+  "/brands",
+  handler(async (req, res) => {
+    const { name, logoUrl } = req.body;
+    if (!name || !name.trim()) return res.status(400).send("Name is required");
+    const trimmed = name.trim();
+    const existing = await BrandModel.findOne({ name: trimmed });
+    if (existing) return res.status(409).send("Brand already exists");
+    const brand = await BrandModel.create({ name: trimmed, logoUrl: logoUrl ?? "" });
+    res.send(brand);
+  })
+);
+
+router.put(
+  "/brands/:id",
+  handler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid brand ID");
+    }
+    const { name, logoUrl } = req.body;
+    const trimmed = name?.trim();
+    if (!trimmed) return res.status(400).send("Name is required");
+
+    const existing = await BrandModel.findById(id);
+    if (!existing) return res.status(404).send("Brand not found");
+
+    const collision = await BrandModel.findOne({ name: trimmed, _id: { $ne: id } });
+    if (collision) return res.status(409).send("A brand with that name already exists");
+
+    const oldName = existing.name;
+    existing.name = trimmed;
+    if (logoUrl !== undefined) existing.logoUrl = logoUrl;
+    await existing.save();
+
+    if (oldName !== trimmed) {
+      await ProductModel.updateMany(
+        { brand: oldName },
+        { $set: { brand: trimmed } }
+      );
+    }
+
+    res.send(existing);
+  })
+);
+
+router.delete(
+  "/brands/:id",
+  handler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid brand ID");
+    }
+    const brand = await BrandModel.findById(id);
+    if (!brand) return res.status(404).send("Brand not found");
+
+    const inUse = await ProductModel.exists({ brand: brand.name });
+    if (inUse) {
+      return res
+        .status(409)
+        .send("Brand is in use by one or more products. Reassign those products first.");
+    }
+
+    await brand.deleteOne();
+    res.send(brand);
   })
 );
 

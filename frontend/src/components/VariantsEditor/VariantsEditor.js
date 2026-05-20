@@ -2,7 +2,7 @@ import React from "react";
 import classes from "./variantsEditor.module.css";
 import Button from "../Button/Button";
 
-export default function VariantsEditor({ variants, onChange, hideLabel }) {
+export default function VariantsEditor({ variants, onChange, hideLabel, colors = [] }) {
   const update = (idx, field, value) => {
     const next = variants.map((v, i) =>
       i === idx ? { ...v, [field]: value } : v
@@ -15,6 +15,8 @@ export default function VariantsEditor({ variants, onChange, hideLabel }) {
   const removeRow = (idx) => {
     onChange(variants.filter((_, i) => i !== idx));
   };
+
+  const colorNames = new Set(colors.map((c) => c.name));
 
   return (
     <div className={classes.wrapper}>
@@ -33,11 +35,22 @@ export default function VariantsEditor({ variants, onChange, hideLabel }) {
           {variants.map((v, idx) => (
             <tr key={idx}>
               <td>
-                <input
-                  type="text"
+                <select
                   value={v.color ?? ""}
                   onChange={(e) => update(idx, "color", e.target.value)}
-                />
+                >
+                  <option value="">Select color</option>
+                  {colors.map((c) => (
+                    <option key={c.name} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                  {v.color && !colorNames.has(v.color) && (
+                    <option value={v.color} disabled>
+                      {v.color} (not in catalog)
+                    </option>
+                  )}
+                </select>
               </td>
               <td>
                 <input

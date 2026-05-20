@@ -32,6 +32,16 @@ export const pay = async (paymentId) => {
 };
 
 export const getAllOrders = async () => {
-  const { data } = await axios.get("/api/orders");
+  const { data } = await axios.get("/api/admin/orders");
+  return data;
+};
+
+export const getMyOrders = async () => {
+  const { data } = await axios.get("/api/orders/mine");
+  return data;
+};
+
+export const getOrderById = async (id) => {
+  const { data } = await axios.get(`/api/orders/${id}`);
   return data;
 };

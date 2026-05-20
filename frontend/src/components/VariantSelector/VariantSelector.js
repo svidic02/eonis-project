@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import classes from "./variantSelector.module.css";
 
-export default function VariantSelector({ variants = [], onChange }) {
+export default function VariantSelector({ variants = [], onChange, colorMap = {} }) {
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
@@ -72,6 +72,11 @@ export default function VariantSelector({ variants = [], onChange }) {
                 onClick={() => pickColor(color)}
                 disabled={disabled}
               >
+                <span
+                  className={classes.swatch}
+                  style={{ backgroundColor: colorMap[color] ?? "transparent" }}
+                  aria-hidden="true"
+                />
                 {color}
               </button>
             );

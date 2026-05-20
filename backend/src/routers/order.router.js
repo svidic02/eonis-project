@@ -9,6 +9,28 @@ import { OrderStatus } from "../constants/orderStatus.js";
 const router = Router();
 
 router.get(
+  "/mine",
+  auth,
+  handler(async (req, res) => {
+    const orders = await OrderModel.find({ user: req.user.id }).sort({ createdAt: -1 });
+    res.send(orders);
+  })
+);
+
+router.get(
+  "/:id",
+  auth,
+  handler(async (req, res) => {
+    const order = await OrderModel.findById(req.params.id);
+    if (!order) return res.status(404).send("Order not found");
+    if (String(order.user) !== req.user.id && !req.user.isAdmin) {
+      return res.status(403).send("Forbidden");
+    }
+    res.send(order);
+  })
+);
+
+router.get(
   "/newOrderForCurrentUser",
   auth,
   handler(async (req, res) => {

@@ -31,6 +31,12 @@ export default function Header() {
                     <Link to={"/tags"}>Tags</Link>
                   </li>
                   <li>
+                    <Link to={"/colors"}>Colors</Link>
+                  </li>
+                  <li>
+                    <Link to={"/brands"}>Brands</Link>
+                  </li>
+                  <li>
                     <Link to={"/orders"}>Orders</Link>
                   </li>
                   <li className={classes.menu_container}>

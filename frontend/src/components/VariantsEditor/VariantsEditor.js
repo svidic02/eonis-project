@@ -22,6 +22,13 @@ export default function VariantsEditor({ variants, onChange, hideLabel, colors =
     <div className={classes.wrapper}>
       {!hideLabel && <div className={classes.label}>Variants</div>}
       <table className={classes.table}>
+        <colgroup>
+          <col className={classes.colColor} />
+          <col className={classes.colSize} />
+          <col className={classes.colStock} />
+          <col className={classes.colSku} />
+          <col className={classes.colActions} />
+        </colgroup>
         <thead>
           <tr>
             <th>Color</th>

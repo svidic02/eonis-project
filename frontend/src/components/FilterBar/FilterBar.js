@@ -1,10 +1,9 @@
 import React from "react";
 import classes from "./filterBar.module.css";
-import { GENDERS, CATEGORIES } from "../../constants/productEnums";
+import { GENDERS } from "../../constants/productEnums";
 
 const ALL = { value: null, label: "All" };
 const GENDER_OPTIONS = [ALL, ...GENDERS];
-const CATEGORY_OPTIONS = [ALL, ...CATEGORIES];
 
 function PillRow({ label, options, value, onChange }) {
   return (
@@ -26,12 +25,7 @@ function PillRow({ label, options, value, onChange }) {
   );
 }
 
-export default function FilterBar({
-  gender,
-  category,
-  onGenderChange,
-  onCategoryChange,
-}) {
+export default function FilterBar({ gender, onGenderChange }) {
   return (
     <div className={classes.container}>
       <PillRow
@@ -40,12 +34,7 @@ export default function FilterBar({
         value={gender}
         onChange={onGenderChange}
       />
-      <PillRow
-        label="Category"
-        options={CATEGORY_OPTIONS}
-        value={category}
-        onChange={onCategoryChange}
-      />
     </div>
   );
 }
+

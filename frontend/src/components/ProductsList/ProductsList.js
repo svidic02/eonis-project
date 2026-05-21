@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { deleteProduct } from "../../services/productService";
 import { genderLabel } from "../../constants/productEnums";
 import ConfirmationDialog from "../ConfirmationDialog/ConfirmationDialog";
+import Price from "../Price/Price";
+import SearchInput from "../SearchInput/SearchInput";
 import { toast } from "react-toastify";
 
 const LOW_STOCK = 5;
@@ -14,17 +16,30 @@ export default function ProductsList({ products }) {
   const [showDialog, setDialog] = useState(false);
   const [sortKey, setSortKey] = useState("name");
   const [sortDir, setSortDir] = useState("asc");
+  const [query, setQuery] = useState("");
 
   const rows = useMemo(() => {
     return products.map((p) => ({
       ...p,
       totalStock: (p.variants ?? []).reduce((s, v) => s + (v.stock ?? 0), 0),
       variantCount: p.variants?.length ?? 0,
+      lowVariantCount: (p.variants ?? []).filter(
+        (v) => (v.stock ?? 0) > 0 && (v.stock ?? 0) < LOW_STOCK
+      ).length,
     }));
   }, [products]);
 
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter((p) =>
+      [p.name, p.brand, p.category, p.gender, ...(p.tags ?? [])]
+        .some((v) => String(v ?? "").toLowerCase().includes(q))
+    );
+  }, [rows, query]);
+
   const sorted = useMemo(() => {
-    const arr = [...rows];
+    const arr = [...filtered];
     const dir = sortDir === "asc" ? 1 : -1;
     arr.sort((a, b) => {
       const av = sortKey === "stock" ? a.totalStock : a[sortKey];
@@ -35,7 +50,7 @@ export default function ProductsList({ products }) {
       return String(av).localeCompare(String(bv)) * dir;
     });
     return arr;
-  }, [rows, sortKey, sortDir]);
+  }, [filtered, sortKey, sortDir]);
 
   const toggleSort = (key) => {
     if (sortKey === key) {
@@ -74,7 +89,10 @@ export default function ProductsList({ products }) {
       <div className={classes.headerWrapper}>
         <h1 className={classes.title}>Products</h1>
         <div className={classes.headerRight}>
-          <span className={classes.numberOf}>{products.length} total</span>
+          <SearchInput value={query} onChange={setQuery} placeholder="Search products…" />
+          <span className={classes.numberOf}>
+            {query ? `${filtered.length} of ${products.length}` : `${products.length} total`}
+          </span>
           <button className={classes.addBtn} onClick={handleAdd}>
             + Add product
           </button>
@@ -134,13 +152,16 @@ export default function ProductsList({ products }) {
                   <td className={classes.muted}>{product.brand || "—"}</td>
                   <td className={classes.muted}>{genderLabel(product.gender)}</td>
                   <td className={classes.muted}>{product.category || "—"}</td>
-                  <td className={classes.price}>${product.price}</td>
+                  <td className={classes.price}><Price price={product.price} /></td>
                   <td className={classes.muted}>
                     {(product.tags ?? []).join(", ")}
                   </td>
                   <td>
                     <span className={classes.stockText}>
                       {product.variantCount} · {product.totalStock} in stock
+                      {product.lowVariantCount > 0 && (
+                        <span className={classes.lowVariantHint}> · {product.lowVariantCount} low</span>
+                      )}
                     </span>
                     {out && <span className={classes.badgeOut}>Out</span>}
                     {low && <span className={classes.badgeLow}>Low</span>}

@@ -1,5 +1,5 @@
 .page {
-  max-width: 720px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 1.5rem;
 }
@@ -51,10 +51,16 @@
 
 .select {
   width: 100%;
-  padding: 0.55rem 0.75rem;
+  padding: 0.55rem 2rem 0.55rem 0.75rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   color: var(--text);
   font-size: 0.95rem;
   font-family: inherit;

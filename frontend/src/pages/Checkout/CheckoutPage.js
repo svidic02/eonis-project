@@ -3,32 +3,48 @@ import { useCart } from "../../hooks/useCart";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { createOrder } from "../../services/orderService";
+import { FREE_SHIPPING_OVER } from "../../constants/shipping";
+import useDocumentTitle from "../../hooks/useDocumentTitle";
 import classes from "./checkoutPage.module.css";
 import Input from "../../components/Input/Input";
 import Price from "../../components/Price/Price";
 
 export default function CheckoutPage() {
-  const { cart } = useCart();
+  useDocumentTitle("Footprint · Checkout");
+  const { cart, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [order] = useState({ ...cart });
+  const [paymentMethod, setPaymentMethod] = useState("COD");
 
   const {
     register,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     handleSubmit,
   } = useForm();
 
   const submit = async (data) => {
-    await createOrder({
-      ...order,
-      name: data.name,
-      email: data.email,
-      address: data.address,
-    });
-    navigate("/payment");
+    try {
+      const created = await createOrder({
+        ...cart,
+        name: data.name,
+        email: data.email,
+        address: data.address,
+        phone: data.phone,
+        promoCode: cart.promo?.code ?? null,
+        paymentMethod,
+      });
+      clearCart();
+      toast.success("Order placed.");
+      navigate(`/orders/${created._id}`);
+    } catch (err) {
+      const msg = err?.response?.data;
+      toast.error(typeof msg === "string" && msg ? msg : "Could not place order");
+    }
   };
+
+  const freeShippingReached = cart.subtotal >= FREE_SHIPPING_OVER;
 
   return (
     <div className={classes.page}>
@@ -66,6 +82,40 @@ export default function CheckoutPage() {
               {...register("address", { required: true })}
               error={errors.address}
             />
+            <Input
+              label="Phone (for delivery)"
+              type="tel"
+              placeholder="+381 …"
+              {...register("phone", {
+                required: paymentMethod === "COD",
+                minLength: { value: 6, message: "Phone is too short" },
+              })}
+              error={errors.phone}
+            />
+          </div>
+
+          <h2 className={`${classes.cardTitle} ${classes.paymentTitle}`}>Payment method</h2>
+          <div className={classes.paymentOptions}>
+            <label className={`${classes.paymentOption} ${paymentMethod === "COD" ? classes.paymentSelected : ""}`}>
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="COD"
+                checked={paymentMethod === "COD"}
+                onChange={() => setPaymentMethod("COD")}
+              />
+              <span className={classes.paymentBody}>
+                <span className={classes.paymentLabel}>Cash on delivery</span>
+                <span className={classes.paymentHint}>Pay the courier when your order arrives.</span>
+              </span>
+            </label>
+            <label className={`${classes.paymentOption} ${classes.paymentDisabled}`}>
+              <input type="radio" name="paymentMethod" value="PAYPAL" disabled />
+              <span className={classes.paymentBody}>
+                <span className={classes.paymentLabel}>PayPal</span>
+                <span className={classes.paymentHint}>Coming soon — RSD not supported.</span>
+              </span>
+            </label>
           </div>
         </div>
 
@@ -90,27 +140,47 @@ export default function CheckoutPage() {
                     {item.selectedColor} · Size {item.selectedSize}
                   </div>
                   <div className={classes.lineMeta}>
-                    {item.quantity} × <Price price={item.price} />
+                    {item.quantity} × <Price price={item.product.price} />
                   </div>
                 </div>
                 <div className={classes.linePrice}>
-                  <Price price={item.price * item.quantity} />
+                  <Price price={item.price} />
                 </div>
               </li>
             ))}
           </ul>
 
-          <div className={classes.summaryRow}>
-            <span>Items</span>
-            <span>{cart.totalCount}</span>
-          </div>
-          <div className={`${classes.summaryRow} ${classes.totalRow}`}>
-            <span>Total</span>
-            <span><Price price={cart.totalPrice} /></span>
-          </div>
+          <dl className={classes.summary}>
+            <dt>Subtotal</dt>
+            <dd><Price price={cart.subtotal} /></dd>
 
-          <button type="submit" className={classes.submitBtn}>
-            Continue to payment
+            <dt>Shipping</dt>
+            <dd>
+              {cart.shipping === 0 ? (
+                <span className={classes.free}>Free</span>
+              ) : (
+                <Price price={cart.shipping} />
+              )}
+            </dd>
+            {!freeShippingReached && (
+              <dd className={classes.shippingHint}>
+                Free shipping over <Price price={FREE_SHIPPING_OVER} />
+              </dd>
+            )}
+
+            {cart.promo && (
+              <>
+                <dt className={classes.promoLabel}>Promo {cart.promo.code}</dt>
+                <dd className={classes.discount}>−<Price price={cart.discount} /></dd>
+              </>
+            )}
+
+            <dt className={classes.totalLabel}>Total</dt>
+            <dd className={classes.total}><Price price={cart.total} /></dd>
+          </dl>
+
+          <button type="submit" className={classes.submitBtn} disabled={isSubmitting || cart.items.length === 0}>
+            Place order
           </button>
         </aside>
       </form>

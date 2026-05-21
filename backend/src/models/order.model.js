@@ -25,10 +25,16 @@ const orderSchema = new Schema(
   {
     name: { type: String, required: true },
     address: { type: String, required: true },
+    phone: { type: String, default: "" },
     paymentId: { type: String },
+    subtotal: { type: Number, required: true },
+    shipping: { type: Number, required: true, default: 0 },
+    discount: { type: Number, required: true, default: 0 },
+    promoCode: { type: String, default: null },
     totalPrice: { type: Number, required: true },
     items: { type: [OrderItemSchema], required: true },
     status: { type: String, default: OrderStatus.NEW },
+    paymentMethod: { type: String, enum: ["COD", "PAYPAL"], default: "COD" },
     user: { type: Schema.Types.ObjectId, required: true },
   },
   {

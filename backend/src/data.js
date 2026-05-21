@@ -2,7 +2,7 @@ const v = (color, size, stock) => ({ color, size, stock });
 
 export const sample_products = [
   {
-    name: "Nike Air Max 90",
+    name: "Air Max 90",
     brand: "Nike",
     gender: "men",
     category: "Sneakers",
@@ -22,7 +22,7 @@ export const sample_products = [
     ],
   },
   {
-    name: "Adidas Stan Smith",
+    name: "Stan Smith",
     brand: "Adidas",
     gender: "men",
     category: "Sneakers",
@@ -42,7 +42,7 @@ export const sample_products = [
     ],
   },
   {
-    name: "Converse Chuck 70",
+    name: "Chuck 70",
     brand: "Converse",
     gender: "women",
     category: "Sneakers",
@@ -61,7 +61,7 @@ export const sample_products = [
     ],
   },
   {
-    name: "Nike Pegasus 40",
+    name: "Pegasus 40",
     brand: "Nike",
     gender: "men",
     category: "Running",
@@ -80,7 +80,7 @@ export const sample_products = [
     ],
   },
   {
-    name: "Asics Gel-Kayano 30",
+    name: "Gel-Kayano 30",
     brand: "Asics",
     gender: "women",
     category: "Running",
@@ -99,7 +99,7 @@ export const sample_products = [
     ],
   },
   {
-    name: "Dr. Martens 1460",
+    name: "1460",
     brand: "Dr. Martens",
     gender: "men",
     category: "Boots",
@@ -118,7 +118,7 @@ export const sample_products = [
     ],
   },
   {
-    name: "Timberland 6-Inch Premium",
+    name: "6-Inch Premium",
     brand: "Timberland",
     gender: "men",
     category: "Boots",
@@ -129,7 +129,7 @@ export const sample_products = [
     variants: [v("Wheat", 41, 3), v("Wheat", 42, 4), v("Wheat", 43, 2), v("Wheat", 44, 5)],
   },
   {
-    name: "Clarks Tilden Cap Oxford",
+    name: "Tilden Cap Oxford",
     brand: "Clarks",
     gender: "men",
     category: "Formal",
@@ -147,7 +147,7 @@ export const sample_products = [
     ],
   },
   {
-    name: "Birkenstock Arizona",
+    name: "Arizona",
     brand: "Birkenstock",
     gender: "women",
     category: "Sandals",
@@ -166,7 +166,7 @@ export const sample_products = [
     ],
   },
   {
-    name: "Vans Old Skool Kids",
+    name: "Old Skool Kids",
     brand: "Vans",
     gender: "kids",
     category: "Sneakers",

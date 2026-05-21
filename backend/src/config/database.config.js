@@ -5,7 +5,9 @@ import { TagModel } from "../models/tag.model.js";
 import { ColorModel } from "../models/color.model.js";
 import { BrandModel } from "../models/brand.model.js";
 import { OrderModel } from "../models/order.model.js";
+import { PromoModel } from "../models/promo.model.js";
 import { OrderStatus } from "../constants/orderStatus.js";
+import { SHIPPING_FEE, FREE_SHIPPING_OVER } from "../constants/shipping.js";
 import { sample_users } from "../data.js";
 import { sample_products } from "../data.js";
 import { sample_tags } from "../data.js";
@@ -32,6 +34,7 @@ export const dbconnect = async () => {
     await seedTags();
     await seedColors();
     await seedBrands();
+    await seedPromos();
     await seedOrders();
     console.log("DB connected successfully!");
   } catch (error) {
@@ -131,44 +134,73 @@ async function seedOrders() {
     };
   };
 
+  const buildOrder = (overrides) => {
+    const items = overrides.items;
+    const subtotal = items.reduce((s, it) => s + it.price, 0);
+    const shipping = subtotal >= FREE_SHIPPING_OVER ? 0 : SHIPPING_FEE;
+    const paymentMethod =
+      overrides.paymentMethod ??
+      ([OrderStatus.PAYED, OrderStatus.SHIPPED].includes(overrides.status) ? "PAYPAL" : "COD");
+    return {
+      ...overrides,
+      items,
+      subtotal,
+      shipping,
+      discount: 0,
+      promoCode: null,
+      totalPrice: subtotal + shipping,
+      paymentMethod,
+    };
+  };
+
   const sample_orders = [
-    {
+    buildOrder({
       user: john._id,
       name: john.name,
       address: john.address,
       status: OrderStatus.PAYED,
       paymentId: "TEST-PAY-001",
       items: [buildItem(products[0], 1), buildItem(products[1], 2)],
-      totalPrice: products[0].price + products[1].price * 2,
-    },
-    {
+    }),
+    buildOrder({
       user: john._id,
       name: john.name,
       address: john.address,
       status: OrderStatus.SHIPPED,
       paymentId: "TEST-PAY-002",
       items: [buildItem(products[2], 1)],
-      totalPrice: products[2].price,
-    },
-    {
+    }),
+    buildOrder({
       user: emily._id,
       name: emily.name,
       address: emily.address,
       status: OrderStatus.PAYED,
       paymentId: "TEST-PAY-003",
       items: [buildItem(products[3], 1), buildItem(products[4], 1)],
-      totalPrice: products[3].price + products[4].price,
-    },
-    {
+    }),
+    buildOrder({
       user: emily._id,
       name: emily.name,
       address: emily.address,
       status: OrderStatus.NEW,
       items: [buildItem(products[0], 1)],
-      totalPrice: products[0].price,
-    },
+    }),
   ];
 
   for (const o of sample_orders) await OrderModel.create(o);
   console.log("Orders seed is done!");
+}
+
+async function seedPromos() {
+  const count = await PromoModel.countDocuments();
+  if (count > 0) {
+    console.log("Promos seed is already done!");
+    return;
+  }
+  const sample_promos = [
+    { code: "WELCOME10", type: "PERCENT", value: 10, minSubtotal: 0, active: true },
+    { code: "EONIS500", type: "FIXED", value: 500, minSubtotal: 5000, active: true },
+  ];
+  for (const p of sample_promos) await PromoModel.create(p);
+  console.log("Promos seed is done!");
 }

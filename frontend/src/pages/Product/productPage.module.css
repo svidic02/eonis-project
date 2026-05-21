@@ -61,6 +61,13 @@
   font-weight: 700;
 }
 
+.stockHint {
+  font-size: 0.85rem;
+  color: var(--danger);
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
 .container button {
   background: var(--accent);
   color: white;

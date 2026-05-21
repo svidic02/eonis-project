@@ -1,34 +1,70 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { getOrderById } from "../../../services/orderService";
+import { toast } from "react-toastify";
+import { getOrderById, updateOrderStatus } from "../../../services/orderService";
+import { useAuth } from "../../../hooks/useAuth";
 import OrderItemsList from "../../../components/OrderItemsList/OrderItemsList";
+import Price from "../../../components/Price/Price";
+import useDocumentTitle from "../../../hooks/useDocumentTitle";
 import classes from "./orderInfoPage.module.css";
+
+const STATUSES = ["NEW", "COD_PENDING", "PAYED", "SHIPPED", "CANCELED", "REFUNDED"];
 
 export default function OrderInfoPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [order, setOrder] = useState(null);
   const [error, setError] = useState(null);
+  const [errorStatus, setErrorStatus] = useState(null);
+  const [draftStatus, setDraftStatus] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const titlePrefix = user?.isAdmin ? "Footprint Admin" : "Footprint";
+  useDocumentTitle(order ? `${titlePrefix} · Order #${String(order._id).slice(-6)}` : `${titlePrefix} · Order`);
 
   useEffect(() => {
     getOrderById(id)
-      .then(setOrder)
-      .catch((err) => setError(err?.response?.data || "Could not load order"));
+      .then((o) => {
+        setOrder(o);
+        setDraftStatus(o.status);
+      })
+      .catch((err) => {
+        setErrorStatus(err?.response?.status);
+        setError(err?.response?.data || "Could not load order");
+      });
   }, [id]);
 
   if (error) {
+    const notFound = errorStatus === 404;
+    const backTo = user?.isAdmin ? { to: "/orders", label: "Back to orders" } : { to: "/profile", label: "Back to your account" };
     return (
       <div className={classes.page}>
         <div className={classes.heading}>
           <h1>Order</h1>
-          <Link to="/profile" className={classes.cancelLink}>← Back</Link>
+          <Link to={backTo.to} className={classes.cancelLink}>← {backTo.label}</Link>
         </div>
-        <div className={classes.card}>{error}</div>
+        <div className={classes.card}>{notFound ? "Order not found." : error}</div>
       </div>
     );
   }
 
   if (!order) return null;
+
+  const saveStatus = async () => {
+    if (draftStatus === order.status) return;
+    setSaving(true);
+    try {
+      const updated = await updateOrderStatus(order._id, draftStatus);
+      setOrder(updated);
+      toast.success(`Status updated to ${draftStatus}.`);
+    } catch (err) {
+      toast.error(err?.response?.data || "Could not update status");
+      setDraftStatus(order.status);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className={classes.page}>
@@ -56,9 +92,35 @@ export default function OrderInfoPage() {
           <div>
             <div className={classes.metaLabel}>Status</div>
             <div className={classes.metaValue}>
-              <span className={`${classes.badge} ${classes["status_" + order.status]}`}>
-                {order.status}
-              </span>
+              {user?.isAdmin ? (
+                <div className={classes.statusEdit}>
+                  <span className={`${classes.badge} ${classes["status_" + order.status]}`}>
+                    {order.status}
+                  </span>
+                  <select
+                    value={draftStatus}
+                    onChange={(e) => setDraftStatus(e.target.value)}
+                    disabled={saving}
+                    className={classes.statusSelect}
+                  >
+                    {STATUSES.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className={classes.saveStatusBtn}
+                    onClick={saveStatus}
+                    disabled={saving || draftStatus === order.status}
+                  >
+                    Save
+                  </button>
+                </div>
+              ) : (
+                <span className={`${classes.badge} ${classes["status_" + order.status]}`}>
+                  {order.status}
+                </span>
+              )}
             </div>
           </div>
           <div>
@@ -67,6 +129,18 @@ export default function OrderInfoPage() {
               {new Date(order.createdAt).toLocaleString()}
             </div>
           </div>
+          {order.paymentMethod && (
+            <div>
+              <div className={classes.metaLabel}>Payment method</div>
+              <div className={classes.metaValue}>{order.paymentMethod}</div>
+            </div>
+          )}
+          {order.phone && (
+            <div>
+              <div className={classes.metaLabel}>Phone</div>
+              <div className={classes.metaValue}>{order.phone}</div>
+            </div>
+          )}
           {order.paymentId && (
             <div>
               <div className={classes.metaLabel}>Payment ID</div>
@@ -76,6 +150,30 @@ export default function OrderInfoPage() {
         </div>
 
         <OrderItemsList order={order} />
+
+        <dl className={classes.summary}>
+          <dt>Subtotal</dt>
+          <dd><Price price={order.subtotal ?? order.totalPrice} /></dd>
+
+          <dt>Shipping</dt>
+          <dd>
+            {order.shipping > 0
+              ? <Price price={order.shipping} />
+              : <span className={classes.free}>Free</span>}
+          </dd>
+
+          {order.discount > 0 && (
+            <>
+              <dt className={classes.promoLabel}>
+                Promo {order.promoCode || ""}
+              </dt>
+              <dd className={classes.discount}>−<Price price={order.discount} /></dd>
+            </>
+          )}
+
+          <dt className={classes.totalLabel}>Total</dt>
+          <dd className={classes.total}><Price price={order.totalPrice} /></dd>
+        </dl>
       </div>
     </div>
   );

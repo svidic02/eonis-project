@@ -16,6 +16,47 @@
 .title { margin: 0; font-size: 1.5rem; font-weight: 700; }
 .numberOf { color: var(--text-muted); font-size: 0.9rem; }
 
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.filterRow {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.85rem;
+}
+
+.filterPill {
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.filterPill:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.filterPillActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.filterPillActive:hover {
+  color: #fff;
+}
+
 .tableWrapper {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -84,6 +125,7 @@
 }
 
 .statusNew { background: var(--accent-soft); color: var(--accent-hover); }
+.statusCodPending { background: #fff3e0; color: #c66a1a; }
 .statusPaid { background: var(--accent); color: white; }
 .statusShipped { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border-strong); }
 .statusCanceled { background: var(--danger-soft); color: var(--danger); }

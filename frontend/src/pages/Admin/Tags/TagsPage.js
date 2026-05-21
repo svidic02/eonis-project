@@ -3,8 +3,10 @@ import { useAuth } from "../../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { getAllTagsAdmin } from "../../../services/tagService";
 import TagsList from "../../../components/TagsList/TagsList";
+import useDocumentTitle from "../../../hooks/useDocumentTitle";
 
 export default function TagsPage() {
+  useDocumentTitle("Footprint Admin · Tags");
   const { user } = useAuth();
   const navigate = useNavigate();
   const [tags, setTags] = useState([]);

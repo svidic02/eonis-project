@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import classes from "./adminTaxonomy.module.css";
 import ConfirmationDialog from "../ConfirmationDialog/ConfirmationDialog";
+import SearchInput from "../SearchInput/SearchInput";
 
 export default function AdminTaxonomyList({
   items,
@@ -14,15 +15,27 @@ export default function AdminTaxonomyList({
   deleteFn,
   onDeleted,
   confirmMessage,
+  itemLabel = (item) => item?.name,
+  searchKeys = ["name"],
+  searchPlaceholder = "Search…",
 }) {
   const navigate = useNavigate();
   const [sortKey, setSortKey] = useState(columns[0]?.key);
   const [sortDir, setSortDir] = useState("asc");
   const [toDelete, setToDelete] = useState(null);
   const [showDialog, setDialog] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((item) =>
+      searchKeys.some((k) => String(item[k] ?? "").toLowerCase().includes(q))
+    );
+  }, [items, query, searchKeys]);
 
   const sorted = useMemo(() => {
-    const arr = [...items];
+    const arr = [...filtered];
     const dir = sortDir === "asc" ? 1 : -1;
     arr.sort((a, b) => {
       const av = a[sortKey];
@@ -33,7 +46,7 @@ export default function AdminTaxonomyList({
       return String(av).localeCompare(String(bv)) * dir;
     });
     return arr;
-  }, [items, sortKey, sortDir]);
+  }, [filtered, sortKey, sortDir]);
 
   const toggleSort = (key) => {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -47,7 +60,7 @@ export default function AdminTaxonomyList({
     try {
       await deleteFn(toDelete._id);
       setDialog(false);
-      toast.success(`"${toDelete.name}" deleted.`);
+      toast.success(`"${itemLabel(toDelete)}" deleted.`);
       onDeleted?.(toDelete._id);
     } catch (err) {
       const msg = err?.response?.data;
@@ -61,7 +74,10 @@ export default function AdminTaxonomyList({
       <div className={classes.headerWrapper}>
         <h1 className={classes.title}>{title}</h1>
         <div className={classes.headerRight}>
-          <span className={classes.numberOf}>{items.length} total</span>
+          <SearchInput value={query} onChange={setQuery} placeholder={searchPlaceholder} />
+          <span className={classes.numberOf}>
+            {query ? `${filtered.length} of ${items.length}` : `${items.length} total`}
+          </span>
           <button className={classes.addBtn} onClick={() => navigate(addPath)}>{addLabel}</button>
         </div>
       </div>

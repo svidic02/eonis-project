@@ -1,14 +1,37 @@
 import React, { useMemo, useState } from "react";
 import classes from "./ordersList.module.css";
 import { useNavigate } from "react-router-dom";
+import Price from "../Price/Price";
+import SearchInput from "../SearchInput/SearchInput";
+
+const STATUS_FILTERS = [
+  { key: "ALL", label: "All" },
+  { key: "NEW", label: "New" },
+  { key: "COD_PENDING", label: "COD pending" },
+  { key: "PAYED", label: "Paid" },
+  { key: "SHIPPED", label: "Shipped" },
+  { key: "CANCELED", label: "Canceled" },
+];
 
 export default function OrderList({ orders }) {
   const navigate = useNavigate();
   const [sortKey, setSortKey] = useState("name");
   const [sortDir, setSortDir] = useState("asc");
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return orders.filter((o) => {
+      if (statusFilter !== "ALL" && o.status !== statusFilter) return false;
+      if (!q) return true;
+      return [o.name, o.address, String(o._id), o.paymentMethod]
+        .some((v) => String(v ?? "").toLowerCase().includes(q));
+    });
+  }, [orders, query, statusFilter]);
 
   const sorted = useMemo(() => {
-    const arr = [...orders];
+    const arr = [...filtered];
     const dir = sortDir === "asc" ? 1 : -1;
     arr.sort((a, b) => {
       let av, bv;
@@ -27,7 +50,7 @@ export default function OrderList({ orders }) {
       return String(av).localeCompare(String(bv)) * dir;
     });
     return arr;
-  }, [orders, sortKey, sortDir]);
+  }, [filtered, sortKey, sortDir]);
 
   const toggleSort = (key) => {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -40,7 +63,27 @@ export default function OrderList({ orders }) {
     <div className={classes.wrapper}>
       <div className={classes.headerWrapper}>
         <h1 className={classes.title}>Orders</h1>
-        <span className={classes.numberOf}>{orders.length} total</span>
+        <div className={classes.headerRight}>
+          <SearchInput value={query} onChange={setQuery} placeholder="Search orders…" />
+          <span className={classes.numberOf}>
+            {query || statusFilter !== "ALL"
+              ? `${filtered.length} of ${orders.length}`
+              : `${orders.length} total`}
+          </span>
+        </div>
+      </div>
+
+      <div className={classes.filterRow}>
+        {STATUS_FILTERS.map((f) => (
+          <button
+            key={f.key}
+            type="button"
+            className={`${classes.filterPill} ${statusFilter === f.key ? classes.filterPillActive : ""}`}
+            onClick={() => setStatusFilter(f.key)}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       <div className={classes.tableWrapper}>
@@ -50,13 +93,14 @@ export default function OrderList({ orders }) {
               <th>Order</th>
               <th onClick={() => toggleSort("name")} className={classes.sortable}>Customer {arrow("name")}</th>
               <th>Address</th>
+              <th onClick={() => toggleSort("paymentMethod")} className={classes.sortable}>Payment {arrow("paymentMethod")}</th>
               <th onClick={() => toggleSort("total")} className={`${classes.sortable} ${classes.numCol}`}>Total {arrow("total")}</th>
               <th onClick={() => toggleSort("status")} className={classes.sortable}>Status {arrow("status")}</th>
             </tr>
           </thead>
           <tbody>
             {sorted.length === 0 && (
-              <tr><td colSpan={5} className={classes.empty}>No orders yet.</td></tr>
+              <tr><td colSpan={6} className={classes.empty}>No orders yet.</td></tr>
             )}
             {sorted.map((order) => (
               <tr
@@ -67,7 +111,8 @@ export default function OrderList({ orders }) {
                 <td className={classes.id}>#{String(order._id).slice(-6)}</td>
                 <td className={classes.nameCell}>{order.name}</td>
                 <td className={classes.muted}>{order.address || "—"}</td>
-                <td className={classes.numCol}>${order.totalPrice}</td>
+                <td className={classes.muted}>{order.paymentMethod || "—"}</td>
+                <td className={classes.numCol}><Price price={order.totalPrice} /></td>
                 <td>
                   <span className={`${classes.badge} ${statusClass(order.status, classes)}`}>
                     {statusToTxt(order.status)}
@@ -85,6 +130,7 @@ export default function OrderList({ orders }) {
 function statusToTxt(status) {
   switch (status) {
     case "NEW": return "New";
+    case "COD_PENDING": return "COD pending";
     case "PAYED": return "Paid";
     case "SHIPPED": return "Shipped";
     case "CANCELED": return "Canceled";
@@ -96,6 +142,7 @@ function statusToTxt(status) {
 function statusClass(status, classes) {
   switch (status) {
     case "NEW": return classes.statusNew;
+    case "COD_PENDING": return classes.statusCodPending;
     case "PAYED": return classes.statusPaid;
     case "SHIPPED": return classes.statusShipped;
     case "CANCELED":

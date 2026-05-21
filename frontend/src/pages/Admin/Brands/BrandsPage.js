@@ -3,8 +3,10 @@ import { useAuth } from "../../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { getAllBrandsAdmin } from "../../../services/brandService";
 import BrandsList from "../../../components/BrandsList/BrandsList";
+import useDocumentTitle from "../../../hooks/useDocumentTitle";
 
 export default function BrandsPage() {
+  useDocumentTitle("Footprint Admin · Brands");
   const { user } = useAuth();
   const navigate = useNavigate();
   const [brands, setBrands] = useState([]);

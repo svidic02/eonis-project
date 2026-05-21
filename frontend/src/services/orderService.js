@@ -1,34 +1,13 @@
 import axios from "axios";
 
 export const createOrder = async (order) => {
-  // if (!order) {
-  //   console.log("SERVICE : Order is invalid.Order:" + order);
-  // } else {
-  //   console.log("SERVICE : Order is valid before request is sent!Order is:" + order);
-  // }
-  try {
-    const { data } = axios.post("/api/orders/create", order);
-
-    // if (data.items != 0) {
-    //   console.log("SERVICE : Data is invalid.Order:\n" + data);
-    // } else {
-    //   console.log("SERVICE : Data recieved is valid!Data:" + data);
-    // }
-
-    return data;
-  } catch (error) {}
-};
-
-export const getNewOrderForCurrentUser = async () => {
-  const { data } = await axios.get("/api/orders/newOrderForCurrentUser");
+  const { data } = await axios.post("/api/orders/create", order);
   return data;
 };
 
 export const pay = async (paymentId) => {
-  try {
-    const { data } = await axios.put("/api/orders/pay", { paymentId });
-    return data;
-  } catch (error) {}
+  const { data } = await axios.put("/api/orders/pay", { paymentId });
+  return data;
 };
 
 export const getAllOrders = async () => {
@@ -43,5 +22,10 @@ export const getMyOrders = async () => {
 
 export const getOrderById = async (id) => {
   const { data } = await axios.get(`/api/orders/${id}`);
+  return data;
+};
+
+export const updateOrderStatus = async (id, status) => {
+  const { data } = await axios.put(`/api/admin/orders/${id}/status`, { status });
   return data;
 };

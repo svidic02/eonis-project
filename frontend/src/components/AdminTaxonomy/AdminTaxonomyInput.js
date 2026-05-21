@@ -42,12 +42,13 @@ export default function AdminTaxonomyInput({
   const submit = async (data) => {
     try {
       const payload = buildPayload ? buildPayload(data) : data;
+      const noun = capitalize(title.replace(/^Add |^Edit /, ""));
       if (add) {
         await addFn(payload);
-        toast.success(`${title.replace(/^Add /, "")} added.`);
+        toast.success(`${noun} added.`);
       } else {
         await editFn(id, payload);
-        toast.success(`${title.replace(/^Edit /, "")} updated.`);
+        toast.success(`${noun} updated.`);
       }
       navigate(listPath);
     } catch (err) {
@@ -55,6 +56,8 @@ export default function AdminTaxonomyInput({
       toast.error(typeof msg === "string" ? msg : "Something went wrong.");
     }
   };
+
+  const capitalize = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
   if (!add && !item) return null;
 

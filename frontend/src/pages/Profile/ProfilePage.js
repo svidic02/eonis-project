@@ -4,6 +4,8 @@ import classes from "./profilePage.module.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getMyOrders } from "../../services/orderService";
+import Price from "../../components/Price/Price";
+import useDocumentTitle from "../../hooks/useDocumentTitle";
 
 const FIELDS = [
   { key: "name", label: "Name", type: "text" },
@@ -12,6 +14,7 @@ const FIELDS = [
 ];
 
 export default function ProfilePage() {
+  useDocumentTitle("Footprint · Account");
   const { user, edit } = useAuth();
   const navigate = useNavigate();
 
@@ -25,7 +28,9 @@ export default function ProfilePage() {
     if (!user) navigate("/");
     else {
       setProfile(user);
-      getMyOrders().then(setOrders).catch(() => {});
+      if (!user.isAdmin) {
+        getMyOrders().then(setOrders).catch(() => {});
+      }
     }
   }, [user, navigate]);
 
@@ -161,38 +166,64 @@ export default function ProfilePage() {
       </div>
 
       <section className={classes.ordersSection}>
-        <h2 className={classes.detailsTitle}>Your orders</h2>
-        {orders.length === 0 ? (
-          <div className={classes.placeholder}>You haven't placed any orders yet.</div>
+        {profile.isAdmin ? (
+          <>
+            <h2 className={classes.detailsTitle}>Admin shortcuts</h2>
+            <div className={classes.shortcutGrid}>
+              <button type="button" className={classes.shortcut} onClick={() => navigate("/orders")}>
+                <span className={classes.shortcutLabel}>Orders</span>
+                <span className={classes.shortcutHint}>View and manage all orders</span>
+              </button>
+              <button type="button" className={classes.shortcut} onClick={() => navigate("/products")}>
+                <span className={classes.shortcutLabel}>Products</span>
+                <span className={classes.shortcutHint}>Catalog, variants, stock</span>
+              </button>
+              <button type="button" className={classes.shortcut} onClick={() => navigate("/users")}>
+                <span className={classes.shortcutLabel}>Users</span>
+                <span className={classes.shortcutHint}>Customer accounts</span>
+              </button>
+              <button type="button" className={classes.shortcut} onClick={() => navigate("/promos")}>
+                <span className={classes.shortcutLabel}>Promos</span>
+                <span className={classes.shortcutHint}>Discount codes</span>
+              </button>
+            </div>
+          </>
         ) : (
-          <ul className={classes.orderList}>
-            {orders.map((o) => (
-              <li
-                key={o._id}
-                className={classes.orderRow}
-                onClick={() => navigate(`/orders/${o._id}`)}
-                style={{ cursor: "pointer" }}
-              >
-                <div className={classes.orderMeta}>
-                  <span className={classes.orderDate}>
-                    {new Date(o.createdAt).toLocaleDateString()}
-                  </span>
-                  <span className={`${classes.orderStatus} ${classes["status_" + o.status]}`}>
-                    {o.status}
-                  </span>
-                </div>
-                <div className={classes.orderItems}>
-                  {o.items.map((it, i) => (
-                    <span key={i}>
-                      {it.product?.name} ({it.selectedColor} · {it.selectedSize}) × {it.quantity}
-                      {i < o.items.length - 1 ? ", " : ""}
-                    </span>
-                  ))}
-                </div>
-                <div className={classes.orderTotal}>${o.totalPrice}</div>
-              </li>
-            ))}
+          <>
+            <h2 className={classes.detailsTitle}>Your orders</h2>
+            {orders.length === 0 ? (
+              <div className={classes.placeholder}>You haven't placed any orders yet.</div>
+            ) : (
+              <ul className={classes.orderList}>
+                {orders.map((o) => (
+                  <li
+                    key={o._id}
+                    className={classes.orderRow}
+                    onClick={() => navigate(`/orders/${o._id}`)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className={classes.orderMeta}>
+                      <span className={classes.orderDate}>
+                        {new Date(o.createdAt).toLocaleDateString()}
+                      </span>
+                      <span className={`${classes.orderStatus} ${classes["status_" + o.status]}`}>
+                        {o.status}
+                      </span>
+                    </div>
+                    <div className={classes.orderItems}>
+                      {o.items.map((it, i) => (
+                        <span key={i}>
+                          {it.product?.name} ({it.selectedColor} · {it.selectedSize}) × {it.quantity}
+                          {i < o.items.length - 1 ? ", " : ""}
+                        </span>
+                      ))}
+                    </div>
+                    <div className={classes.orderTotal}><Price price={o.totalPrice} /></div>
+                  </li>
+                ))}
           </ul>
+        )}
+          </>
         )}
       </section>
     </div>

@@ -4,7 +4,9 @@ import auth from "../middleware/auth.mid.js";
 import { BAD_REQUEST } from "../constants/httpStatus.js";
 import { OrderModel } from "../models/order.model.js";
 import { ProductModel } from "../models/product.model.js";
+import { PromoModel } from "../models/promo.model.js";
 import { OrderStatus } from "../constants/orderStatus.js";
+import { SHIPPING_FEE, FREE_SHIPPING_OVER } from "../constants/shipping.js";
 
 const router = Router();
 
@@ -27,19 +29,6 @@ router.get(
       return res.status(403).send("Forbidden");
     }
     res.send(order);
-  })
-);
-
-router.get(
-  "/newOrderForCurrentUser",
-  auth,
-  handler(async (req, res) => {
-    const order = await getNewOrderForCurrentUser(req);
-    if (order) res.send(order);
-    else {
-      res.send("This is order" + JSON.stringify(order));
-      res.status(BAD_REQUEST).send();
-    }
   })
 );
 
@@ -90,9 +79,56 @@ router.post(
     });
 
     try {
-      const newOrder = new OrderModel({ ...order, user: req.user.id });
-      await newOrder.save();
-      res.send(newOrder);
+      const paymentMethod = ["COD", "PAYPAL"].includes(order.paymentMethod)
+        ? order.paymentMethod
+        : "COD";
+      // Recompute the breakdown server-side. OrderItemSchema's pre('validate')
+      // sets each item's price = product.price * quantity, so subtotal can be
+      // derived after construction.
+      const draft = new OrderModel({
+        ...order,
+        user: req.user.id,
+        paymentMethod,
+        status: paymentMethod === "COD" ? OrderStatus.COD_PENDING : OrderStatus.NEW,
+        subtotal: 0,
+        shipping: 0,
+        discount: 0,
+        promoCode: null,
+        totalPrice: 0,
+      });
+      await draft.validate();
+
+      const subtotal = draft.items.reduce((s, it) => s + it.price, 0);
+      const shipping = subtotal >= FREE_SHIPPING_OVER ? 0 : SHIPPING_FEE;
+
+      let discount = 0;
+      let promoCode = null;
+      const requestedCode = (order.promoCode || "").trim().toUpperCase();
+      if (requestedCode) {
+        const promo = await PromoModel.findOne({ code: requestedCode, active: true });
+        if (!promo) {
+          await rollback(applied);
+          return res.status(BAD_REQUEST).send("Promo code is not valid");
+        }
+        if (subtotal < promo.minSubtotal) {
+          await rollback(applied);
+          return res.status(BAD_REQUEST).send(`Promo requires subtotal of at least ${promo.minSubtotal}`);
+        }
+        const raw = promo.type === "PERCENT"
+          ? Math.round((subtotal * promo.value) / 100)
+          : promo.value;
+        discount = Math.min(raw, subtotal);
+        promoCode = promo.code;
+      }
+
+      draft.subtotal = subtotal;
+      draft.shipping = shipping;
+      draft.discount = discount;
+      draft.promoCode = promoCode;
+      draft.totalPrice = Math.max(0, subtotal + shipping - discount);
+
+      await draft.save();
+      res.send(draft);
     } catch (err) {
       await rollback(applied);
       throw err;

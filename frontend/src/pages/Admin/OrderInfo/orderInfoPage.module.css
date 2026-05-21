@@ -73,7 +73,86 @@
 }
 
 .status_NEW       { background: var(--accent-soft); color: var(--accent-hover); }
+.status_COD_PENDING { background: #fff3e0; color: #c66a1a; }
 .status_PAYED     { background: #c8e6c9; color: #1b5e20; }
 .status_SHIPPED   { background: #bbdefb; color: #0d47a1; }
 .status_CANCELED  { background: var(--danger-soft); color: var(--danger); }
 .status_REFUNDED  { background: #fff3e0; color: #e65100; }
+
+.statusEdit {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.statusSelect {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font: inherit;
+}
+
+.saveStatusBtn {
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.saveStatusBtn:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.saveStatusBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.4rem 1rem;
+  margin: 1.25rem 0 0;
+  max-width: 22rem;
+  margin-left: auto;
+}
+
+.summary dt {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.summary dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 500;
+}
+
+.summary .free { color: var(--accent); font-weight: 600; }
+.summary .promoLabel { color: var(--accent); font-weight: 600; }
+.summary .discount { color: var(--accent); font-weight: 600; }
+
+.summary .totalLabel {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1.05rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.summary .total {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--accent-hover);
+  border-top: 1px solid var(--border);
+  padding-top: 0.6rem;
+  margin-top: 0.2rem;
+}

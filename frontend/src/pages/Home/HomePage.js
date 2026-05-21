@@ -6,6 +6,7 @@ import Tags from "../../components/Tags/Tags";
 import FilterBar from "../../components/FilterBar/FilterBar";
 import Thumbnails from "../../components/Thumbnails/Thumbnails";
 import NotFound from "../../components/NotFound/NotFound";
+import useDocumentTitle from "../../hooks/useDocumentTitle";
 import classes from "./homePage.module.css";
 
 const initialState = { products: [], tags: [] };
@@ -22,6 +23,7 @@ const reducer = (state, action) => {
 };
 
 export default function HomePage() {
+  useDocumentTitle("Footprint · Shop");
   const [state, dispatch] = useReducer(reducer, initialState);
   const { products, tags } = state;
   const { searchTerm, tag: legacyTag } = useParams();
@@ -66,9 +68,7 @@ export default function HomePage() {
         <Search />
         <FilterBar
           gender={gender}
-          category={category}
           onGenderChange={(v) => updateParam("gender", v)}
-          onCategoryChange={(v) => updateParam("category", v)}
         />
         <Tags
           tags={tags}

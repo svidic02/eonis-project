@@ -1,6 +1,8 @@
 import React from "react";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function Footer() {
+  const { user } = useAuth();
   return (
     <footer
       style={{
@@ -13,7 +15,11 @@ export default function Footer() {
         fontSize: "0.9rem",
       }}
     >
-      <p>&copy; 2026 Footprint. All rights reserved.</p>
+      {user?.isAdmin ? (
+        <p>Footprint Admin · signed in as {user.name}</p>
+      ) : (
+        <p>&copy; 2026 Footprint. All rights reserved.</p>
+      )}
     </footer>
   );
 }

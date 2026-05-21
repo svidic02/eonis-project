@@ -8,6 +8,8 @@ import { OrderModel } from "../models/order.model.js";
 import { TagModel } from "../models/tag.model.js";
 import { ColorModel } from "../models/color.model.js";
 import { BrandModel } from "../models/brand.model.js";
+import { PromoModel } from "../models/promo.model.js";
+import { OrderStatus } from "../constants/orderStatus.js";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import JWT from "jsonwebtoken";
@@ -239,6 +241,26 @@ router.get(
   })
 );
 
+router.put(
+  "/orders/:id/status",
+  handler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid order ID");
+    }
+    const { status } = req.body;
+    if (!Object.values(OrderStatus).includes(status)) {
+      return res.status(400).send("Invalid status");
+    }
+    const order = await OrderModel.findById(id);
+    if (!order) return res.status(404).send("Order not found");
+    if (order.status === status) return res.send(order);
+    order.status = status;
+    await order.save();
+    res.send(order);
+  })
+);
+
 // ==================== TAG MANAGEMENT ====================
 
 router.post(
@@ -446,6 +468,96 @@ router.delete(
 
     await brand.deleteOne();
     res.send(brand);
+  })
+);
+
+// ==================== PROMO MANAGEMENT ====================
+
+router.get(
+  "/promos",
+  handler(async (req, res) => {
+    const promos = await PromoModel.find({}).sort({ code: 1 });
+    res.send(promos);
+  })
+);
+
+router.post(
+  "/promos",
+  handler(async (req, res) => {
+    const { code, type, value, minSubtotal, active } = req.body;
+    if (!code || !code.trim()) return res.status(400).send("Code is required");
+    if (!["PERCENT", "FIXED"].includes(type)) return res.status(400).send("Invalid type");
+    const trimmed = code.trim().toUpperCase();
+    const existing = await PromoModel.findOne({ code: trimmed });
+    if (existing) return res.status(409).send("Promo code already exists");
+    try {
+      const promo = await PromoModel.create({
+        code: trimmed,
+        type,
+        value,
+        minSubtotal: minSubtotal ?? 0,
+        active: active ?? true,
+      });
+      res.send(promo);
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const msg = Object.values(err.errors).map((e) => e.message).join("; ");
+        return res.status(400).send(msg);
+      }
+      throw err;
+    }
+  })
+);
+
+router.put(
+  "/promos/:id",
+  handler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid promo ID");
+    }
+    const { code, type, value, minSubtotal, active } = req.body;
+    const existing = await PromoModel.findById(id);
+    if (!existing) return res.status(404).send("Promo not found");
+
+    if (code !== undefined) {
+      const trimmed = code.trim().toUpperCase();
+      if (!trimmed) return res.status(400).send("Code is required");
+      const collision = await PromoModel.findOne({ code: trimmed, _id: { $ne: id } });
+      if (collision) return res.status(409).send("A promo with that code already exists");
+      existing.code = trimmed;
+    }
+    if (type !== undefined) {
+      if (!["PERCENT", "FIXED"].includes(type)) return res.status(400).send("Invalid type");
+      existing.type = type;
+    }
+    if (value !== undefined) existing.value = value;
+    if (minSubtotal !== undefined) existing.minSubtotal = minSubtotal;
+    if (active !== undefined) existing.active = active;
+
+    try {
+      await existing.save();
+      res.send(existing);
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const msg = Object.values(err.errors).map((e) => e.message).join("; ");
+        return res.status(400).send(msg);
+      }
+      throw err;
+    }
+  })
+);
+
+router.delete(
+  "/promos/:id",
+  handler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid promo ID");
+    }
+    const promo = await PromoModel.findByIdAndDelete(id);
+    if (!promo) return res.status(404).send("Promo not found");
+    res.send(promo);
   })
 );
 

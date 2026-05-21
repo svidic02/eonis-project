@@ -3,8 +3,10 @@ import { useAuth } from "../../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { getAllOrders } from "../../../services/orderService";
 import OrderList from "../../../components/OrdersList/OrdersList";
+import useDocumentTitle from "../../../hooks/useDocumentTitle";
 
 export default function OrdersPage() {
+  useDocumentTitle("Footprint Admin · Orders");
   const { user } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);

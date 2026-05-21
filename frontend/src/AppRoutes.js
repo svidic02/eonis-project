@@ -6,8 +6,8 @@ import CartPage from "./pages/Cart/CartPage";
 import LoginPage from "./pages/Login/LoginPage";
 import RegisterPage from "./pages/Register/RegisterPage";
 import AuthRoute from "./components/AuthRoute/AuthRoute";
+import CustomerRoute from "./components/CustomerRoute/CustomerRoute";
 import CheckoutPage from "./pages/Checkout/CheckoutPage";
-import PaymentPage from "./pages/Payment/PaymentPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import UsersPage from "./pages/Admin/Users/UsersPage";
 import TagsPage from "./pages/Admin/Tags/TagsPage";
@@ -22,6 +22,9 @@ import ColorsPage from "./pages/Admin/Colors/ColorsPage";
 import ColorInfoPage from "./pages/Admin/ColorInfo/ColorInfoPage";
 import BrandsPage from "./pages/Admin/Brands/BrandsPage";
 import BrandInfoPage from "./pages/Admin/BrandInfo/BrandInfoPage";
+import PromosPage from "./pages/Admin/Promos/PromosPage";
+import PromoInfoPage from "./pages/Admin/PromoInfo/PromoInfoPage";
+import NotFound from "./components/NotFound/NotFound";
 
 export default function AppRoutes() {
   return (
@@ -30,10 +33,10 @@ export default function AppRoutes() {
       <Route path="/search/:searchTerm" element={<HomePage />}></Route>
       <Route path="/tag/:tag" element={<HomePage />}></Route>
       <Route path="/product/:id" element={<ProductPage />}></Route>
-      <Route path="/cart" element={<CartPage />}></Route>
+      <Route path="/cart" element={<CustomerRoute><CartPage /></CustomerRoute>}></Route>
       <Route path="/login" element={<LoginPage />}></Route>
       <Route path="/register" element={<RegisterPage />}></Route>
-      <Route path="/profile" element={<ProfilePage />}></Route>
+      <Route path="/profile" element={<AuthRoute><ProfilePage /></AuthRoute>}></Route>
       <Route
         path="/orders/:id"
         element={
@@ -182,19 +185,47 @@ export default function AppRoutes() {
         }
       />
       <Route
+        path="/promos"
+        element={
+          <AdminRoute>
+            <PromosPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/promo/add"
+        element={
+          <AdminRoute>
+            <PromoInfoPage add={true} />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/promos/:id"
+        element={
+          <AdminRoute>
+            <PromoInfoPage add={false} />
+          </AdminRoute>
+        }
+      />
+      <Route
         path="/checkout"
         element={
           <AuthRoute>
-            <CheckoutPage />
+            <CustomerRoute>
+              <CheckoutPage />
+            </CustomerRoute>
           </AuthRoute>
         }
       />
       <Route
-        path="/payment"
+        path="*"
         element={
-          <AuthRoute>
-            <PaymentPage />
-          </AuthRoute>
+          <NotFound
+            message="This page doesn't exist."
+            hint="The link may be broken or the page may have moved. Head back to the shop."
+            linkText="Back to home"
+          />
         }
       />
     </Routes>

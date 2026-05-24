@@ -43,7 +43,12 @@ export default function CartPage() {
     <div className={classes.page}>
       <Title title="Cart Page" margin="0 0 1rem 0" />
       {cart.items.length === 0 ? (
-        <NotFound message="Cart is empty" />
+        <NotFound
+          message="Your cart is empty"
+          hint="Browse the catalog and add a pair you like."
+          linkText="Start shopping"
+          linkRoute="/"
+        />
       ) : (
         <div className={classes.container}>
           <ul className={classes.list}>
@@ -119,10 +124,12 @@ export default function CartPage() {
                   <Price price={cart.shipping} />
                 )}
               </dd>
-              {!freeShippingReached && (
+              {!freeShippingReached ? (
                 <dd className={classes.shippingHint}>
-                  Free shipping over <Price price={FREE_SHIPPING_OVER} />
+                  Add <Price price={FREE_SHIPPING_OVER - cart.subtotal} /> more for free shipping
                 </dd>
+              ) : (
+                <dd className={classes.shippingUnlocked}>Free shipping unlocked ✓</dd>
               )}
 
               {cart.promo && (

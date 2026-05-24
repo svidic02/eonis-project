@@ -150,3 +150,18 @@
   margin-left: 0.4rem;
   font-weight: 600;
 }
+
+.avatarInitials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  user-select: none;
+}

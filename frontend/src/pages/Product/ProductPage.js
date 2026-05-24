@@ -16,6 +16,8 @@ export default function ProductPage() {
   const [product, setProduct] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [colorMap, setColorMap] = useState({});
+  const [activeImage, setActiveImage] = useState(0);
+  const [justAdded, setJustAdded] = useState(false);
   const { id } = useParams();
   const { addToCart, cart } = useCart();
   const { user } = useAuth();
@@ -23,6 +25,7 @@ export default function ProductPage() {
   useDocumentTitle(product ? `Footprint · ${product.name}` : "Footprint");
 
   useEffect(() => {
+    setActiveImage(0);
     getById(id).then(setProduct);
     getAllColorsAdmin()
       .then((cs) => setColorMap(Object.fromEntries(cs.map((c) => [c.name, c.hex]))))
@@ -44,6 +47,8 @@ export default function ProductPage() {
       selectedVariant.sku
     );
     toast.success(`${product.name} (${selectedVariant.color} · ${selectedVariant.size}) added to cart.`);
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1200);
   };
 
   if (!product) {
@@ -54,11 +59,28 @@ export default function ProductPage() {
 
   return (
     <div className={classes.container}>
-      <img
-        className={classes.image}
-        src={`${product.imageUrl}`}
-        alt={product.name}
-      />
+      <div className={classes.gallery}>
+        <img
+          className={classes.image}
+          src={product.images?.[activeImage] || product.imageUrl}
+          alt={product.name}
+        />
+        {product.images?.length > 1 && (
+          <div className={classes.thumbStrip}>
+            {product.images.map((url, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={`${classes.thumbBtn} ${idx === activeImage ? classes.thumbActive : ""}`}
+                onClick={() => setActiveImage(idx)}
+                aria-label={`View image ${idx + 1}`}
+              >
+                <img src={url} alt="" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
       <div className={classes.details}>
         <div className={classes.header}>
           <span className={classes.name}>{product.name}</span>
@@ -98,6 +120,7 @@ export default function ProductPage() {
         <button
           onClick={handleAddToCart}
           disabled={!selectedVariant || maxedOut || isAdmin}
+          className={`${classes.addToCart} ${justAdded ? classes.addToCartActive : ""}`}
           title={
             isAdmin
               ? "Admins can't shop — sign in as a customer to buy"
@@ -108,7 +131,7 @@ export default function ProductPage() {
               : "Add to cart"
           }
         >
-          {isAdmin ? "Admins can't add to cart" : maxedOut ? "Max in cart" : "Add To Cart"}
+          {justAdded ? "Added ✓" : isAdmin ? "Admins can't add to cart" : maxedOut ? "Max in cart" : "Add To Cart"}
         </button>
       </div>
     </div>

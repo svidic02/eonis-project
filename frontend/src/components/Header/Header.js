@@ -102,7 +102,9 @@ export default function Header() {
                     </Link>
                   </li>
                   <li className={classes.menu_container}>
-                    <Link to="/profile" className={classes.navLink}>{user.name}</Link>
+                    <Link to="/profile" className={classes.navLink}>
+                      <span className={classes.avatarInitials}>{getInitials(user.name)}</span>
+                    </Link>
                     <div className={classes.menu}>
                       <a onClick={logout}>
                         <Icon.Logout /> Logout
@@ -113,7 +115,9 @@ export default function Header() {
               ) : user ? (
                 <>
                   <li className={classes.menu_container}>
-                    <Link to="/profile" className={classes.navLink}>{user.name}</Link>
+                    <Link to="/profile" className={classes.navLink}>
+                      <span className={classes.avatarInitials}>{getInitials(user.name)}</span>
+                    </Link>
                     <div className={classes.menu}>
                       <a onClick={logout}>
                         <Icon.Logout /> Logout
@@ -134,6 +138,14 @@ export default function Header() {
                   <li>
                     <Link to="/login" className={classes.navLink}>Login</Link>
                   </li>
+                  <li>
+                    <Link to="/cart" className={classes.navLink}>
+                      <Icon.Cart /> Cart
+                      {cart.totalCount > 0 && (
+                        <span className={classes.cart_count}>{cart.totalCount}</span>
+                      )}
+                    </Link>
+                  </li>
                 </>
               )}
             </ul>
@@ -142,4 +154,11 @@ export default function Header() {
       </div>
     </header>
   );
+}
+
+function getInitials(name) {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return parts[0].slice(0, 2).toUpperCase();
 }

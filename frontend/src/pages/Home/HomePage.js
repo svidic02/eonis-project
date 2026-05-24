@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useMemo, useReducer, useState } from "react";
 import { getAll, getAllTags, search } from "../../services/productService";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import Search from "../../components/Search/Search";
@@ -32,6 +32,21 @@ export default function HomePage() {
   const gender = searchParams.get("gender");
   const category = searchParams.get("category");
   const tag = searchParams.get("tag");
+  const [sortBy, setSortBy] = useState("featured");
+
+  const sortedProducts = useMemo(() => {
+    const arr = [...products];
+    switch (sortBy) {
+      case "price-asc":
+        return arr.sort((a, b) => a.price - b.price);
+      case "price-desc":
+        return arr.sort((a, b) => b.price - a.price);
+      case "newest":
+        return arr.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      default:
+        return arr;
+    }
+  }, [products, sortBy]);
 
   // Redirect legacy /tag/:tag → /?tag=...
   useEffect(() => {
@@ -77,10 +92,26 @@ export default function HomePage() {
         />
       </aside>
       <main className={classes.content}>
+        {products.length > 0 && (
+          <div className={classes.sortBar}>
+            <label htmlFor="sort">Sort:</label>
+            <select
+              id="sort"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className={classes.sortSelect}
+            >
+              <option value="featured">Featured</option>
+              <option value="price-asc">Price: low → high</option>
+              <option value="price-desc">Price: high → low</option>
+              <option value="newest">Newest</option>
+            </select>
+          </div>
+        )}
         {products.length === 0 ? (
           <NotFound linkText="Reset Search" />
         ) : (
-          <Thumbnails products={products} />
+          <Thumbnails products={sortedProducts} />
         )}
       </main>
     </div>

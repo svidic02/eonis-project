@@ -8,6 +8,7 @@ import { GENDERS, CATEGORIES } from "../../constants/productEnums";
 import Input from "../Input/Input";
 import { toast } from "react-toastify";
 import VariantsEditor from "../VariantsEditor/VariantsEditor";
+import ImagesEditor from "../ImagesEditor/ImagesEditor";
 import classes from "./productForm.module.css";
 
 export default function ProductInput() {
@@ -18,6 +19,7 @@ export default function ProductInput() {
   const [brandOptions, setBrandOptions] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [variants, setVariants] = useState([]);
+  const [images, setImages] = useState([]);
   const navigate = useNavigate();
 
   const {
@@ -32,6 +34,7 @@ export default function ProductInput() {
       setProduct(data);
       setSelectedTags(data.tags ?? []);
       setVariants(data.variants ?? []);
+      setImages(data.images ?? []);
     })();
     getAllTags().then((tags) =>
       setTagOptions(tags.filter((t) => t.name !== "All"))
@@ -48,7 +51,7 @@ export default function ProductInput() {
 
   const submit = async (data) => {
     try {
-      await edit({ id, ...data, tags: selectedTags, variants });
+      await edit({ id, ...data, tags: selectedTags, variants, images: images.map((u) => u.trim()).filter(Boolean) });
       toast.success("Product updated.");
       navigate("/products");
     } catch {
@@ -137,7 +140,7 @@ export default function ProductInput() {
           <Input
             type="number"
             defaultValue={product.price}
-            label="Price in $"
+            label="Price (RSD)"
             {...register("price", { required: true, valueAsNumber: true })}
             error={errors.price}
           />
@@ -162,6 +165,11 @@ export default function ProductInput() {
                 );
               })}
             </div>
+          </div>
+
+          <div>
+            <label className={classes.fieldLabel}>Images</label>
+            <ImagesEditor images={images} onChange={setImages} />
           </div>
 
           <div>

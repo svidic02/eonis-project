@@ -231,8 +231,6 @@ Guests can buy without an account. `OrderModel.user` is now optional and `guestE
 
 Out of scope (intentional): transactional emails, "convert guest order to account" on register, guest order history listing, token expiry/revocation.
 
-
-
 Buy without an account. The cart already lives in localStorage so guests can fill it; the only blockers are auth-guarded `/checkout` and `/orders/:id`. Outline of work:
 
 **Backend**

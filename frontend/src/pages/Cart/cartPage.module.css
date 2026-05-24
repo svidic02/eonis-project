@@ -191,6 +191,15 @@
   margin-top: -0.2rem;
 }
 
+.summary .shippingUnlocked {
+  grid-column: 1 / -1;
+  text-align: right;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-hover);
+  margin-top: -0.2rem;
+}
+
 .summary .promoLabel {
   display: flex;
   align-items: center;

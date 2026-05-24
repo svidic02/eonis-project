@@ -8,6 +8,7 @@ import { GENDERS, CATEGORIES } from "../../constants/productEnums";
 import Input from "../Input/Input";
 import { toast } from "react-toastify";
 import VariantsEditor from "../VariantsEditor/VariantsEditor";
+import ImagesEditor from "../ImagesEditor/ImagesEditor";
 import classes from "../ProductInput/productForm.module.css";
 
 export default function ProductAdd() {
@@ -17,6 +18,7 @@ export default function ProductAdd() {
   const [brandOptions, setBrandOptions] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [variants, setVariants] = useState([]);
+  const [images, setImages] = useState([]);
 
   const {
     handleSubmit,
@@ -44,7 +46,7 @@ export default function ProductAdd() {
 
   const submit = async (data) => {
     try {
-      await addProduct({ ...data, tags: selectedTags, variants });
+      await addProduct({ ...data, tags: selectedTags, variants, images: images.map((u) => u.trim()).filter(Boolean) });
       toast.success("Product added.");
       navigate("/products");
     } catch {
@@ -106,7 +108,7 @@ export default function ProductAdd() {
           <Input type="text" label="Description" {...register("description")} />
           <Input
             type="number"
-            label="Price in $"
+            label="Price (RSD)"
             {...register("price", { required: true, valueAsNumber: true })}
             error={errors.price}
           />
@@ -131,6 +133,11 @@ export default function ProductAdd() {
                 );
               })}
             </div>
+          </div>
+
+          <div>
+            <label className={classes.fieldLabel}>Images</label>
+            <ImagesEditor images={images} onChange={setImages} />
           </div>
 
           <div>

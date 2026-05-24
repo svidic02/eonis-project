@@ -171,10 +171,12 @@ export default function CheckoutPage() {
                 <Price price={cart.shipping} />
               )}
             </dd>
-            {!freeShippingReached && (
+            {!freeShippingReached ? (
               <dd className={classes.shippingHint}>
-                Free shipping over <Price price={FREE_SHIPPING_OVER} />
+                Add <Price price={FREE_SHIPPING_OVER - cart.subtotal} /> more for free shipping
               </dd>
+            ) : (
+              <dd className={classes.shippingUnlocked}>Free shipping unlocked ✓</dd>
             )}
 
             {cart.promo && (

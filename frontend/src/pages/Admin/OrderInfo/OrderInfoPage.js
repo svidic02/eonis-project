@@ -131,6 +131,14 @@ export default function OrderInfoPage() {
               {new Date(order.createdAt).toLocaleString()}
             </div>
           </div>
+          {order.updatedAt && new Date(order.updatedAt).getTime() !== new Date(order.createdAt).getTime() && (
+            <div>
+              <div className={classes.metaLabel}>Last updated</div>
+              <div className={classes.metaValue}>
+                {new Date(order.updatedAt).toLocaleString()}
+              </div>
+            </div>
+          )}
           {order.paymentMethod && (
             <div>
               <div className={classes.metaLabel}>Payment method</div>

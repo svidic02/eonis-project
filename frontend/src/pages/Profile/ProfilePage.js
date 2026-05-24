@@ -79,7 +79,7 @@ export default function ProfilePage() {
       <div className={classes.layout}>
         <aside className={classes.summary}>
           <div className={classes.avatarWrapper}>
-            <img src="basics/user.png" alt={profile.name} />
+            <div className={classes.avatarInitials}>{getInitials(profile.name)}</div>
           </div>
           <div className={classes.summaryName}>{profile.name}</div>
           <span
@@ -192,7 +192,33 @@ export default function ProfilePage() {
           <>
             <h2 className={classes.detailsTitle}>Your orders</h2>
             {orders.length === 0 ? (
-              <div className={classes.placeholder}>You haven't placed any orders yet.</div>
+              <div className={classes.emptyOrders}>
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="9" y1="13" x2="15" y2="13" />
+                  <line x1="9" y1="17" x2="15" y2="17" />
+                </svg>
+                <div className={classes.emptyOrdersTitle}>No orders yet</div>
+                <div className={classes.emptyOrdersHint}>Your orders will show up here once you place one.</div>
+                <button
+                  type="button"
+                  className={classes.emptyOrdersCta}
+                  onClick={() => navigate("/")}
+                >
+                  Start shopping
+                </button>
+              </div>
             ) : (
               <ul className={classes.orderList}>
                 {orders.map((o) => (
@@ -233,4 +259,11 @@ export default function ProfilePage() {
 function extractDate(timestamp) {
   const d = new Date(timestamp);
   return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+}
+
+function getInitials(name) {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return parts[0].slice(0, 2).toUpperCase();
 }

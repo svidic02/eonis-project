@@ -47,6 +47,22 @@
   gap: 0.5rem;
 }
 
+.avatarInitials {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+
 .avatarWrapper img {
   width: 96px;
   height: 96px;
@@ -338,3 +354,42 @@
 
 .orderItems { color: var(--text); font-size: 0.92rem; }
 .orderTotal { font-weight: 700; color: var(--accent-hover); }
+
+.emptyOrders {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  color: var(--text-muted);
+}
+
+.emptyOrdersTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 0.25rem;
+}
+
+.emptyOrdersHint {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.emptyOrdersCta {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  color: white;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.emptyOrdersCta:hover {
+  background: var(--accent-hover);
+}

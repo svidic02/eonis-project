@@ -200,6 +200,11 @@ async function seedPromos() {
   const sample_promos = [
     { code: "WELCOME10", type: "PERCENT", value: 10, minSubtotal: 0, active: true },
     { code: "EONIS500", type: "FIXED", value: 500, minSubtotal: 5000, active: true },
+    { code: "SUMMER20", type: "PERCENT", value: 20, minSubtotal: 15000, active: true },
+    { code: "BIGSPEND", type: "FIXED", value: 5000, minSubtotal: 30000, active: true },
+    { code: "FREESHIP", type: "FIXED", value: 500, minSubtotal: 0, active: true },
+    { code: "STUDENT15", type: "PERCENT", value: 15, minSubtotal: 0, active: true },
+    { code: "BLACKFRI", type: "PERCENT", value: 30, minSubtotal: 20000, active: false },
   ];
   for (const p of sample_promos) await PromoModel.create(p);
   console.log("Promos seed is done!");

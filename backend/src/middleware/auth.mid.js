@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { UNAUTHORIZED } from "../constants/httpStatus.js";
 
-export default (req, res, next) => {
+const auth = (req, res, next) => {
   const token = req.headers.access_token;
   if (!token) {
     return res.status(UNAUTHORIZED).send();
@@ -11,10 +11,20 @@ export default (req, res, next) => {
     req.user = decoded;
   } catch (error) {
     return res.status(UNAUTHORIZED).send();
-    // return res.status(UNAUTHORIZED).json({
-    //   error: "Unauthorized",
-    //   message: "Invalid or expired token",
-    // });
   }
   next();
 };
+
+export const optionalAuth = (req, res, next) => {
+  const token = req.headers.access_token;
+  if (token) {
+    try {
+      req.user = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (_) {
+      // ignore — treat as guest
+    }
+  }
+  next();
+};
+
+export default auth;

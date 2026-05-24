@@ -22,6 +22,7 @@
 | Admin order status management                                  | ✅ Done                                |
 | Admin list search + status filter pills                        | ✅ Done                                |
 | Header consolidation (Catalog dropdown + icons)                | ✅ Done                                |
+| Guest checkout (signed token in URL)                           | ✅ Done                                |
 | PayPal payment                                                 | ⏸ Hidden (RSD not supported by PayPal) |
 
 Brand name: **Footprint**.
@@ -154,6 +155,7 @@ Brand name: **Footprint**.
 - **Cart / checkout:** Continue shopping link, ConfirmationDialog before clearing cart, client-side promo regex validation (`A-Z0-9_`, ≤30 chars) with inline hint, on-mount cart freshness pass (re-fetches each line, drops missing variants, clamps qty, re-validates the saved promo, toasts a summary).
 - **Role boundaries:** `CustomerRoute` wrapper blocks admins from `/cart` and `/checkout` with a redirect + toast; `/profile` now wrapped in `AuthRoute`.
 - **404:** catch-all `<Route path="*">` renders the shared `NotFound` component with "back home" CTA.
+- **Guest checkout:** `/checkout` and `/orders/:id` no longer require auth. Guest orders carry a `guestEmail` and the create response includes a signed token that gates `GET /api/orders/:id?t=…`. Order page shows a "save this link" block + `mailto:` anchor for guests; admins still see the order via auth.
 
 ---
 
@@ -221,9 +223,15 @@ Users · Products (incl. variants) · Orders · Status update · Tags · Colors 
 16. **Accessibility audit** — keyboard nav across all admin tables, ARIA labels on icon-only buttons in the header.
 17. **Admin landing page** at `/admin` with shortcut tiles (Users · Orders · Products · Promos) — also the natural home for analytics tiles when §10.1.1 lands.
 18. **Customer order cancel + admin "view as customer"** preview toggle for demos.
-19. **Guest checkout** — see §10.3.
+19. **Guest checkout** — ✅ shipped (see §10.3).
 
-### 10.3 Candidate feature: Guest checkout
+### 10.3 Guest checkout ✅ (shipped)
+
+Guests can buy without an account. `OrderModel.user` is now optional and `guestEmail` is stored on the order. `POST /api/orders/create` and `GET /api/orders/:id` use an `optionalAuth` middleware: logged-in users hit the existing owner/admin path, guests get a signed JWT (`signOrderToken`/`verifyOrderToken` in `backend/src/utils/orderToken.js`, no expiry) returned alongside the created order. The order page reads `?t=<token>` via `useSearchParams` and passes it to `getOrderById`. `/checkout` and `/orders/:id` no longer require `AuthRoute`; `/checkout` keeps `CustomerRoute` so admins still can't buy. A guest-only banner on `/checkout` links to `/login?returnUrl=/checkout`. The order page renders a "Save this link — it's your receipt" block with a `mailto:` anchor and the URL as visible text for guests.
+
+Out of scope (intentional): transactional emails, "convert guest order to account" on register, guest order history listing, token expiry/revocation.
+
+
 
 Buy without an account. The cart already lives in localStorage so guests can fill it; the only blockers are auth-guarded `/checkout` and `/orders/:id`. Outline of work:
 
@@ -262,7 +270,7 @@ Render the URL as visible text on the page too, in case the user has no default 
 
 - **Token style: signed JWT** (`JWT.sign({ orderId }, JWT_SECRET)`). The token's only job is to prove "bearer may read order X" — exactly what JWT is for. `JWT_SECRET` and `jsonwebtoken` are already used by `auth.mid.js`, so a 5-line `signOrderToken` / `verifyOrderToken` helper covers it. No schema change, no DB lookup on read, no second token system to maintain. Random opaque + stored only wins when revocation matters; the order page is read-only, so it doesn't.
 
-- **Token expiry: none.** The token authorizes reading a finalized, read-only order — the customer's mental model is "the URL is my receipt". Expiring it generates "my link stopped working" support load and forces reissue UI/endpoints we don't otherwise need. Leakage is not catastrophic: the page only exposes data the customer themselves entered (name, address, phone, items) and offers no actions. If destructive customer actions ever land on the order page (cancel, edit), require fresh auth for *those actions* rather than expiring read access.
+- **Token expiry: none.** The token authorizes reading a finalized, read-only order — the customer's mental model is "the URL is my receipt". Expiring it generates "my link stopped working" support load and forces reissue UI/endpoints we don't otherwise need. Leakage is not catastrophic: the page only exposes data the customer themselves entered (name, address, phone, items) and offers no actions. If destructive customer actions ever land on the order page (cancel, edit), require fresh auth for _those actions_ rather than expiring read access.
 
 - **Page layout: single `/checkout` for both flows.** `CheckoutPage` is driven by the cart, not by the user; the only auth-aware code is `defaultValue={user?.name}` (and email/address). For guests `user` is `null`, those defaults become `undefined`, inputs render blank — that's the entire difference. A separate `/guest-checkout` would duplicate JSX, styles, validation, and submit handling for no behavioral gain. The codebase already lazy-branches on auth state inside single components (`Header.js`, `OrderInfoPage`); checkout is the same shape. Future enhancement when desired: a small "Buying as a guest — Sign in to save your details" banner inside the same form when `!user`.
 

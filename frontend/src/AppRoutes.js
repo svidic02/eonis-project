@@ -39,11 +39,7 @@ export default function AppRoutes() {
       <Route path="/profile" element={<AuthRoute><ProfilePage /></AuthRoute>}></Route>
       <Route
         path="/orders/:id"
-        element={
-          <AuthRoute>
-            <OrderInfoPage />
-          </AuthRoute>
-        }
+        element={<OrderInfoPage />}
       />
 
       <Route
@@ -211,11 +207,9 @@ export default function AppRoutes() {
       <Route
         path="/checkout"
         element={
-          <AuthRoute>
-            <CustomerRoute>
-              <CheckoutPage />
-            </CustomerRoute>
-          </AuthRoute>
+          <CustomerRoute>
+            <CheckoutPage />
+          </CustomerRoute>
         }
       />
       <Route

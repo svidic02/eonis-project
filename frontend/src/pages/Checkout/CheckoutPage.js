@@ -37,7 +37,11 @@ export default function CheckoutPage() {
       });
       clearCart();
       toast.success("Order placed.");
-      navigate(`/orders/${created._id}`);
+      if (created.token) {
+        navigate(`/orders/${created._id}?t=${encodeURIComponent(created.token)}`);
+      } else {
+        navigate(`/orders/${created._id}`);
+      }
     } catch (err) {
       const msg = err?.response?.data;
       toast.error(typeof msg === "string" && msg ? msg : "Could not place order");
@@ -55,6 +59,11 @@ export default function CheckoutPage() {
 
       <form onSubmit={handleSubmit(submit)} className={classes.layout}>
         <div className={classes.formCard}>
+          {!user && (
+            <div className={classes.guestBanner}>
+              Buying as a guest. <Link to="/login?returnUrl=/checkout">Sign in</Link> to save your details.
+            </div>
+          )}
           <h2 className={classes.cardTitle}>Shipping details</h2>
           <div className={classes.fields}>
             <Input

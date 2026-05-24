@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getOrderById, updateOrderStatus } from "../../../services/orderService";
 import { useAuth } from "../../../hooks/useAuth";
@@ -12,6 +12,8 @@ const STATUSES = ["NEW", "COD_PENDING", "PAYED", "SHIPPED", "CANCELED", "REFUNDE
 
 export default function OrderInfoPage() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("t");
   const navigate = useNavigate();
   const { user } = useAuth();
   const [order, setOrder] = useState(null);
@@ -24,7 +26,7 @@ export default function OrderInfoPage() {
   useDocumentTitle(order ? `${titlePrefix} · Order #${String(order._id).slice(-6)}` : `${titlePrefix} · Order`);
 
   useEffect(() => {
-    getOrderById(id)
+    getOrderById(id, token)
       .then((o) => {
         setOrder(o);
         setDraftStatus(o.status);
@@ -33,7 +35,7 @@ export default function OrderInfoPage() {
         setErrorStatus(err?.response?.status);
         setError(err?.response?.data || "Could not load order");
       });
-  }, [id]);
+  }, [id, token]);
 
   if (error) {
     const notFound = errorStatus === 404;
@@ -174,7 +176,29 @@ export default function OrderInfoPage() {
           <dt className={classes.totalLabel}>Total</dt>
           <dd className={classes.total}><Price price={order.totalPrice} /></dd>
         </dl>
+
+        {!user && token && (
+          <GuestReceipt orderId={order._id} token={token} />
+        )}
       </div>
+    </div>
+  );
+}
+
+function GuestReceipt({ orderId, token }) {
+  const orderUrl = `${window.location.origin}/orders/${orderId}?t=${encodeURIComponent(token)}`;
+  const mailto =
+    `mailto:?subject=${encodeURIComponent("Your Footprint order")}` +
+    `&body=${encodeURIComponent(`Your order link:\n${orderUrl}`)}`;
+  return (
+    <div className={classes.guestReceipt}>
+      <div className={classes.guestReceiptTitle}>Save this link — it's your receipt</div>
+      <p className={classes.guestReceiptHint}>
+        You're not signed in, so this URL is the only way back to your order. Bookmark it
+        or email it to yourself.
+      </p>
+      <a href={mailto} className={classes.guestReceiptLink}>Email me this link</a>
+      <code className={classes.guestReceiptUrl}>{orderUrl}</code>
     </div>
   );
 }

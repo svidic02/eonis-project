@@ -25,6 +25,21 @@
 
 .backLink:hover { color: var(--accent); }
 
+.guestBanner {
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.guestBanner a {
+  color: var(--accent-hover);
+  font-weight: 600;
+}
+
 .layout {
   display: grid;
   grid-template-columns: 1fr 360px;

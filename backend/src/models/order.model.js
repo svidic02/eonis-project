@@ -35,7 +35,8 @@ const orderSchema = new Schema(
     items: { type: [OrderItemSchema], required: true },
     status: { type: String, default: OrderStatus.NEW },
     paymentMethod: { type: String, enum: ["COD", "PAYPAL"], default: "COD" },
-    user: { type: Schema.Types.ObjectId, required: true },
+    user: { type: Schema.Types.ObjectId },
+    guestEmail: { type: String, default: "" },
   },
   {
     timestamps: true,

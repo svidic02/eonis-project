@@ -20,8 +20,9 @@ export const getMyOrders = async () => {
   return data;
 };
 
-export const getOrderById = async (id) => {
-  const { data } = await axios.get(`/api/orders/${id}`);
+export const getOrderById = async (id, token) => {
+  const url = token ? `/api/orders/${id}?t=${encodeURIComponent(token)}` : `/api/orders/${id}`;
+  const { data } = await axios.get(url);
   return data;
 };
 

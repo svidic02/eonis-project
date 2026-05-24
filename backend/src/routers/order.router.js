@@ -1,6 +1,7 @@
 import { Router } from "express";
 import handler from "express-async-handler";
-import auth from "../middleware/auth.mid.js";
+import auth, { optionalAuth } from "../middleware/auth.mid.js";
+import { signOrderToken, verifyOrderToken } from "../utils/orderToken.js";
 import { BAD_REQUEST } from "../constants/httpStatus.js";
 import { OrderModel } from "../models/order.model.js";
 import { ProductModel } from "../models/product.model.js";
@@ -21,11 +22,17 @@ router.get(
 
 router.get(
   "/:id",
-  auth,
+  optionalAuth,
   handler(async (req, res) => {
     const order = await OrderModel.findById(req.params.id);
     if (!order) return res.status(404).send("Order not found");
-    if (String(order.user) !== req.user.id && !req.user.isAdmin) {
+
+    const isOwner = req.user && order.user && String(order.user) === req.user.id;
+    const isAdmin = req.user?.isAdmin;
+    const tokenOrderId = verifyOrderToken(req.query.t);
+    const tokenMatches = tokenOrderId && tokenOrderId === String(order._id);
+
+    if (!isOwner && !isAdmin && !tokenMatches) {
       return res.status(403).send("Forbidden");
     }
     res.send(order);
@@ -34,13 +41,19 @@ router.get(
 
 router.post(
   "/create",
-  auth,
+  optionalAuth,
   handler(async (req, res) => {
     const order = req.body;
     const items = order.items;
 
     if (!items || items.length <= 0) {
       return res.status(BAD_REQUEST).send("Cart Is Empty!");
+    }
+
+    const isGuest = !req.user;
+    const guestEmail = (order.email || "").trim();
+    if (isGuest && !guestEmail) {
+      return res.status(BAD_REQUEST).send("Email is required for guest checkout");
     }
 
     // Atomically decrement stock for each ordered variant. Track applied
@@ -73,10 +86,12 @@ router.post(
       applied.push({ productId, sku, quantity });
     }
 
-    await OrderModel.deleteOne({
-      user: req.user.id,
-      status: OrderStatus.NEW,
-    });
+    if (req.user) {
+      await OrderModel.deleteOne({
+        user: req.user.id,
+        status: OrderStatus.NEW,
+      });
+    }
 
     try {
       const paymentMethod = ["COD", "PAYPAL"].includes(order.paymentMethod)
@@ -87,7 +102,8 @@ router.post(
       // derived after construction.
       const draft = new OrderModel({
         ...order,
-        user: req.user.id,
+        user: req.user?.id,
+        guestEmail: isGuest ? guestEmail : "",
         paymentMethod,
         status: paymentMethod === "COD" ? OrderStatus.COD_PENDING : OrderStatus.NEW,
         subtotal: 0,
@@ -128,6 +144,10 @@ router.post(
       draft.totalPrice = Math.max(0, subtotal + shipping - discount);
 
       await draft.save();
+      if (isGuest) {
+        const token = signOrderToken(draft._id);
+        return res.send({ ...draft.toObject(), token });
+      }
       res.send(draft);
     } catch (err) {
       await rollback(applied);

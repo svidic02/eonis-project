@@ -9,7 +9,7 @@ export const sample_products = [
     description:
       "Iconic Air cushioning meets timeless street style. The Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details.",
     price: 130,
-    images: ["image-1.jpg"],
+    images: ["https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80"],
     tags: ["Sneakers", "Casual"],
     variants: [
       v("Black", 41, 5),
@@ -29,7 +29,7 @@ export const sample_products = [
     description:
       "A clean court classic. The Stan Smith has stood the test of time as a minimalist tennis shoe turned everyday icon.",
     price: 100,
-    images: ["image-1.jpg"],
+    images: ["https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=600&q=80"],
     tags: ["Sneakers", "Casual"],
     variants: [
       v("White", 39, 4),
@@ -49,7 +49,7 @@ export const sample_products = [
     description:
       "A premium take on the original Chuck Taylor. Higher-quality canvas, cushioned insole and vintage detailing.",
     price: 85,
-    images: ["image-1.jpg"],
+    images: ["https://images.unsplash.com/photo-1607522370275-f14206abe5d3?w=600&q=80"],
     tags: ["Sneakers", "Casual"],
     variants: [
       v("Black", 37, 3),
@@ -68,7 +68,7 @@ export const sample_products = [
     description:
       "A workhorse running shoe with responsive React foam and dual Air Zoom units for a smooth, springy ride.",
     price: 140,
-    images: ["image-1.jpg"],
+    images: ["https://images.unsplash.com/photo-1539185441755-769473a23570?w=600&q=80"],
     tags: ["Running", "Sport"],
     variants: [
       v("Blue", 41, 4),
@@ -87,7 +87,7 @@ export const sample_products = [
     description:
       "Premium stability running shoe with FF BLAST PLUS ECO foam and PureGEL technology for a soft, supported run.",
     price: 165,
-    images: ["image-1.jpg"],
+    images: ["https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80"],
     tags: ["Running", "Sport"],
     variants: [
       v("Pink", 38, 3),
@@ -106,7 +106,7 @@ export const sample_products = [
     description:
       "The original 8-eye boot. Smooth leather, yellow welt stitch, and a Goodyear-welted air-cushioned sole.",
     price: 180,
-    images: ["image-1.jpg"],
+    images: ["https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=600&q=80"],
     tags: ["Boots", "Casual"],
     variants: [
       v("Black", 40, 4),
@@ -124,7 +124,7 @@ export const sample_products = [
     category: "Boots",
     description: "The original yellow boot. Waterproof premium leather, padded collar, seam-sealed construction.",
     price: 210,
-    images: ["image-1.jpg"],
+    images: ["https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=600&q=80"],
     tags: ["Boots"],
     variants: [v("Wheat", 41, 3), v("Wheat", 42, 4), v("Wheat", 43, 2), v("Wheat", 44, 5)],
   },
@@ -135,7 +135,7 @@ export const sample_products = [
     category: "Formal",
     description: "A classic cap-toe oxford in polished leather. Cushioned footbed and rubber sole for all-day comfort.",
     price: 120,
-    images: ["image-1.jpg"],
+    images: ["https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&q=80"],
     tags: ["Formal"],
     variants: [
       v("Black", 41, 4),
@@ -154,7 +154,7 @@ export const sample_products = [
     description:
       "Two-strap classic with the famous contoured cork-latex footbed. Adjustable buckles for a perfect fit.",
     price: 110,
-    images: ["image-1.jpg"],
+    images: ["https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&q=80"],
     tags: ["Sandals", "Casual"],
     variants: [
       v("Brown", 37, 3),
@@ -173,7 +173,7 @@ export const sample_products = [
     description:
       "The classic side-stripe sneaker, sized for kids. Sturdy canvas and suede uppers, padded collar, signature waffle outsole.",
     price: 60,
-    images: ["image-1.jpg"],
+    images: ["https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&q=80"],
     tags: ["Sneakers"],
     variants: [
       v("Black", 30, 3),

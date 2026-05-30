@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useReducer, useState } from "react";
 import { getAll, getAllTags, search } from "../../services/productService";
+import { getAllColorsAdmin } from "../../services/colorService";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import Search from "../../components/Search/Search";
 import Tags from "../../components/Tags/Tags";
-import FilterBar from "../../components/FilterBar/FilterBar";
+import Filters from "../../components/Filters/Filters";
 import Thumbnails from "../../components/Thumbnails/Thumbnails";
 import NotFound from "../../components/NotFound/NotFound";
 import useDocumentTitle from "../../hooks/useDocumentTitle";
+import { filterProducts } from "../../utils/facets";
 import classes from "./homePage.module.css";
 
 const initialState = { products: [], tags: [] };
@@ -22,6 +24,9 @@ const reducer = (state, action) => {
   }
 };
 
+const splitCsv = (s) => (s ? s.split(",").filter(Boolean) : []);
+const numOrNull = (s) => (s == null || s === "" ? null : Number(s));
+
 export default function HomePage() {
   useDocumentTitle("Footprint · Shop");
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -29,13 +34,50 @@ export default function HomePage() {
   const { searchTerm, tag: legacyTag } = useParams();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const gender = searchParams.get("gender");
-  const category = searchParams.get("category");
-  const tag = searchParams.get("tag");
+  const [colorMap, setColorMap] = useState({});
   const [sortBy, setSortBy] = useState("featured");
 
+  const filters = useMemo(
+    () => ({
+      gender: searchParams.get("gender") || null,
+      category: searchParams.get("category") || null,
+      brand: splitCsv(searchParams.get("brand")),
+      color: splitCsv(searchParams.get("color")),
+      size: splitCsv(searchParams.get("size")),
+      priceMin: numOrNull(searchParams.get("priceMin")),
+      priceMax: numOrNull(searchParams.get("priceMax")),
+    }),
+    [searchParams]
+  );
+  const tag = searchParams.get("tag");
+
+  const setFilters = (next) => {
+    const params = new URLSearchParams(searchParams);
+    const writeSingle = (k, v) => (v ? params.set(k, v) : params.delete(k));
+    const writeMulti = (k, v) =>
+      v && v.length ? params.set(k, v.join(",")) : params.delete(k);
+    const writeNum = (k, v) =>
+      v != null && !Number.isNaN(v) ? params.set(k, String(v)) : params.delete(k);
+
+    writeSingle("gender", next.gender);
+    writeSingle("category", next.category);
+    writeMulti("brand", next.brand);
+    writeMulti("color", next.color);
+    writeMulti("size", next.size);
+    writeNum("priceMin", next.priceMin);
+    writeNum("priceMax", next.priceMax);
+    setSearchParams(params, { replace: true });
+  };
+
+  const filteredProducts = useMemo(() => {
+    const byTag = tag
+      ? products.filter((p) => (p.tags ?? []).includes(tag))
+      : products;
+    return filterProducts(byTag, filters);
+  }, [products, filters, tag]);
+
   const sortedProducts = useMemo(() => {
-    const arr = [...products];
+    const arr = [...filteredProducts];
     switch (sortBy) {
       case "price-asc":
         return arr.sort((a, b) => a.price - b.price);
@@ -46,7 +88,7 @@ export default function HomePage() {
       default:
         return arr;
     }
-  }, [products, sortBy]);
+  }, [filteredProducts, sortBy]);
 
   // Redirect legacy /tag/:tag → /?tag=...
   useEffect(() => {
@@ -55,44 +97,42 @@ export default function HomePage() {
     }
   }, [legacyTag, navigate]);
 
-  const updateParam = (key, value) => {
-    const next = new URLSearchParams(searchParams);
-    if (value) next.set(key, value);
-    else next.delete(key);
-    setSearchParams(next, { replace: true });
-  };
-
   useEffect(() => {
     getAllTags().then((tags) => dispatch({ type: "TAGS_LOADED", payload: tags }));
+    getAllColorsAdmin()
+      .then((cs) => setColorMap(Object.fromEntries(cs.map((c) => [c.name, c.hex]))))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
-    if (legacyTag) return; // wait for redirect to settle
-    const loadProducts = searchTerm
-      ? search(searchTerm)
-      : getAll({ gender, category, tag });
-
+    if (legacyTag) return;
+    const loadProducts = searchTerm ? search(searchTerm) : getAll();
     loadProducts.then((products) =>
       dispatch({ type: "PRODUCTS_LOADED", payload: products })
     );
-  }, [searchTerm, gender, category, tag, legacyTag]);
+  }, [searchTerm, legacyTag]);
+
+  const setTag = (name) => {
+    const params = new URLSearchParams(searchParams);
+    if (name && name !== tag) params.set("tag", name);
+    else params.delete("tag");
+    setSearchParams(params, { replace: true });
+  };
 
   return (
     <div className={classes.layout}>
       <aside className={classes.sidebar}>
         <Search />
-        <FilterBar
-          gender={gender}
-          onGenderChange={(v) => updateParam("gender", v)}
+        <Filters
+          products={tag ? products.filter((p) => (p.tags ?? []).includes(tag)) : products}
+          filters={filters}
+          colorMap={colorMap}
+          onChange={setFilters}
         />
-        <Tags
-          tags={tags}
-          selected={tag}
-          onSelect={(name) => updateParam("tag", name)}
-        />
+        <Tags tags={tags} selected={tag} onSelect={setTag} />
       </aside>
       <main className={classes.content}>
-        {products.length > 0 && (
+        {sortedProducts.length > 0 && (
           <div className={classes.sortBar}>
             <label htmlFor="sort">Sort:</label>
             <select
@@ -108,7 +148,7 @@ export default function HomePage() {
             </select>
           </div>
         )}
-        {products.length === 0 ? (
+        {sortedProducts.length === 0 ? (
           <NotFound linkText="Reset Search" />
         ) : (
           <Thumbnails products={sortedProducts} />

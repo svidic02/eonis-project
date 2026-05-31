@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from "react";
 import classes from "./ordersList.module.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Price from "../Price/Price";
 import SearchInput from "../SearchInput/SearchInput";
+import { withinWindow, WINDOW_LABELS } from "../../utils/dateWindow";
 
 const STATUS_FILTERS = [
   { key: "ALL", label: "All" },
@@ -13,22 +14,38 @@ const STATUS_FILTERS = [
   { key: "CANCELED", label: "Canceled" },
 ];
 
+const VALID_STATUS = new Set(STATUS_FILTERS.map((f) => f.key));
+const VALID_FROM = new Set(["today", "week", "month"]);
+
 export default function OrderList({ orders }) {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [sortKey, setSortKey] = useState("name");
   const [sortDir, setSortDir] = useState("asc");
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
+
+  const rawStatus = searchParams.get("status");
+  const statusFilter = rawStatus && VALID_STATUS.has(rawStatus) ? rawStatus : "ALL";
+  const rawFrom = searchParams.get("from");
+  const fromFilter = rawFrom && VALID_FROM.has(rawFrom) ? rawFrom : null;
+
+  const setParam = (key, value) => {
+    const next = new URLSearchParams(searchParams);
+    if (value && value !== "ALL") next.set(key, value);
+    else next.delete(key);
+    setSearchParams(next, { replace: true });
+  };
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return orders.filter((o) => {
       if (statusFilter !== "ALL" && o.status !== statusFilter) return false;
+      if (fromFilter && !withinWindow(o.createdAt, fromFilter)) return false;
       if (!q) return true;
       return [o.name, o.address, String(o._id), o.paymentMethod]
         .some((v) => String(v ?? "").toLowerCase().includes(q));
     });
-  }, [orders, query, statusFilter]);
+  }, [orders, query, statusFilter, fromFilter]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
@@ -66,7 +83,7 @@ export default function OrderList({ orders }) {
         <div className={classes.headerRight}>
           <SearchInput value={query} onChange={setQuery} placeholder="Search orders…" />
           <span className={classes.numberOf}>
-            {query || statusFilter !== "ALL"
+            {query || statusFilter !== "ALL" || fromFilter
               ? `${filtered.length} of ${orders.length}`
               : `${orders.length} total`}
           </span>
@@ -79,11 +96,24 @@ export default function OrderList({ orders }) {
             key={f.key}
             type="button"
             className={`${classes.filterPill} ${statusFilter === f.key ? classes.filterPillActive : ""}`}
-            onClick={() => setStatusFilter(f.key)}
+            onClick={() => setParam("status", f.key)}
           >
             {f.label}
           </button>
         ))}
+        {fromFilter && (
+          <span className={classes.fromChip}>
+            From: {WINDOW_LABELS[fromFilter]?.toLowerCase() ?? fromFilter}
+            <button
+              type="button"
+              className={classes.fromChipClear}
+              onClick={() => setParam("from", null)}
+              aria-label="Clear date filter"
+            >
+              ×
+            </button>
+          </span>
+        )}
       </div>
 
       <div className={classes.tableWrapper}>

@@ -166,29 +166,7 @@ export default function ProfilePage() {
       </div>
 
       <section className={classes.ordersSection}>
-        {profile.isAdmin ? (
-          <>
-            <h2 className={classes.detailsTitle}>Admin shortcuts</h2>
-            <div className={classes.shortcutGrid}>
-              <button type="button" className={classes.shortcut} onClick={() => navigate("/orders")}>
-                <span className={classes.shortcutLabel}>Orders</span>
-                <span className={classes.shortcutHint}>View and manage all orders</span>
-              </button>
-              <button type="button" className={classes.shortcut} onClick={() => navigate("/products")}>
-                <span className={classes.shortcutLabel}>Products</span>
-                <span className={classes.shortcutHint}>Catalog, variants, stock</span>
-              </button>
-              <button type="button" className={classes.shortcut} onClick={() => navigate("/users")}>
-                <span className={classes.shortcutLabel}>Users</span>
-                <span className={classes.shortcutHint}>Customer accounts</span>
-              </button>
-              <button type="button" className={classes.shortcut} onClick={() => navigate("/promos")}>
-                <span className={classes.shortcutLabel}>Promos</span>
-                <span className={classes.shortcutHint}>Discount codes</span>
-              </button>
-            </div>
-          </>
-        ) : (
+        {profile.isAdmin ? null : (
           <>
             <h2 className={classes.detailsTitle}>Your orders</h2>
             {orders.length === 0 ? (

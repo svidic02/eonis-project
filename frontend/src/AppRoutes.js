@@ -24,12 +24,14 @@ import BrandsPage from "./pages/Admin/Brands/BrandsPage";
 import BrandInfoPage from "./pages/Admin/BrandInfo/BrandInfoPage";
 import PromosPage from "./pages/Admin/Promos/PromosPage";
 import PromoInfoPage from "./pages/Admin/PromoInfo/PromoInfoPage";
+import AdminHomePage from "./pages/Admin/Home/AdminHomePage";
 import NotFound from "./components/NotFound/NotFound";
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />}></Route>
+      <Route path="/admin" element={<AdminRoute><AdminHomePage /></AdminRoute>}></Route>
       <Route path="/search/:searchTerm" element={<HomePage />}></Route>
       <Route path="/tag/:tag" element={<HomePage />}></Route>
       <Route path="/product/:id" element={<ProductPage />}></Route>

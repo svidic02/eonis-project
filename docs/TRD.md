@@ -143,6 +143,10 @@ Brand name: **Footprint**.
 
 ## 7. UX / Admin Improvements Shipped
 
+- **Admin homepage at `/admin`:** stat tiles (Orders / Users / Products / Today's revenue), pending-attention card surfacing `NEW + COD_PENDING` order count, top-5 low-stock products with quick links, and the catalog shortcuts grid. Admins are auto-redirected from `/` so the dashboard is the role's natural starting point. Profile page is now account-only for admins; shortcuts moved into the dashboard.
+  - **Time-window toggle** (`Today · Week · Month · All`, persisted in localStorage) re-scopes the order count and revenue tiles.
+  - **Deep-link CTAs** — pending card → `/orders?status=COD_PENDING`, revenue tile → `/orders?from=<window>`. `OrdersList` now drives status + date filters from URL params (shareable, back-button friendly) and surfaces a removable "From: …" chip.
+  - **Stale orders card** lists `NEW`/`COD_PENDING` orders older than 7 days, top 5 sorted oldest-first, click → detail.
 - **Header:** consolidated admin nav (`Users · Catalog ▾ · Orders · Name ▾`) with inline-SVG icons; Catalog dropdown groups Products / Tags / Colors / Brands / Promos. Admin Logout grouped under the profile name dropdown to match the customer pattern.
 - **Admin shell cues:** brand badge "Admin" next to the title, accent-colored 2px header border, page titles prefixed `Footprint Admin · X` (via `useDocumentTitle` hook), footer reads `Footprint Admin · signed in as <name>` for admin sessions.
 - **Admin lists:** shared `<SearchInput />` on Tags, Colors, Brands, Promos, Products, Orders. OrdersList also has status filter pills (All · New · COD pending · Paid · Shipped · Canceled).
@@ -221,7 +225,7 @@ Users · Products (incl. variants) · Orders · Status update · Tags · Colors 
 14. **Out-of-stock waitlist** — let customers ask to be notified when a specific size/color is restocked.
 15. **Internationalization (i18n)** — Serbian / English toggle.
 16. **Accessibility audit** — keyboard nav across all admin tables, ARIA labels on icon-only buttons in the header.
-17. **Admin landing page** at `/admin` with shortcut tiles (Users · Orders · Products · Promos) — also the natural home for analytics tiles when §10.1.1 lands.
+17. ~~Admin landing page~~ — shipped (see §7).
 18. **Customer order cancel + admin "view as customer"** preview toggle for demos.
 19. **Guest checkout** — ✅ shipped (see §10.3).
 

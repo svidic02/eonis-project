@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useReducer, useState } from "react";
 import { getAll, getAllTags, search } from "../../services/productService";
 import { getAllColorsAdmin } from "../../services/colorService";
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate, Navigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 import Search from "../../components/Search/Search";
 import Tags from "../../components/Tags/Tags";
 import Filters from "../../components/Filters/Filters";
@@ -29,6 +30,7 @@ const numOrNull = (s) => (s == null || s === "" ? null : Number(s));
 
 export default function HomePage() {
   useDocumentTitle("Footprint · Shop");
+  const { user } = useAuth();
   const [state, dispatch] = useReducer(reducer, initialState);
   const { products, tags } = state;
   const { searchTerm, tag: legacyTag } = useParams();
@@ -120,6 +122,7 @@ export default function HomePage() {
   };
 
   return (
+    user?.isAdmin ? <Navigate to="/admin" replace /> :
     <div className={classes.layout}>
       <aside className={classes.sidebar}>
         <Search />

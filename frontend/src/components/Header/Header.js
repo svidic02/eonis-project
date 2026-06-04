@@ -59,6 +59,13 @@ const Icon = {
       <polyline points="6 9 12 15 18 9" />
     </svg>
   ),
+  Analytics: () => (
+    <svg {...iconProps}>
+      <line x1="18" y1="20" x2="18" y2="10" />
+      <line x1="12" y1="20" x2="12" y2="4" />
+      <line x1="6" y1="20" x2="6" y2="14" />
+    </svg>
+  ),
 };
 
 export default function Header() {
@@ -99,6 +106,11 @@ export default function Header() {
                   <li>
                     <Link to="/orders" className={classes.navLink}>
                       <Icon.Orders /> Orders
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/analytics" className={classes.navLink}>
+                      <Icon.Analytics /> Analytics
                     </Link>
                   </li>
                   <li className={classes.menu_container}>

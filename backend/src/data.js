@@ -184,6 +184,137 @@ export const sample_products = [
       v("Red", 32, 0),
     ],
   },
+  {
+    name: "Court Pump",
+    brand: "Clarks",
+    gender: "women",
+    category: "Formal",
+    description:
+      "A versatile leather court pump with a 50mm block heel and cushioned insole — office to evening without missing a beat.",
+    price: 11500,
+    images: ["https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80"],
+    tags: ["Formal"],
+    variants: [
+      v("Black", 37, 4),
+      v("Black", 38, 6),
+      v("Black", 39, 5),
+      v("Black", 40, 3),
+      v("Nude", 37, 3),
+      v("Nude", 38, 5),
+      v("Nude", 39, 4),
+    ],
+  },
+  {
+    name: "Penny Loafer",
+    brand: "Clarks",
+    gender: "men",
+    category: "Formal",
+    description:
+      "A timeless slip-on in supple leather. Hand-stitched apron, leather-lined footbed, and a hard-wearing rubber sole.",
+    price: 13500,
+    images: ["https://images.unsplash.com/photo-1582588678413-dbf45f4823e9?w=600&q=80"],
+    tags: ["Formal"],
+    variants: [
+      v("Brown", 41, 5),
+      v("Brown", 42, 7),
+      v("Brown", 43, 4),
+      v("Burgundy", 41, 3),
+      v("Burgundy", 42, 5),
+      v("Burgundy", 43, 2),
+    ],
+  },
+  {
+    name: "Performance Slide",
+    brand: "Adidas",
+    gender: "men",
+    category: "Sandals",
+    description:
+      "Cloud-soft sport slide with a contoured footbed. The post-game / pool-deck staple.",
+    price: 4500,
+    images: ["https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&q=80"],
+    tags: ["Sandals", "Sport"],
+    variants: [
+      v("Black", 41, 6),
+      v("Black", 42, 8),
+      v("Black", 43, 5),
+      v("Black", 44, 4),
+      v("Blue", 42, 3),
+      v("Blue", 43, 5),
+    ],
+  },
+  {
+    name: "Splash Sandal",
+    brand: "Birkenstock",
+    gender: "kids",
+    category: "Sandals",
+    description:
+      "Adjustable hook-and-loop sandal built for the playground, the pool, and the trip back home.",
+    price: 4000,
+    images: ["https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&q=80"],
+    tags: ["Sandals", "Casual"],
+    variants: [
+      v("Pink", 28, 4),
+      v("Pink", 29, 5),
+      v("Pink", 30, 4),
+      v("Blue", 28, 3),
+      v("Blue", 29, 5),
+      v("Blue", 30, 4),
+    ],
+  },
+  {
+    name: "Jadon",
+    brand: "Dr. Martens",
+    gender: "women",
+    category: "Boots",
+    description:
+      "The 1460 silhouette on a chunky platform sole. Smooth leather and yellow welt stitch with extra height and attitude.",
+    price: 22000,
+    images: ["https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=600&q=80"],
+    tags: ["Boots"],
+    variants: [
+      v("Black", 37, 4),
+      v("Black", 38, 6),
+      v("Black", 39, 5),
+      v("Black", 40, 3),
+    ],
+  },
+  {
+    name: "Court Trainer Kids",
+    brand: "Nike",
+    gender: "kids",
+    category: "Running",
+    description:
+      "A lightweight kid's runner with breathable mesh, a flexible foam midsole, and a hook-and-loop closure for solo lace-up wins.",
+    price: 5500,
+    images: ["https://images.unsplash.com/photo-1539185441755-769473a23570?w=600&q=80"],
+    tags: ["Running", "Sport"],
+    variants: [
+      v("Blue", 30, 5),
+      v("Blue", 31, 6),
+      v("Blue", 32, 5),
+      v("Blue", 33, 4),
+      v("Pink", 30, 4),
+      v("Pink", 31, 5),
+      v("Pink", 32, 4),
+    ],
+  },
+  {
+    name: "Trailblazer Kids",
+    brand: "Timberland",
+    gender: "kids",
+    category: "Boots",
+    description:
+      "A weatherproof leather boot for kids — padded collar, sturdy lugged sole, and the iconic premium upper.",
+    price: 8500,
+    images: ["https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=600&q=80"],
+    tags: ["Boots"],
+    variants: [
+      v("Wheat", 30, 3),
+      v("Wheat", 31, 5),
+      v("Wheat", 32, 4),
+      v("Wheat", 33, 3),
+    ],
+  },
 ];
 
 export const sample_brands = [
@@ -210,6 +341,8 @@ export const sample_colors = [
   { name: "Wheat", hex: "#D2B48C" },
   { name: "Brown", hex: "#5C3A21" },
   { name: "Red", hex: "#D32F2F" },
+  { name: "Nude", hex: "#E8C5A8" },
+  { name: "Burgundy", hex: "#7A1F2B" },
 ];
 
 export const sample_tags = [

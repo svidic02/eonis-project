@@ -6,6 +6,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import OrderItemsList from "../../../components/OrderItemsList/OrderItemsList";
 import Price from "../../../components/Price/Price";
 import useDocumentTitle from "../../../hooks/useDocumentTitle";
+import { agoLabel } from "../../../utils/dateWindow";
 import classes from "./orderInfoPage.module.css";
 
 const STATUSES = ["NEW", "COD_PENDING", "PAYED", "SHIPPED", "CANCELED", "REFUNDED"];
@@ -129,6 +130,7 @@ export default function OrderInfoPage() {
             <div className={classes.metaLabel}>Placed</div>
             <div className={classes.metaValue}>
               {new Date(order.createdAt).toLocaleString()}
+              <span className={classes.relTime}>{agoLabel(order.createdAt)}</span>
             </div>
           </div>
           {order.updatedAt && new Date(order.updatedAt).getTime() !== new Date(order.createdAt).getTime() && (
@@ -136,6 +138,7 @@ export default function OrderInfoPage() {
               <div className={classes.metaLabel}>Last updated</div>
               <div className={classes.metaValue}>
                 {new Date(order.updatedAt).toLocaleString()}
+                <span className={classes.relTime}>{agoLabel(order.updatedAt)}</span>
               </div>
             </div>
           )}

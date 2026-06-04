@@ -5,7 +5,7 @@ import useDocumentTitle from "../../../hooks/useDocumentTitle";
 import { getAllOrders } from "../../../services/orderService";
 import { getAllUsers } from "../../../services/userService";
 import { getAll as getAllProducts } from "../../../services/productService";
-import { withinWindow, WINDOW_LABELS } from "../../../utils/dateWindow";
+import { withinWindow, WINDOW_LABELS, daysAgo } from "../../../utils/dateWindow";
 import Price from "../../../components/Price/Price";
 import classes from "./adminHome.module.css";
 
@@ -13,11 +13,6 @@ const LOW_STOCK = 5;
 const STALE_DAYS = 7;
 const WINDOW_KEYS = ["today", "week", "month", "all"];
 const WINDOW_STORAGE_KEY = "admin.dashboard.window";
-
-const daysAgo = (date) => {
-  const ms = Date.now() - new Date(date).getTime();
-  return Math.floor(ms / (24 * 60 * 60 * 1000));
-};
 
 export default function AdminHomePage() {
   useDocumentTitle("Footprint Admin · Dashboard");
@@ -230,6 +225,10 @@ export default function AdminHomePage() {
           <button type="button" className={classes.shortcut} onClick={() => navigate("/users")}>
             <span className={classes.shortcutLabel}>Users</span>
             <span className={classes.shortcutHint}>Customer accounts</span>
+          </button>
+          <button type="button" className={classes.shortcut} onClick={() => navigate("/admin/analytics")}>
+            <span className={classes.shortcutLabel}>Analytics</span>
+            <span className={classes.shortcutHint}>Top sellers, revenue, trends</span>
           </button>
           <button type="button" className={classes.shortcut} onClick={() => navigate("/promos")}>
             <span className={classes.shortcutLabel}>Promos</span>

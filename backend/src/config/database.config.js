@@ -114,16 +114,24 @@ async function seedOrders() {
     console.log("Orders seed is already done!");
     return;
   }
-  const john = await UserModel.findOne({ email: "john@gmail.com" });
-  const emily = await UserModel.findOne({ email: "emily@gmail.com" });
-  const products = await ProductModel.find({}).limit(5);
-  if (!john || !emily || products.length < 3) {
+  const userEmails = [
+    "john@gmail.com",
+    "emily@gmail.com",
+    "sophia@gmail.com",
+    "alex@gmail.com",
+    "olivia@gmail.com",
+  ];
+  const users = await UserModel.find({ email: { $in: userEmails } });
+  const products = await ProductModel.find({});
+  if (users.length < 2 || products.length < 5) {
     console.log("Skipping orders seed (users or products missing).");
     return;
   }
+  const userByEmail = Object.fromEntries(users.map((u) => [u.email, u]));
 
-  const buildItem = (product, qty = 1) => {
-    const variant = (product.variants || []).find((v) => v.stock > 0) || product.variants?.[0];
+  const buildItem = (product, qty, variantIdx = 0) => {
+    const variants = (product.variants || []).filter((v) => v.stock > 0);
+    const variant = variants[variantIdx % Math.max(1, variants.length)] ?? product.variants?.[0];
     return {
       product,
       price: product.price * qty,
@@ -134,61 +142,87 @@ async function seedOrders() {
     };
   };
 
-  const buildOrder = (overrides) => {
-    const items = overrides.items;
+  const productByName = Object.fromEntries(products.map((p) => [p.name, p]));
+  const P = (name) => {
+    const p = productByName[name];
+    if (!p) throw new Error(`Seed: missing product "${name}"`);
+    return p;
+  };
+
+  const NEW = OrderStatus.NEW;
+  const COD = OrderStatus.COD_PENDING;
+  const PAYED = OrderStatus.PAYED;
+  const SHIPPED = OrderStatus.SHIPPED;
+  const CANCELED = OrderStatus.CANCELED;
+
+  const fixtures = [
+    { ago: 28, email: "john@gmail.com",   status: SHIPPED, items: [["Air Max 90", 1, 1], ["Stan Smith", 1, 0]] },
+    { ago: 26, email: "emily@gmail.com",  status: SHIPPED, items: [["Gel-Kayano 30", 1, 0]] },
+    { ago: 25, email: "sophia@gmail.com", status: SHIPPED, items: [["Chuck 70", 2, 1]] },
+    { ago: 23, email: "alex@gmail.com",   status: SHIPPED, items: [["Pegasus 40", 1, 2], ["Performance Slide", 1, 0]] },
+    { ago: 21, email: "olivia@gmail.com", status: PAYED,   items: [["Arizona", 1, 0]], promo: "WELCOME10" },
+    { ago: 20, email: "john@gmail.com",   status: SHIPPED, items: [["1460", 1, 1]] },
+    { ago: 19, email: "emily@gmail.com",  status: PAYED,   items: [["Court Pump", 1, 2]] },
+    { ago: 18, email: "sophia@gmail.com", status: CANCELED,items: [["Tilden Cap Oxford", 1, 0]] },
+    { ago: 17, email: "alex@gmail.com",   status: PAYED,   items: [["6-Inch Premium", 1, 1], ["Penny Loafer", 1, 0]] },
+    { ago: 15, email: "olivia@gmail.com", status: PAYED,   items: [["Old Skool Kids", 2, 0]] },
+    { ago: 14, email: "john@gmail.com",   status: PAYED,   items: [["Trailblazer Kids", 1, 1], ["Court Trainer Kids", 1, 0]] },
+    { ago: 12, email: "emily@gmail.com",  status: PAYED,   items: [["Jadon", 1, 1]] },
+    { ago: 11, email: "sophia@gmail.com", status: PAYED,   items: [["Splash Sandal", 1, 1]] },
+    { ago: 10, email: "alex@gmail.com",   status: PAYED,   items: [["Air Max 90", 1, 0], ["Performance Slide", 2, 0]] },
+    { ago: 9,  email: "olivia@gmail.com", status: NEW,     items: [["Pegasus 40", 1, 1]] },
+    { ago: 8,  email: "john@gmail.com",   status: COD,     items: [["Stan Smith", 1, 2]] },
+    { ago: 6,  email: "emily@gmail.com",  status: PAYED,   items: [["Gel-Kayano 30", 1, 1], ["Chuck 70", 1, 0]], promo: "SUMMER20" },
+    { ago: 5,  email: "sophia@gmail.com", status: PAYED,   items: [["Court Pump", 1, 0]] },
+    { ago: 4,  email: "alex@gmail.com",   status: PAYED,   items: [["Penny Loafer", 1, 1]] },
+    { ago: 3,  email: "olivia@gmail.com", status: SHIPPED, items: [["Arizona", 1, 1], ["Splash Sandal", 1, 0]] },
+    { ago: 3,  email: "john@gmail.com",   status: PAYED,   items: [["1460", 1, 0], ["Air Max 90", 1, 2]] },
+    { ago: 2,  email: "emily@gmail.com",  status: PAYED,   items: [["Old Skool Kids", 1, 1], ["Trailblazer Kids", 1, 0]] },
+    { ago: 2,  email: "sophia@gmail.com", status: NEW,     items: [["Jadon", 1, 0]] },
+    { ago: 1,  email: "alex@gmail.com",   status: COD,     items: [["6-Inch Premium", 1, 0]] },
+    { ago: 1,  email: "olivia@gmail.com", status: PAYED,   items: [["Court Trainer Kids", 1, 2], ["Performance Slide", 1, 1]] },
+  ];
+
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const promoConfigs = {
+    WELCOME10: { type: "PERCENT", value: 10 },
+    SUMMER20:  { type: "PERCENT", value: 20 },
+  };
+
+  const sample_orders = fixtures.map((f, idx) => {
+    const user = userByEmail[f.email];
+    const items = f.items.map(([name, qty, vIdx]) => buildItem(P(name), qty, vIdx));
     const subtotal = items.reduce((s, it) => s + it.price, 0);
-    const shipping = subtotal >= FREE_SHIPPING_OVER ? 0 : SHIPPING_FEE;
-    const paymentMethod =
-      overrides.paymentMethod ??
-      ([OrderStatus.PAYED, OrderStatus.SHIPPED].includes(overrides.status) ? "PAYPAL" : "COD");
+    let discount = 0;
+    let promoCode = null;
+    if (f.promo && promoConfigs[f.promo]) {
+      const cfg = promoConfigs[f.promo];
+      discount = cfg.type === "PERCENT" ? Math.round((subtotal * cfg.value) / 100) : cfg.value;
+      promoCode = f.promo;
+    }
+    const shipping = subtotal - discount >= FREE_SHIPPING_OVER ? 0 : SHIPPING_FEE;
+    const paymentMethod = [PAYED, SHIPPED].includes(f.status) ? "PAYPAL" : "COD";
+    const createdAt = new Date(Date.now() - f.ago * DAY_MS);
     return {
-      ...overrides,
+      user: user._id,
+      name: user.name,
+      address: user.address,
+      status: f.status,
+      paymentId: paymentMethod === "PAYPAL" ? `SEED-PAY-${String(idx + 1).padStart(3, "0")}` : "",
+      paymentMethod,
       items,
       subtotal,
       shipping,
-      discount: 0,
-      promoCode: null,
-      totalPrice: subtotal + shipping,
-      paymentMethod,
+      discount,
+      promoCode,
+      totalPrice: subtotal + shipping - discount,
+      createdAt,
+      updatedAt: createdAt,
     };
-  };
+  });
 
-  const sample_orders = [
-    buildOrder({
-      user: john._id,
-      name: john.name,
-      address: john.address,
-      status: OrderStatus.PAYED,
-      paymentId: "TEST-PAY-001",
-      items: [buildItem(products[0], 1), buildItem(products[1], 2)],
-    }),
-    buildOrder({
-      user: john._id,
-      name: john.name,
-      address: john.address,
-      status: OrderStatus.SHIPPED,
-      paymentId: "TEST-PAY-002",
-      items: [buildItem(products[2], 1)],
-    }),
-    buildOrder({
-      user: emily._id,
-      name: emily.name,
-      address: emily.address,
-      status: OrderStatus.PAYED,
-      paymentId: "TEST-PAY-003",
-      items: [buildItem(products[3], 1), buildItem(products[4], 1)],
-    }),
-    buildOrder({
-      user: emily._id,
-      name: emily.name,
-      address: emily.address,
-      status: OrderStatus.NEW,
-      items: [buildItem(products[0], 1)],
-    }),
-  ];
-
-  for (const o of sample_orders) await OrderModel.create(o);
-  console.log("Orders seed is done!");
+  await OrderModel.insertMany(sample_orders, { timestamps: false });
+  console.log(`Orders seed is done! (${sample_orders.length} orders)`);
 }
 
 async function seedPromos() {

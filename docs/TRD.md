@@ -17,7 +17,7 @@
 | Phase 1 — Rename & rebrand (food → footwear)                   | ✅ Done                                |
 | Phase 2 — Variant model + selector                             | ✅ Done                                |
 | Phase 3 — Cart transparency (RSD, shipping, promos, breakdown) | ✅ Done                                |
-| Phase 4 — Owner analytics dashboard                            | ❌ Not started                         |
+| Phase 4 — Owner analytics dashboard                            | ✅ Done                                |
 | Single-step checkout + Cash on delivery                        | ✅ Done                                |
 | Admin order status management                                  | ✅ Done                                |
 | Admin list search + status filter pills                        | ✅ Done                                |
@@ -48,14 +48,17 @@ Brand name: **Footprint**.
 - **Cash on Delivery** is the active payment method. Order schema gains `paymentMethod` (`COD` | `PAYPAL`) and `OrderStatus.COD_PENDING`.
 - PayPal radio is rendered disabled with a "Coming soon — RSD not supported" hint.
 
-### 3.3 Owner Analytics Dashboard ❌ (planned)
+### 3.3 Owner Analytics Dashboard ✅
 
-- Accessible only to admin users (existing `isAdmin` flag).
-- Metrics tailored to footwear:
-  - Best-selling sizes and models, filterable by gender (men / women / kids).
-  - Revenue trend per category over time.
-  - Low-stock alerts per variant (size + color).
-- New admin page; backend exposes aggregation endpoints. See §10 for proposed scope.
+- Accessible only to admin users (existing `isAdmin` flag) at `/admin/analytics`.
+- Time-window toggle (`Today · Week · Month · All`, persisted in localStorage under `admin.analytics.window`) re-scopes every widget. Sales/revenue aggregations exclude `CANCELED` and `REFUNDED`.
+- Widgets shipped:
+  - **Stat strip** — orders, units sold, revenue, average order value.
+  - **Revenue trend** — line chart bucketed by day (`today`/`week`/`month`) or by week (`all`).
+  - **Top products** — horizontal bar chart, ranked by units, gender filter (`All · Men · Women · Kids`), bar click → product detail.
+  - **Top sizes** — bar chart over numeric size buckets, gender filter.
+  - **Revenue by category** — donut across the 5 product categories.
+- Implemented client-side over `getAllOrders()` / `getAll()` (products) using a shared aggregation module (`frontend/src/utils/analytics.js`); no backend aggregation endpoints needed at current dataset size.
 
 ---
 
@@ -143,11 +146,12 @@ Brand name: **Footprint**.
 
 ## 7. UX / Admin Improvements Shipped
 
-- **Admin homepage at `/admin`:** stat tiles (Orders / Users / Products / Today's revenue), pending-attention card surfacing `NEW + COD_PENDING` order count, top-5 low-stock products with quick links, and the catalog shortcuts grid. Admins are auto-redirected from `/` so the dashboard is the role's natural starting point. Profile page is now account-only for admins; shortcuts moved into the dashboard.
+- **Admin homepage at `/admin`:** stat tiles (Orders / Users / Products / Today's revenue), pending-attention card surfacing `NEW + COD_PENDING` order count, top-5 low-stock products with quick links, and the catalog shortcuts grid (incl. an Analytics shortcut). Admins are auto-redirected from `/` so the dashboard is the role's natural starting point. Profile page is now account-only for admins; shortcuts moved into the dashboard.
   - **Time-window toggle** (`Today · Week · Month · All`, persisted in localStorage) re-scopes the order count and revenue tiles.
   - **Deep-link CTAs** — pending card → `/orders?status=COD_PENDING`, revenue tile → `/orders?from=<window>`. `OrdersList` now drives status + date filters from URL params (shareable, back-button friendly) and surfaces a removable "From: …" chip.
   - **Stale orders card** lists `NEW`/`COD_PENDING` orders older than 7 days, top 5 sorted oldest-first, click → detail.
-- **Header:** consolidated admin nav (`Users · Catalog ▾ · Orders · Name ▾`) with inline-SVG icons; Catalog dropdown groups Products / Tags / Colors / Brands / Promos. Admin Logout grouped under the profile name dropdown to match the customer pattern.
+- **Analytics page at `/admin/analytics`:** revenue trend, top products (gender filter), top sizes (gender filter), revenue-by-category donut, and a stat strip (orders, units, revenue, AOV). Time-window toggle shared with `/admin` (separate localStorage key). Charts via Recharts; aggregation lives in `frontend/src/utils/analytics.js`. Linked from the admin header (`Analytics`) and the dashboard shortcut grid.
+- **Header:** consolidated admin nav (`Users · Catalog ▾ · Orders · Analytics · Name ▾`) with inline-SVG icons; Catalog dropdown groups Products / Tags / Colors / Brands / Promos. Admin Logout grouped under the profile name dropdown to match the customer pattern.
 - **Admin shell cues:** brand badge "Admin" next to the title, accent-colored 2px header border, page titles prefixed `Footprint Admin · X` (via `useDocumentTitle` hook), footer reads `Footprint Admin · signed in as <name>` for admin sessions.
 - **Admin lists:** shared `<SearchInput />` on Tags, Colors, Brands, Promos, Products, Orders. OrdersList also has status filter pills (All · New · COD pending · Paid · Shipped · Canceled).
 - **ConfirmationDialog:** restyled with blurred backdrop, warning icon, focus trap, scroll lock, Esc-to-cancel, distinct destructive button.
@@ -202,10 +206,10 @@ Users · Products (incl. variants) · Orders · Status update · Tags · Colors 
 
 ### 10.1 Must-have before final submission
 
-1. **Owner analytics dashboard (TRD §3.3).** Headline TRD feature — top sellers, top sizes, revenue over time, low-stock alerts per variant. Backend aggregation endpoints (`/api/analytics/*`) + admin page using `recharts` or `chart.js`.
+1. ~~Owner analytics dashboard (TRD §3.3).~~ ✅ Shipped — see §3.3 and §7.
 2. **Admin product variants editor polish.** Variants are editable today, but a clearer UI (per-row stock, in-place save, low-stock highlight) would help the demo story.
 3. **Order detail timestamps.** Show last-status-change time alongside `Placed`. Useful when demoing status transitions.
-4. **Product images.** Replace seed placeholders with one real image per product so cards/detail look complete.
+4. **Product images.** Replace seed placeholders with one real image per product so cards/detail look complete. The pipeline already exists (`seedProducts` prepends `/products/` to each entry, served by CRA from `frontend/public/products/`), but `data.js` currently ships full Unsplash URLs which produce broken `/products/https://…` paths. To finish: rewrite each product's `images` array to a bare filename (e.g. `air-max-90.jpg`), drop matching files into `frontend/public/products/`, wipe the `products` collection, and restart. ~17 files to source.
 
 ### 10.2 Optional polish (nice-to-haves)
 
@@ -291,6 +295,6 @@ Render the URL as visible text on the page too, in case the user has no default 
 | 1     | Rename & rebrand food → footwear                                               | ✅ Shipped             |
 | 2     | Variant model + selector with disabled OOS combos                              | ✅ Shipped             |
 | 3     | Cart transparency: RSD, shipping, promos, breakdown, single-step checkout, COD | ✅ Shipped             |
-| 4     | Owner analytics dashboard                                                      | ❌ Pending — see §10.1 |
+| 4     | Owner analytics dashboard                                                      | ✅ Shipped             |
 
 Smaller cross-cutting work (header consolidation, list search, admin order management, profile orders, low-stock indicators) shipped after phase 3.

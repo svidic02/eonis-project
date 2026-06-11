@@ -10,7 +10,7 @@ import { getAll as getAllProducts } from "../../../services/productService";
 import { withinWindow, withinPreviousWindow, WINDOW_LABELS } from "../../../utils/dateWindow";
 import {
   flattenOrderItems, topProducts, topSizes, topBrands,
-  revenueByCategory, revenueTrend, promoUsage,
+  revenueByCategory, revenueTrend, promoUsage, stockHealth,
 } from "../../../utils/analytics";
 import Price from "../../../components/Price/Price";
 import classes from "./analytics.module.css";
@@ -39,6 +39,18 @@ export default function AnalyticsPage() {
   });
   const [productGender, setProductGender] = useState("all");
   const [sizeGender, setSizeGender] = useState("all");
+  const [productRank, setProductRank] = useState("units");
+  const [categoryBasis, setCategoryBasis] = useState("revenue");
+
+  const RANKS = [
+    { key: "units", label: "Units" },
+    { key: "revenue", label: "Revenue" },
+  ];
+  const BASES = [
+    { key: "revenue", label: "Revenue" },
+    { key: "units", label: "Units" },
+    { key: "orders", label: "Orders" },
+  ];
 
   useEffect(() => {
     Promise.all([getAllOrders(), getAllProducts()])
@@ -80,13 +92,13 @@ export default function AnalyticsPage() {
 
   const topProductsData = useMemo(() => {
     const rows = flattenOrderItems(orders, { window: windowKey, gender: productGender });
-    return topProducts(rows, 8);
-  }, [orders, windowKey, productGender]);
+    return [...topProducts(rows, 8)].sort((a, b) => b[productRank] - a[productRank]);
+  }, [orders, windowKey, productGender, productRank]);
 
   const topBrandsData = useMemo(() => {
     const rows = flattenOrderItems(orders, { window: windowKey, gender: productGender });
-    return topBrands(rows, 8);
-  }, [orders, windowKey, productGender]);
+    return [...topBrands(rows, 8)].sort((a, b) => b[productRank] - a[productRank]);
+  }, [orders, windowKey, productGender, productRank]);
 
   const promoUsageData = useMemo(
     () => promoUsage(orders ?? [], { window: windowKey }),
@@ -100,8 +112,10 @@ export default function AnalyticsPage() {
 
   const categoryData = useMemo(() => {
     const rows = flattenOrderItems(orders, { window: windowKey });
-    return revenueByCategory(rows).filter((r) => r.revenue > 0);
-  }, [orders, windowKey]);
+    return revenueByCategory(rows).filter((r) => r[categoryBasis] > 0);
+  }, [orders, windowKey, categoryBasis]);
+
+  const stockHealthData = useMemo(() => stockHealth(products ?? []), [products]);
 
   const loading = orders === null || products === null;
 
@@ -150,6 +164,24 @@ export default function AnalyticsPage() {
           </span>
           {!loading && showDelta && <DeltaChip curr={stats.aov} prev={prevStats.aov} />}
         </div>
+        <button
+          type="button"
+          className={`${classes.statTile} ${classes.statTileButton}`}
+          onClick={() => navigate("/products")}
+        >
+          <span className={classes.statLabel}>Stock health</span>
+          {loading ? (
+            <span className={classes.statValue}>—</span>
+          ) : (
+            <span className={classes.stockBlock}>
+              <span className={classes.stockMain}>{stockHealthData.totalUnits} units</span>
+              <span className={classes.stockMeta}>
+                <span className={classes.stockLow}>{stockHealthData.lowPct}% low</span>
+                <span className={classes.stockOut}>{stockHealthData.outPct}% out</span>
+              </span>
+            </span>
+          )}
+        </button>
       </div>
 
       <section className={classes.panel}>
@@ -165,7 +197,7 @@ export default function AnalyticsPage() {
               <XAxis dataKey="bucket" stroke="var(--text-muted)" fontSize={12} />
               <YAxis stroke="var(--text-muted)" fontSize={12} tickFormatter={(v) => fmtRSD(v)} width={90} />
               <Tooltip formatter={(v) => fmtRSD(v)} />
-              <Line type="monotone" dataKey="revenue" stroke="#1f8a70" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="revenue" name="Revenue" stroke="#1f8a70" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
         )}
@@ -176,6 +208,17 @@ export default function AnalyticsPage() {
           <div className={classes.panelHead}>
             <h2 className={classes.panelTitle}>Top products</h2>
             <div className={classes.miniPills}>
+              {RANKS.map((r) => (
+                <button
+                  key={r.key}
+                  type="button"
+                  className={`${classes.miniPill} ${productRank === r.key ? classes.miniPillActive : ""}`}
+                  onClick={() => setProductRank(r.key)}
+                >
+                  {r.label}
+                </button>
+              ))}
+              <span className={classes.miniPillSpacer} />
               {GENDERS.map((g) => (
                 <button
                   key={g.key}
@@ -200,13 +243,19 @@ export default function AnalyticsPage() {
                 margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis type="number" stroke="var(--text-muted)" fontSize={12} allowDecimals={false} />
+                <XAxis
+                  type="number"
+                  stroke="var(--text-muted)"
+                  fontSize={12}
+                  allowDecimals={false}
+                  tickFormatter={(v) => (productRank === "revenue" ? fmtRSD(v) : v)}
+                />
                 <YAxis type="category" dataKey="name" stroke="var(--text-muted)" fontSize={12} width={130} />
                 <Tooltip
-                  formatter={(v, k) => (k === "units" ? `${v} units` : fmtRSD(v))}
+                  formatter={(v) => (productRank === "revenue" ? fmtRSD(v) : `${v} units`)}
                 />
                 <Bar
-                  dataKey="units"
+                  dataKey={productRank}
                   fill="#1f8a70"
                   radius={[0, 4, 4, 0]}
                   cursor="pointer"
@@ -257,7 +306,23 @@ export default function AnalyticsPage() {
       </div>
 
       <section className={classes.panel}>
-        <h2 className={classes.panelTitle}>Revenue by category</h2>
+        <div className={classes.panelHead}>
+          <h2 className={classes.panelTitle}>
+            {categoryBasis === "revenue" ? "Revenue by category" : categoryBasis === "units" ? "Units by category" : "Orders by category"}
+          </h2>
+          <div className={classes.miniPills}>
+            {BASES.map((b) => (
+              <button
+                key={b.key}
+                type="button"
+                className={`${classes.miniPill} ${categoryBasis === b.key ? classes.miniPillActive : ""}`}
+                onClick={() => setCategoryBasis(b.key)}
+              >
+                {b.label}
+              </button>
+            ))}
+          </div>
+        </div>
         {loading ? (
           <div className={classes.placeholder}>Loading…</div>
         ) : categoryData.length === 0 ? (
@@ -267,7 +332,7 @@ export default function AnalyticsPage() {
             <PieChart>
               <Pie
                 data={categoryData}
-                dataKey="revenue"
+                dataKey={categoryBasis}
                 nameKey="category"
                 innerRadius={60}
                 outerRadius={100}
@@ -277,7 +342,15 @@ export default function AnalyticsPage() {
                   <Cell key={i} fill={CATEGORY_COLORS[i % CATEGORY_COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(v) => fmtRSD(v)} />
+              <Tooltip
+                formatter={(v) =>
+                  categoryBasis === "revenue"
+                    ? fmtRSD(v)
+                    : categoryBasis === "units"
+                    ? `${v} units`
+                    : `${v} orders`
+                }
+              />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
@@ -300,10 +373,16 @@ export default function AnalyticsPage() {
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis type="number" stroke="var(--text-muted)" fontSize={12} allowDecimals={false} />
+              <XAxis
+                type="number"
+                stroke="var(--text-muted)"
+                fontSize={12}
+                allowDecimals={false}
+                tickFormatter={(v) => (productRank === "revenue" ? fmtRSD(v) : v)}
+              />
               <YAxis type="category" dataKey="brand" stroke="var(--text-muted)" fontSize={12} width={130} />
-              <Tooltip formatter={(v, k) => (k === "units" ? `${v} units` : fmtRSD(v))} />
-              <Bar dataKey="units" fill="#a14fb0" radius={[0, 4, 4, 0]} />
+              <Tooltip formatter={(v) => (productRank === "revenue" ? fmtRSD(v) : `${v} units`)} />
+              <Bar dataKey={productRank} fill="#a14fb0" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}

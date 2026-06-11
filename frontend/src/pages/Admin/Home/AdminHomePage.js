@@ -99,6 +99,31 @@ export default function AdminHomePage() {
     <div className={classes.page}>
       <h1 className={classes.greeting}>Welcome back, {user?.name?.split(" ")[0] ?? user?.name}.</h1>
 
+      <div className={classes.shortcutBar}>
+        <button type="button" className={classes.shortcut} onClick={() => navigate("/orders")}>
+          <span className={classes.shortcutLabel}>Orders</span>
+          <span className={classes.shortcutHint}>View and manage all orders</span>
+        </button>
+        <button type="button" className={classes.shortcut} onClick={() => navigate("/products")}>
+          <span className={classes.shortcutLabel}>Products</span>
+          <span className={classes.shortcutHint}>Catalog, variants, stock</span>
+        </button>
+        <button type="button" className={classes.shortcut} onClick={() => navigate("/users")}>
+          <span className={classes.shortcutLabel}>Users</span>
+          <span className={classes.shortcutHint}>Customer accounts</span>
+        </button>
+        <button type="button" className={classes.shortcut} onClick={() => navigate("/admin/analytics")}>
+          <span className={classes.shortcutLabel}>Analytics</span>
+          <span className={classes.shortcutHint}>Top sellers, revenue, trends</span>
+        </button>
+        <button type="button" className={classes.shortcut} onClick={() => navigate("/promos")}>
+          <span className={classes.shortcutLabel}>Promos</span>
+          <span className={classes.shortcutHint}>Discount codes</span>
+        </button>
+      </div>
+
+      <hr className={classes.divider} />
+
       <div className={classes.windowRow} role="tablist" aria-label="Time window">
         {WINDOW_KEYS.map((k) => (
           <button
@@ -209,32 +234,6 @@ export default function AdminHomePage() {
             ))}
           </ul>
         )}
-      </section>
-
-      <section className={classes.panel}>
-        <h2 className={classes.panelTitle}>Shortcuts</h2>
-        <div className={classes.shortcutGrid}>
-          <button type="button" className={classes.shortcut} onClick={() => navigate("/orders")}>
-            <span className={classes.shortcutLabel}>Orders</span>
-            <span className={classes.shortcutHint}>View and manage all orders</span>
-          </button>
-          <button type="button" className={classes.shortcut} onClick={() => navigate("/products")}>
-            <span className={classes.shortcutLabel}>Products</span>
-            <span className={classes.shortcutHint}>Catalog, variants, stock</span>
-          </button>
-          <button type="button" className={classes.shortcut} onClick={() => navigate("/users")}>
-            <span className={classes.shortcutLabel}>Users</span>
-            <span className={classes.shortcutHint}>Customer accounts</span>
-          </button>
-          <button type="button" className={classes.shortcut} onClick={() => navigate("/admin/analytics")}>
-            <span className={classes.shortcutLabel}>Analytics</span>
-            <span className={classes.shortcutHint}>Top sellers, revenue, trends</span>
-          </button>
-          <button type="button" className={classes.shortcut} onClick={() => navigate("/promos")}>
-            <span className={classes.shortcutLabel}>Promos</span>
-            <span className={classes.shortcutHint}>Discount codes</span>
-          </button>
-        </div>
       </section>
     </div>
   );

@@ -53,11 +53,17 @@ Brand name: **Footprint**.
 - Accessible only to admin users (existing `isAdmin` flag) at `/admin/analytics`.
 - Time-window toggle (`Today · Week · Month · All`, persisted in localStorage under `admin.analytics.window`) re-scopes every widget. Sales/revenue aggregations exclude `CANCELED` and `REFUNDED`.
 - Widgets shipped:
-  - **Stat strip** — orders, units sold, revenue, average order value.
+  - **Stat strip** — orders, units sold, revenue, average order value, each with a period-over-period delta chip (`▲/▼ N% vs prior` or `new` when the prior window is empty; hidden on `All`).
   - **Revenue trend** — line chart bucketed by day (`today`/`week`/`month`) or by week (`all`).
   - **Top products** — horizontal bar chart, ranked by units, gender filter (`All · Men · Women · Kids`), bar click → product detail.
-  - **Top sizes** — bar chart over numeric size buckets, gender filter.
+  - **Top sizes** — bar chart over numeric size buckets (categorical X-axis), gender filter.
   - **Revenue by category** — donut across the 5 product categories.
+  - **Top brands** — horizontal bar chart, ranked by units, shares the gender filter with Top products.
+  - **Promo usage** — table of active promo codes with redemptions, total discount, and average order value with the promo applied.
+  - **Stock health tile** — fifth stat tile showing total units in stock plus % low (<5) and % out (=0). Click navigates to `/products`.
+- Display toggles:
+  - **Rank by units / revenue** on Top products + Top brands (shared toggle).
+  - **Donut basis** on the category donut: revenue / units / orders.
 - Implemented client-side over `getAllOrders()` / `getAll()` (products) using a shared aggregation module (`frontend/src/utils/analytics.js`); no backend aggregation endpoints needed at current dataset size.
 
 ---
@@ -150,7 +156,7 @@ Brand name: **Footprint**.
   - **Time-window toggle** (`Today · Week · Month · All`, persisted in localStorage) re-scopes the order count and revenue tiles.
   - **Deep-link CTAs** — pending card → `/orders?status=COD_PENDING`, revenue tile → `/orders?from=<window>`. `OrdersList` now drives status + date filters from URL params (shareable, back-button friendly) and surfaces a removable "From: …" chip.
   - **Stale orders card** lists `NEW`/`COD_PENDING` orders older than 7 days, top 5 sorted oldest-first, click → detail.
-- **Analytics page at `/admin/analytics`:** revenue trend, top products (gender filter), top sizes (gender filter), revenue-by-category donut, and a stat strip (orders, units, revenue, AOV). Time-window toggle shared with `/admin` (separate localStorage key). Charts via Recharts; aggregation lives in `frontend/src/utils/analytics.js`. Linked from the admin header (`Analytics`) and the dashboard shortcut grid.
+- **Analytics page at `/admin/analytics`:** stat strip with period-over-period deltas (orders, units, revenue, AOV; chips hidden on `All`), revenue trend, top products (gender filter), top sizes (categorical X-axis, gender filter), revenue-by-category donut, top brands (shares gender filter with top products), and a promo-usage table (code · redemptions · discount · AOV w/ promo). Time-window toggle shared with `/admin` (separate localStorage key). Charts via Recharts; aggregation lives in `frontend/src/utils/analytics.js`. Linked from the admin header (`Analytics`) and the dashboard shortcut grid.
 - **Header:** consolidated admin nav (`Users · Catalog ▾ · Orders · Analytics · Name ▾`) with inline-SVG icons; Catalog dropdown groups Products / Tags / Colors / Brands / Promos. Admin Logout grouped under the profile name dropdown to match the customer pattern.
 - **Admin shell cues:** brand badge "Admin" next to the title, accent-colored 2px header border, page titles prefixed `Footprint Admin · X` (via `useDocumentTitle` hook), footer reads `Footprint Admin · signed in as <name>` for admin sessions.
 - **Admin lists:** shared `<SearchInput />` on Tags, Colors, Brands, Promos, Products, Orders. OrdersList also has status filter pills (All · New · COD pending · Paid · Shipped · Canceled).
@@ -159,7 +165,7 @@ Brand name: **Footprint**.
 - **Product detail:** "Only N left in stock" hint when selected variant ≤ 3; "Max in cart" disabled state when a customer already holds the variant's full stock; Add To Cart hard-disabled for admins.
 - **Admin product list:** `Variants N · M in stock · K low` summary, RSD prices, low-stock badges.
 - **My orders:** rendered on Profile page, RSD totals, status pills (incl. `COD_PENDING`).
-- **Order detail:** admin-only inline status editor (dropdown + Save). Customer view stays read-only. Differentiates 404 ("Order not found") from other errors with contextual back-link. Renders the full breakdown (subtotal · shipping · promo · total) the customer saw at checkout.
+- **Order detail:** admin-only inline status editor (dropdown + Save). Customer view stays read-only. Differentiates 404 ("Order not found") from other errors with contextual back-link. Renders the full breakdown (subtotal · shipping · promo · total) the customer saw at checkout. Relative-time hint ("3d ago", `agoLabel` helper in `frontend/src/utils/dateWindow.js`) shown next to Placed and Last updated.
 - **Cart / checkout:** Continue shopping link, ConfirmationDialog before clearing cart, client-side promo regex validation (`A-Z0-9_`, ≤30 chars) with inline hint, on-mount cart freshness pass (re-fetches each line, drops missing variants, clamps qty, re-validates the saved promo, toasts a summary).
 - **Role boundaries:** `CustomerRoute` wrapper blocks admins from `/cart` and `/checkout` with a redirect + toast; `/profile` now wrapped in `AuthRoute`.
 - **404:** catch-all `<Route path="*">` renders the shared `NotFound` component with "back home" CTA.
@@ -187,7 +193,7 @@ Users · Products (incl. variants) · Orders · Status update · Tags · Colors 
 
 ### Not yet built
 
-`/api/analytics/top-sellers · top-sizes · revenue · low-stock` — see §10.
+`/api/analytics/top-sellers · top-sizes · revenue` — currently aggregated client-side over `getAllOrders` / `getAll` (products); endpoints would only be needed once dataset growth makes that cost unacceptable. Low-stock is already surfaced on `/admin` and `/admin/analytics` via the existing product list.
 
 ---
 
@@ -208,7 +214,7 @@ Users · Products (incl. variants) · Orders · Status update · Tags · Colors 
 
 1. ~~Owner analytics dashboard (TRD §3.3).~~ ✅ Shipped — see §3.3 and §7.
 2. **Admin product variants editor polish.** Variants are editable today, but a clearer UI (per-row stock, in-place save, low-stock highlight) would help the demo story.
-3. **Order detail timestamps.** Show last-status-change time alongside `Placed`. Useful when demoing status transitions.
+3. ~~**Order detail timestamps.** Show last-status-change time alongside `Placed`. Useful when demoing status transitions.~~ ✅ Shipped — relative-time hint via `agoLabel` next to Placed / Last updated; see §7.
 4. **Product images.** Replace seed placeholders with one real image per product so cards/detail look complete. The pipeline already exists (`seedProducts` prepends `/products/` to each entry, served by CRA from `frontend/public/products/`), but `data.js` currently ships full Unsplash URLs which produce broken `/products/https://…` paths. To finish: rewrite each product's `images` array to a bare filename (e.g. `air-max-90.jpg`), drop matching files into `frontend/public/products/`, wipe the `products` collection, and restart. ~17 files to source.
 
 ### 10.2 Optional polish (nice-to-haves)
@@ -232,6 +238,22 @@ Users · Products (incl. variants) · Orders · Status update · Tags · Colors 
 17. ~~Admin landing page~~ — shipped (see §7).
 18. **Customer order cancel + admin "view as customer"** preview toggle for demos.
 19. **Guest checkout** — ✅ shipped (see §10.3).
+
+#### Analytics — next-step ideas
+
+Brainstorm captured after the analytics page shipped, ordered by impact-per-effort. All client-side, no schema changes.
+
+0. **Backdate more seed orders** (~15 min) — current seed spans only the last ~28 days, so the Month window's period-over-period delta chips fall back to "new" (prior-month bucket is empty). Add ~10 fixtures dated 30–58 days ago in `backend/src/config/database.config.js` so all four window deltas (Today / Week / Month / All) render real percentages. Wipe-and-reseed flow as before.
+
+1. **Sales-by-gender donut** (~45 min) — reuses the category-donut shape, swaps groupBy to `product.gender`. Pairs naturally with Revenue by category.
+2. **AOV trend line** (~30 min) — sibling chart to Revenue trend; distinguishes "more orders" from "richer baskets". Initial dual-axis attempt was visually confusing — sibling-chart approach saved for retry.
+3. ~~**Stock health tile**~~ ✅ Shipped as a 5th stat-strip tile; see §3.3.
+4. **CSV export** on Top products and Orders list (~30 min each) — pure client-side `Blob` + `<a download>`.
+5. **Recent activity feed** (~1 hr) — last 5–10 orders with status pill + `agoLabel`, click → detail. Closes the loop with `/admin` stale-orders.
+6. **Date-range picker** (custom start/end) — UX surface beyond the four preset windows; marginal info gain.
+7. **Backend aggregation endpoints** — defer until the dataset is in the hundreds; current client-side path is fine.
+
+Recommended next pick: #1 + #2 + #3 in one cohesive batch — same shape as the deltas / brands / promo batch (small, client-side, visually obvious).
 
 ### 10.3 Guest checkout ✅ (shipped)
 

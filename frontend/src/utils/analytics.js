@@ -91,13 +91,40 @@ export function promoUsage(orders, opts = {}) {
 }
 
 export function revenueByCategory(rows) {
-  const map = new Map(CATEGORIES.map((c) => [c, 0]));
+  const map = new Map(CATEGORIES.map((c) => [c, { revenue: 0, units: 0, orders: new Set() }]));
   for (const r of rows) {
     const cat = r.product?.category;
     if (!map.has(cat)) continue;
-    map.set(cat, map.get(cat) + (r.item.price ?? 0));
+    const bucket = map.get(cat);
+    bucket.revenue += r.item.price ?? 0;
+    bucket.units += r.item.quantity ?? 0;
+    bucket.orders.add(String(r.orderId));
   }
-  return [...map.entries()].map(([category, revenue]) => ({ category, revenue }));
+  return [...map.entries()].map(([category, b]) => ({
+    category,
+    revenue: b.revenue,
+    units: b.units,
+    orders: b.orders.size,
+  }));
+}
+
+export function stockHealth(products) {
+  let totalUnits = 0;
+  let totalVariants = 0;
+  let lowCount = 0;
+  let outCount = 0;
+  for (const p of products ?? []) {
+    for (const v of p.variants ?? []) {
+      totalVariants += 1;
+      const s = v.stock ?? 0;
+      totalUnits += s;
+      if (s === 0) outCount += 1;
+      else if (s < 5) lowCount += 1;
+    }
+  }
+  const lowPct = totalVariants ? Math.round((lowCount / totalVariants) * 100) : 0;
+  const outPct = totalVariants ? Math.round((outCount / totalVariants) * 100) : 0;
+  return { totalUnits, totalVariants, lowCount, outCount, lowPct, outPct };
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -123,19 +150,19 @@ export function revenueTrend(orders, win, opts = {}) {
   let bucketDays;
 
   if (win === "today") {
-    buckets = [{ key: fmtDay(now), revenue: 0, start: startOfDay(now) }];
+    buckets = [{ key: fmtDay(now), revenue: 0, orderCount: 0, start: startOfDay(now) }];
     bucketDays = 1;
   } else if (win === "week") {
     bucketDays = 1;
     buckets = Array.from({ length: 7 }, (_, i) => {
       const d = startOfDay(new Date(now.getTime() - (6 - i) * DAY_MS));
-      return { key: fmtDay(d), revenue: 0, start: d };
+      return { key: fmtDay(d), revenue: 0, orderCount: 0, start: d };
     });
   } else if (win === "month") {
     bucketDays = 1;
     buckets = Array.from({ length: 30 }, (_, i) => {
       const d = startOfDay(new Date(now.getTime() - (29 - i) * DAY_MS));
-      return { key: fmtDay(d), revenue: 0, start: d };
+      return { key: fmtDay(d), revenue: 0, orderCount: 0, start: d };
     });
   } else {
     if (filtered.length === 0) return [];
@@ -147,7 +174,7 @@ export function revenueTrend(orders, win, opts = {}) {
     bucketDays = 7;
     buckets = Array.from({ length: weeks }, (_, i) => {
       const d = startOfDay(new Date(now.getTime() - (weeks - 1 - i) * 7 * DAY_MS));
-      return { key: fmtDay(d), revenue: 0, start: d };
+      return { key: fmtDay(d), revenue: 0, orderCount: 0, start: d };
     });
   }
 
@@ -156,11 +183,18 @@ export function revenueTrend(orders, win, opts = {}) {
     for (let i = buckets.length - 1; i >= 0; i--) {
       if (t >= buckets[i].start.getTime()) {
         const end = buckets[i].start.getTime() + bucketDays * DAY_MS;
-        if (t < end) buckets[i].revenue += o.totalPrice ?? 0;
+        if (t < end) {
+          buckets[i].revenue += o.totalPrice ?? 0;
+          buckets[i].orderCount += 1;
+        }
         break;
       }
     }
   }
 
-  return buckets.map(({ key, revenue }) => ({ bucket: key, revenue }));
+  return buckets.map(({ key, revenue, orderCount }) => ({
+    bucket: key,
+    revenue,
+    aov: orderCount ? Math.round(revenue / orderCount) : 0,
+  }));
 }

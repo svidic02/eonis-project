@@ -6,6 +6,7 @@ import { ColorModel } from "../models/color.model.js";
 import { BrandModel } from "../models/brand.model.js";
 import { OrderModel } from "../models/order.model.js";
 import { PromoModel } from "../models/promo.model.js";
+import { FaqModel } from "../models/faq.model.js";
 import { OrderStatus } from "../constants/orderStatus.js";
 import { SHIPPING_FEE, FREE_SHIPPING_OVER } from "../constants/shipping.js";
 import { sample_users } from "../data.js";
@@ -13,6 +14,7 @@ import { sample_products } from "../data.js";
 import { sample_tags } from "../data.js";
 import { sample_colors } from "../data.js";
 import { sample_brands } from "../data.js";
+import { sample_faqs } from "../data.js";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 
@@ -36,6 +38,7 @@ export const dbconnect = async () => {
     await seedBrands();
     await seedPromos();
     await seedOrders();
+    await seedFaqs();
     console.log("DB connected successfully!");
   } catch (error) {
     console.log(error);
@@ -242,4 +245,14 @@ async function seedPromos() {
   ];
   for (const p of sample_promos) await PromoModel.create(p);
   console.log("Promos seed is done!");
+}
+
+async function seedFaqs() {
+  const count = await FaqModel.countDocuments();
+  if (count > 0) {
+    console.log("FAQs seed is already done!");
+    return;
+  }
+  for (const f of sample_faqs) await FaqModel.create(f);
+  console.log("FAQs seed is done!");
 }

@@ -66,6 +66,13 @@ const Icon = {
       <line x1="6" y1="20" x2="6" y2="14" />
     </svg>
   ),
+  Help: () => (
+    <svg {...iconProps}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  ),
 };
 
 export default function Header() {
@@ -101,6 +108,7 @@ export default function Header() {
                       <Link to="/colors">Colors</Link>
                       <Link to="/brands">Brands</Link>
                       <Link to="/promos">Promos</Link>
+                      <Link to="/faqs">FAQs</Link>
                     </div>
                   </li>
                   <li>
@@ -111,6 +119,11 @@ export default function Header() {
                   <li>
                     <Link to="/admin/analytics" className={classes.navLink}>
                       <Icon.Analytics /> Analytics
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/contact" className={classes.navLink}>
+                      <Icon.Help /> Contact
                     </Link>
                   </li>
                   <li className={classes.menu_container}>
@@ -126,6 +139,11 @@ export default function Header() {
                 </>
               ) : user ? (
                 <>
+                  <li>
+                    <Link to="/contact" className={classes.navLink}>
+                      <Icon.Help /> Contact
+                    </Link>
+                  </li>
                   <li className={classes.menu_container}>
                     <Link to="/profile" className={classes.navLink}>
                       <span className={classes.avatarInitials}>{getInitials(user.name)}</span>
@@ -147,6 +165,11 @@ export default function Header() {
                 </>
               ) : (
                 <>
+                  <li>
+                    <Link to="/contact" className={classes.navLink}>
+                      <Icon.Help /> Contact
+                    </Link>
+                  </li>
                   <li>
                     <Link to="/login" className={classes.navLink}>Login</Link>
                   </li>

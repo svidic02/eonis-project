@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import classes from "./profilePage.module.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getMyOrders } from "../../services/orderService";
 import Price from "../../components/Price/Price";
@@ -230,6 +230,12 @@ export default function ProfilePage() {
           </>
         )}
       </section>
+
+      {!profile.isAdmin && (
+        <p className={classes.helpHint}>
+          Need help with an order or have a question? <Link to="/contact">Contact us</Link>.
+        </p>
+      )}
     </div>
   );
 }

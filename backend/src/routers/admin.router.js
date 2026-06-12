@@ -9,6 +9,7 @@ import { TagModel } from "../models/tag.model.js";
 import { ColorModel } from "../models/color.model.js";
 import { BrandModel } from "../models/brand.model.js";
 import { PromoModel } from "../models/promo.model.js";
+import { FaqModel } from "../models/faq.model.js";
 import { OrderStatus } from "../constants/orderStatus.js";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
@@ -558,6 +559,85 @@ router.delete(
     const promo = await PromoModel.findByIdAndDelete(id);
     if (!promo) return res.status(404).send("Promo not found");
     res.send(promo);
+  })
+);
+
+// ==================== FAQ MANAGEMENT ====================
+
+router.post(
+  "/faqs",
+  handler(async (req, res) => {
+    const { question, answer, order } = req.body;
+    if (!question || !question.trim()) return res.status(400).send("Question is required");
+    if (!answer || !answer.trim()) return res.status(400).send("Answer is required");
+    const trimmedQ = question.trim();
+    const existing = await FaqModel.findOne({ question: trimmedQ });
+    if (existing) return res.status(409).send("An FAQ with that question already exists");
+    try {
+      const faq = await FaqModel.create({
+        question: trimmedQ,
+        answer: answer.trim(),
+        order: order ?? 0,
+      });
+      res.send(faq);
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const msg = Object.values(err.errors).map((e) => e.message).join("; ");
+        return res.status(400).send(msg);
+      }
+      throw err;
+    }
+  })
+);
+
+router.put(
+  "/faqs/:id",
+  handler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid FAQ ID");
+    }
+    const { question, answer, order } = req.body;
+    const existing = await FaqModel.findById(id);
+    if (!existing) return res.status(404).send("FAQ not found");
+
+    if (question !== undefined) {
+      const trimmed = question.trim();
+      if (!trimmed) return res.status(400).send("Question is required");
+      const collision = await FaqModel.findOne({ question: trimmed, _id: { $ne: id } });
+      if (collision) return res.status(409).send("An FAQ with that question already exists");
+      existing.question = trimmed;
+    }
+    if (answer !== undefined) {
+      const trimmed = answer.trim();
+      if (!trimmed) return res.status(400).send("Answer is required");
+      existing.answer = trimmed;
+    }
+    if (order !== undefined) existing.order = order;
+
+    try {
+      await existing.save();
+      res.send(existing);
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const msg = Object.values(err.errors).map((e) => e.message).join("; ");
+        return res.status(400).send(msg);
+      }
+      throw err;
+    }
+  })
+);
+
+router.delete(
+  "/faqs/:id",
+  handler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).send("Invalid FAQ ID");
+    }
+    const faq = await FaqModel.findByIdAndDelete(id);
+    if (!faq) return res.status(404).send("FAQ not found");
+    res.send(faq);
   })
 );
 

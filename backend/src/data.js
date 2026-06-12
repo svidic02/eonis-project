@@ -428,3 +428,36 @@ export const sample_users = [
     isAdmin: true,
   },
 ];
+
+export const sample_faqs = [
+  {
+    question: "How long does shipping take?",
+    answer:
+      "Standard delivery within Serbia takes 2–4 business days. We dispatch every weekday and send a tracking link by email as soon as your order leaves our warehouse.",
+    order: 1,
+  },
+  {
+    question: "What is your return policy?",
+    answer:
+      "You have 30 days from delivery to return unworn items in their original box. Returns are free for orders shipped within Serbia — just use the prepaid label included in your package.",
+    order: 2,
+  },
+  {
+    question: "How do I find the right size?",
+    answer:
+      "Every product page has a size chart with foot length in centimetres. If you're between sizes we generally recommend sizing up — most of our customers report sneakers running about half a size small.",
+    order: 3,
+  },
+  {
+    question: "Which payment methods do you accept?",
+    answer:
+      "We accept cash on delivery for orders shipped within Serbia. Card payments via PayPal are coming soon — you'll see the option appear at checkout once enabled.",
+    order: 4,
+  },
+  {
+    question: "How quickly will you reply to my message?",
+    answer:
+      "Our support team answers contact-form messages within one business day, Monday to Friday. For urgent order issues, please include your order number so we can pull it up faster.",
+    order: 5,
+  },
+];

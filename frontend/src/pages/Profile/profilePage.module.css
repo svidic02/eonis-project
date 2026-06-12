@@ -393,3 +393,19 @@
 .emptyOrdersCta:hover {
   background: var(--accent-hover);
 }
+
+.helpHint {
+  text-align: center;
+  margin: 1.5rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.helpHint a {
+  color: var(--accent-hover);
+  font-weight: 600;
+}
+
+.helpHint a:hover {
+  color: var(--accent);
+}

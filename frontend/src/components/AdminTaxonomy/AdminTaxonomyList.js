@@ -18,6 +18,7 @@ export default function AdminTaxonomyList({
   itemLabel = (item) => item?.name,
   searchKeys = ["name"],
   searchPlaceholder = "Search…",
+  maxWidth,
 }) {
   const navigate = useNavigate();
   const [sortKey, setSortKey] = useState(columns[0]?.key);
@@ -70,7 +71,7 @@ export default function AdminTaxonomyList({
   };
 
   return (
-    <div className={classes.wrapper}>
+    <div className={classes.wrapper} style={maxWidth ? { maxWidth } : undefined}>
       <div className={classes.headerWrapper}>
         <h1 className={classes.title}>{title}</h1>
         <div className={classes.headerRight}>

@@ -170,6 +170,7 @@ Brand name: **Footprint**.
 - **Role boundaries:** `CustomerRoute` wrapper blocks admins from `/cart` and `/checkout` with a redirect + toast; `/profile` now wrapped in `AuthRoute`.
 - **404:** catch-all `<Route path="*">` renders the shared `NotFound` component with "back home" CTA.
 - **Guest checkout:** `/checkout` and `/orders/:id` no longer require auth. Guest orders carry a `guestEmail` and the create response includes a signed token that gates `GET /api/orders/:id?t=…`. Order page shows a "save this link" block + `mailto:` anchor for guests; admins still see the order via auth.
+- **Contact page + FAQ:** public `/contact` route with a placeholder contact form (RHF validation, success toast, no email actually sent) and an accordion of admin-curated FAQs sourced from a new `faqs` Mongo collection. Admins get inline `Edit` links on each entry and an `Add FAQ` shortcut; full CRUD lives under `/faqs`, `/faq/add`, `/faqs/:id` (mirrors the existing taxonomy pattern). `AdminTaxonomyInput` now supports a `textarea` field type so longer-form answers fit the shared form shell.
 
 ---
 
@@ -182,6 +183,7 @@ Brand name: **Footprint**.
 | GET    | `/api/products`                 | List / filter products                   |
 | GET    | `/api/products/:id`             | Product detail                           |
 | GET    | `/api/tags` `/colors` `/brands` | Public taxonomy lists                    |
+| GET    | `/api/faqs`                     | Public FAQ list (sorted by `order`)       |
 | POST   | `/api/promos/validate`          | Validate a promo code against a subtotal |
 | POST   | `/api/orders/create`            | Create an order (auth)                   |
 | GET    | `/api/orders/mine`              | Current user's order history (auth)      |
@@ -189,7 +191,7 @@ Brand name: **Footprint**.
 
 ### Admin (`/api/admin/*`, requires `isAdmin`)
 
-Users · Products (incl. variants) · Orders · Status update · Tags · Colors · Brands · Promos — full CRUD.
+Users · Products (incl. variants) · Orders · Status update · Tags · Colors · Brands · Promos · FAQs — full CRUD.
 
 ### Not yet built
 

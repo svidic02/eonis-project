@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function Footer() {
@@ -18,7 +19,12 @@ export default function Footer() {
       {user?.isAdmin ? (
         <p>Footprint Admin · signed in as {user.name}</p>
       ) : (
-        <p>&copy; 2026 Footprint. All rights reserved.</p>
+        <p>
+          &copy; 2026 Footprint. All rights reserved. ·{" "}
+          <Link to="/contact" style={{ color: "var(--accent-hover)", fontWeight: 600 }}>
+            Contact us
+          </Link>
+        </p>
       )}
     </footer>
   );

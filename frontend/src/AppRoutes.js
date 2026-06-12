@@ -26,6 +26,9 @@ import PromosPage from "./pages/Admin/Promos/PromosPage";
 import PromoInfoPage from "./pages/Admin/PromoInfo/PromoInfoPage";
 import AdminHomePage from "./pages/Admin/Home/AdminHomePage";
 import AnalyticsPage from "./pages/Admin/Analytics/AnalyticsPage";
+import FAQsPage from "./pages/Admin/FAQs/FAQsPage";
+import FAQInfoPage from "./pages/Admin/FAQInfo/FAQInfoPage";
+import ContactPage from "./pages/Contact/ContactPage";
 import NotFound from "./components/NotFound/NotFound";
 
 export default function AppRoutes() {
@@ -214,6 +217,31 @@ export default function AppRoutes() {
           <CustomerRoute>
             <CheckoutPage />
           </CustomerRoute>
+        }
+      />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route
+        path="/faqs"
+        element={
+          <AdminRoute>
+            <FAQsPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/faq/add"
+        element={
+          <AdminRoute>
+            <FAQInfoPage add={true} />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/faqs/:id"
+        element={
+          <AdminRoute>
+            <FAQInfoPage add={false} />
+          </AdminRoute>
         }
       />
       <Route

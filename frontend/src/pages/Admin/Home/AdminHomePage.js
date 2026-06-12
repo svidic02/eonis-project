@@ -120,6 +120,10 @@ export default function AdminHomePage() {
           <span className={classes.shortcutLabel}>Promos</span>
           <span className={classes.shortcutHint}>Discount codes</span>
         </button>
+        <button type="button" className={classes.shortcut} onClick={() => navigate("/faqs")}>
+          <span className={classes.shortcutLabel}>FAQs</span>
+          <span className={classes.shortcutHint}>Contact-page questions</span>
+        </button>
       </div>
 
       <hr className={classes.divider} />

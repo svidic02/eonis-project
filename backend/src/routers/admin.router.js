@@ -10,6 +10,7 @@ import { ColorModel } from "../models/color.model.js";
 import { BrandModel } from "../models/brand.model.js";
 import { PromoModel } from "../models/promo.model.js";
 import { FaqModel } from "../models/faq.model.js";
+import { CheckoutAttemptModel } from "../models/checkoutAttempt.model.js";
 import { OrderStatus } from "../constants/orderStatus.js";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
@@ -638,6 +639,16 @@ router.delete(
     const faq = await FaqModel.findByIdAndDelete(id);
     if (!faq) return res.status(404).send("FAQ not found");
     res.send(faq);
+  })
+);
+
+// ==================== CHECKOUT ATTEMPTS ====================
+
+router.get(
+  "/checkout-attempts",
+  handler(async (req, res) => {
+    const attempts = await CheckoutAttemptModel.find().sort({ createdAt: -1 });
+    res.send(attempts);
   })
 );
 

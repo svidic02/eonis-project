@@ -7,6 +7,7 @@ import { BrandModel } from "../models/brand.model.js";
 import { OrderModel } from "../models/order.model.js";
 import { PromoModel } from "../models/promo.model.js";
 import { FaqModel } from "../models/faq.model.js";
+import { CheckoutAttemptModel } from "../models/checkoutAttempt.model.js";
 import { OrderStatus } from "../constants/orderStatus.js";
 import { SHIPPING_FEE, FREE_SHIPPING_OVER } from "../constants/shipping.js";
 import { sample_users } from "../data.js";
@@ -39,6 +40,7 @@ export const dbconnect = async () => {
     await seedPromos();
     await seedOrders();
     await seedFaqs();
+    await seedCheckoutAttempts();
     console.log("DB connected successfully!");
   } catch (error) {
     console.log(error);
@@ -255,4 +257,67 @@ async function seedFaqs() {
   }
   for (const f of sample_faqs) await FaqModel.create(f);
   console.log("FAQs seed is done!");
+}
+
+async function seedCheckoutAttempts() {
+  const count = await CheckoutAttemptModel.countDocuments();
+  if (count > 0) {
+    console.log("Checkout attempts seed is already done!");
+    return;
+  }
+
+  const orders = await OrderModel.find().sort({ createdAt: 1 });
+  if (orders.length === 0) {
+    console.log("Skipping checkout attempts seed (no orders).");
+    return;
+  }
+
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const HOUR_MS = 60 * 60 * 1000;
+  const attempts = [];
+
+  // 1) Each order gets a matching attempt ~5–25 min before submission.
+  for (const o of orders) {
+    const offsetMs = (5 + Math.floor((o.totalPrice ?? 0) % 20)) * 60 * 1000;
+    const startedAt = new Date(new Date(o.createdAt).getTime() - offsetMs);
+    attempts.push({
+      user: o.user ?? null,
+      cartTotal: o.totalPrice,
+      itemCount: (o.items ?? []).reduce((s, it) => s + (it.quantity ?? 0), 0),
+      createdAt: startedAt,
+      updatedAt: startedAt,
+    });
+  }
+
+  // 2) Add ~15 abandoned attempts spread across the 28-day window so conversion ~62%.
+  const abandonedFixtures = [
+    { ago: 27, total: 8500, items: 1 },
+    { ago: 25, total: 14200, items: 2 },
+    { ago: 22, total: 6700, items: 1 },
+    { ago: 20, total: 21500, items: 3 },
+    { ago: 18, total: 9300, items: 1 },
+    { ago: 16, total: 17800, items: 2 },
+    { ago: 13, total: 5400, items: 1 },
+    { ago: 11, total: 28900, items: 4 },
+    { ago: 9, total: 11200, items: 2 },
+    { ago: 7, total: 7600, items: 1 },
+    { ago: 5, total: 19400, items: 3 },
+    { ago: 4, total: 10100, items: 2 },
+    { ago: 2, total: 24300, items: 3 },
+    { ago: 1, total: 8900, items: 1 },
+    { ago: 0, total: 13500, items: 2 },
+  ];
+  for (const f of abandonedFixtures) {
+    const createdAt = new Date(Date.now() - f.ago * DAY_MS - 3 * HOUR_MS);
+    attempts.push({
+      user: null,
+      cartTotal: f.total,
+      itemCount: f.items,
+      createdAt,
+      updatedAt: createdAt,
+    });
+  }
+
+  await CheckoutAttemptModel.insertMany(attempts, { timestamps: false });
+  console.log(`Checkout attempts seed is done! (${attempts.length} attempts)`);
 }

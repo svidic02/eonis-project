@@ -61,6 +61,7 @@ Brand name: **Footprint**.
   - **Top brands** — horizontal bar chart, ranked by units, shares the gender filter with Top products.
   - **Promo usage** — table of active promo codes with redemptions, total discount, and average order value with the promo applied.
   - **Stock health tile** — fifth stat tile showing total units in stock plus % low (<5) and % out (=0). Click navigates to `/products`.
+  - **Conversion panel** — conversion rate, abandonment rate, and average cart value computed from the new `CheckoutAttempt` collection vs. completed orders in the same window. Conversion rate carries a delta chip vs. the prior window.
 - Display toggles:
   - **Rank by units / revenue** on Top products + Top brands (shared toggle).
   - **Donut basis** on the category donut: revenue / units / orders.
@@ -188,10 +189,11 @@ Brand name: **Footprint**.
 | POST   | `/api/orders/create`            | Create an order (auth)                   |
 | GET    | `/api/orders/mine`              | Current user's order history (auth)      |
 | GET    | `/api/orders/:id`               | Single order (auth, owner or admin)      |
+| POST   | `/api/checkout-attempts`        | Log a checkout-page mount (guest-friendly, fire-and-forget). Drives the conversion panel. |
 
 ### Admin (`/api/admin/*`, requires `isAdmin`)
 
-Users · Products (incl. variants) · Orders · Status update · Tags · Colors · Brands · Promos · FAQs — full CRUD.
+Users · Products (incl. variants) · Orders · Status update · Tags · Colors · Brands · Promos · FAQs · Checkout-attempts list — full CRUD where applicable.
 
 ### Not yet built
 
@@ -250,6 +252,7 @@ Brainstorm captured after the analytics page shipped, ordered by impact-per-effo
 1. **Sales-by-gender donut** (~45 min) — reuses the category-donut shape, swaps groupBy to `product.gender`. Pairs naturally with Revenue by category.
 2. **AOV trend line** (~30 min) — sibling chart to Revenue trend; distinguishes "more orders" from "richer baskets". Initial dual-axis attempt was visually confusing — sibling-chart approach saved for retry.
 3. ~~**Stock health tile**~~ ✅ Shipped as a 5th stat-strip tile; see §3.3.
+3a. ~~**Conversion / cart-abandonment metrics**~~ ✅ Shipped — new `CheckoutAttempt` Mongo collection logs each checkout-page mount; analytics page surfaces conversion rate, abandonment rate, and avg cart value vs. orders in the same window. Follow-ups (per-attempt order linking, time-to-completion histogram, add-to-cart funnel) deferred.
 4. **CSV export** on Top products and Orders list (~30 min each) — pure client-side `Blob` + `<a download>`.
 5. **Recent activity feed** (~1 hr) — last 5–10 orders with status pill + `agoLabel`, click → detail. Closes the loop with `/admin` stale-orders.
 6. **Date-range picker** (custom start/end) — UX surface beyond the four preset windows; marginal info gain.

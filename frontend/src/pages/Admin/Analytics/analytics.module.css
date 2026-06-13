@@ -105,6 +105,60 @@
   margin-bottom: 1rem;
 }
 
+.conversionPanel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 0.85rem 1.1rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.conversionTitle {
+  margin: 0 0 0.55rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.conversionRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+@media (max-width: 720px) {
+  .conversionRow { grid-template-columns: 1fr; }
+}
+
+.conversionTile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--background, #fafafa);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 6px);
+}
+
+.conversionLabel {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.conversionValue {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.conversionHint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+
 .panelHead {
   display: flex;
   align-items: center;

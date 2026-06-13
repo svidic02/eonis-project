@@ -7,10 +7,12 @@ import {
 import useDocumentTitle from "../../../hooks/useDocumentTitle";
 import { getAllOrders } from "../../../services/orderService";
 import { getAll as getAllProducts } from "../../../services/productService";
+import { getAllCheckoutAttempts } from "../../../services/checkoutAttemptService";
 import { withinWindow, withinPreviousWindow, WINDOW_LABELS } from "../../../utils/dateWindow";
 import {
   flattenOrderItems, topProducts, topSizes, topBrands,
   revenueByCategory, revenueTrend, promoUsage, stockHealth,
+  conversionStats, previousConversionStats,
 } from "../../../utils/analytics";
 import Price from "../../../components/Price/Price";
 import classes from "./analytics.module.css";
@@ -33,6 +35,7 @@ export default function AnalyticsPage() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState(null);
   const [products, setProducts] = useState(null);
+  const [attempts, setAttempts] = useState(null);
   const [windowKey, setWindowKey] = useState(() => {
     const stored = localStorage.getItem(WINDOW_STORAGE_KEY);
     return WINDOW_KEYS.includes(stored) ? stored : "month";
@@ -53,10 +56,11 @@ export default function AnalyticsPage() {
   ];
 
   useEffect(() => {
-    Promise.all([getAllOrders(), getAllProducts()])
-      .then(([o, p]) => {
+    Promise.all([getAllOrders(), getAllProducts(), getAllCheckoutAttempts()])
+      .then(([o, p, a]) => {
         setOrders(o);
         setProducts(p);
+        setAttempts(a);
       })
       .catch(() => {});
   }, []);
@@ -116,6 +120,15 @@ export default function AnalyticsPage() {
   }, [orders, windowKey, categoryBasis]);
 
   const stockHealthData = useMemo(() => stockHealth(products ?? []), [products]);
+
+  const conversion = useMemo(
+    () => conversionStats(attempts ?? [], orders ?? [], { window: windowKey }),
+    [attempts, orders, windowKey]
+  );
+  const prevConversion = useMemo(
+    () => previousConversionStats(attempts ?? [], orders ?? [], { window: windowKey }),
+    [attempts, orders, windowKey]
+  );
 
   const loading = orders === null || products === null;
 
@@ -183,6 +196,57 @@ export default function AnalyticsPage() {
           )}
         </button>
       </div>
+
+      <section className={classes.conversionPanel}>
+        <h2 className={classes.conversionTitle}>Conversion</h2>
+        <div className={classes.conversionRow}>
+          <div className={classes.conversionTile}>
+            <span className={classes.conversionLabel}>Conversion rate</span>
+            <span className={classes.conversionValue}>
+              {loading || attempts === null
+                ? "—"
+                : `${Math.round(conversion.conversion * 100)}%`}
+            </span>
+            {!loading && attempts !== null && showDelta && (
+              <DeltaChip
+                curr={Math.round(conversion.conversion * 1000)}
+                prev={Math.round(prevConversion.conversion * 1000)}
+              />
+            )}
+            <span className={classes.conversionHint}>
+              {loading || attempts === null
+                ? ""
+                : `${conversion.orders} of ${conversion.attempts} attempts`}
+            </span>
+          </div>
+          <div className={classes.conversionTile}>
+            <span className={classes.conversionLabel}>Abandonment</span>
+            <span className={classes.conversionValue}>
+              {loading || attempts === null
+                ? "—"
+                : `${Math.round(conversion.abandonmentRate * 100)}%`}
+            </span>
+            <span className={classes.conversionHint}>
+              {loading || attempts === null
+                ? ""
+                : `${Math.max(0, conversion.attempts - conversion.orders)} carts abandoned`}
+            </span>
+          </div>
+          <div className={classes.conversionTile}>
+            <span className={classes.conversionLabel}>Avg cart value</span>
+            <span className={classes.conversionValue}>
+              {loading || attempts === null ? (
+                "—"
+              ) : (
+                <Price price={Math.round(conversion.avgCartTotal)} />
+              )}
+            </span>
+            <span className={classes.conversionHint}>
+              {loading || attempts === null ? "" : "Across all attempts"}
+            </span>
+          </div>
+        </div>
+      </section>
 
       <section className={classes.panel}>
         <h2 className={classes.panelTitle}>Revenue trend</h2>

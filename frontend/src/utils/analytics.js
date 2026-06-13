@@ -1,4 +1,4 @@
-import { withinWindow } from "./dateWindow";
+import { withinWindow, withinPreviousWindow } from "./dateWindow";
 
 const EXCLUDE_DEFAULT = new Set(["CANCELED", "REFUNDED"]);
 const CATEGORIES = ["Sneakers", "Boots", "Running", "Formal", "Sandals"];
@@ -106,6 +106,38 @@ export function revenueByCategory(rows) {
     units: b.units,
     orders: b.orders.size,
   }));
+}
+
+function computeConversion(attempts, orders, predicate, opts) {
+  const { excludeStatuses = EXCLUDE_DEFAULT } = opts ?? {};
+  const attemptsIn = (attempts ?? []).filter((a) => predicate(a.createdAt));
+  const ordersIn = (orders ?? []).filter(
+    (o) => !excludeStatuses.has(o.status) && predicate(o.createdAt)
+  );
+  const conversion = attemptsIn.length ? Math.min(1, ordersIn.length / attemptsIn.length) : 0;
+  const avgCartTotal = attemptsIn.length
+    ? attemptsIn.reduce((s, a) => s + (a.cartTotal ?? 0), 0) / attemptsIn.length
+    : 0;
+  return {
+    attempts: attemptsIn.length,
+    orders: ordersIn.length,
+    conversion,
+    abandonmentRate: 1 - conversion,
+    avgCartTotal,
+  };
+}
+
+export function conversionStats(attempts, orders, opts = {}) {
+  const { window: win = "all" } = opts;
+  return computeConversion(attempts, orders, (d) => withinWindow(d, win), opts);
+}
+
+export function previousConversionStats(attempts, orders, opts = {}) {
+  const { window: win = "all" } = opts;
+  if (win === "all") {
+    return { attempts: 0, orders: 0, conversion: 0, abandonmentRate: 0, avgCartTotal: 0 };
+  }
+  return computeConversion(attempts, orders, (d) => withinPreviousWindow(d, win), opts);
 }
 
 export function stockHealth(products) {

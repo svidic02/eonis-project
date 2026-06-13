@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useCart } from "../../hooks/useCart";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { createOrder } from "../../services/orderService";
+import { trackCheckoutAttempt } from "../../services/checkoutAttemptService";
 import { FREE_SHIPPING_OVER } from "../../constants/shipping";
 import useDocumentTitle from "../../hooks/useDocumentTitle";
 import classes from "./checkoutPage.module.css";
@@ -17,6 +18,14 @@ export default function CheckoutPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [paymentMethod, setPaymentMethod] = useState("COD");
+  const trackedRef = useRef(false);
+
+  useEffect(() => {
+    if (trackedRef.current) return;
+    if (!cart.items || cart.items.length === 0) return;
+    trackedRef.current = true;
+    trackCheckoutAttempt({ cartTotal: cart.total, itemCount: cart.totalCount });
+  }, [cart.items, cart.total, cart.totalCount]);
 
   const {
     register,

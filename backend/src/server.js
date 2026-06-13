@@ -10,6 +10,7 @@ import userRouter from "./routers/user.router.js";
 import orderRouter from "./routers/order.router.js";
 import adminRouter from "./routers/admin.router.js";
 import faqRouter from "./routers/faq.router.js";
+import checkoutAttemptRouter from "./routers/checkoutAttempt.router.js";
 import { CLIENT_PORT, SERVER_PORT } from "./constants/ports.js";
 
 dbconnect();
@@ -32,6 +33,7 @@ app.use("/api/promos", promoRouter);
 app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/faqs", faqRouter);
+app.use("/api/checkout-attempts", checkoutAttemptRouter);
 app.use("/api/admin", adminRouter);
 
 // Global error handler — return 400 with a useful message for Mongoose validation errors.

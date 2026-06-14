@@ -1,5 +1,6 @@
 import {
   PayPalScriptProvider,
+  PayPalButtons as PayPalSDKButtons,
   usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
 import React, { useEffect } from "react";
@@ -9,12 +10,20 @@ import { useCart } from "../../hooks/useCart";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-export default function PayPalButtons({order}) {
+const CLIENT_ID = process.env.REACT_APP_PAYPAL_CLIENT_ID || "sb";
+const RSD_TO_USD = Number(process.env.REACT_APP_RSD_TO_USD) || 0.0091;
+
+export function toUsd(rsdAmount) {
+  return (rsdAmount * RSD_TO_USD).toFixed(2);
+}
+
+export default function PayPalButtons({ order }) {
   return (
     <PayPalScriptProvider
       options={{
-        clienId:
-          "AUTlclA13NbGmJ02A2Rf7B_dMwkhOx2BJtN2jkAXX07I7fVTOEiqsSaJwADLvX7U9N85xxwE295pLQ05",
+        clientId: CLIENT_ID,
+        currency: "USD",
+        intent: "capture",
       }}
     >
       <Buttons order={order} />
@@ -27,17 +36,19 @@ function Buttons({ order }) {
   const navigate = useNavigate();
   const [{ isPending }] = usePayPalScriptReducer();
   const { showLoading, hideLoading } = useLoading();
-  useEffect(() => {
-    isPending ? showLoading() : hideLoading();
-  });
 
-  const createOrder = (data, actions) => {
+  useEffect(() => {
+    if (isPending) showLoading();
+    else hideLoading();
+  }, [isPending, showLoading, hideLoading]);
+
+  const createPaypalOrder = (data, actions) => {
     return actions.order.create({
       purchase_units: [
         {
           amount: {
             currency_code: "USD",
-            value: order.totalPrice,
+            value: toUsd(order.totalPrice),
           },
         },
       ],
@@ -46,25 +57,27 @@ function Buttons({ order }) {
 
   const onApprove = async (data, actions) => {
     try {
-      const payment = await actions.order.capture();
-      const orderId = await pay(payment.id);
+      const capture = await actions.order.capture();
+      const orderId = await pay(capture.id);
       clearCart();
-      toast.success("Payment Saved Successfully", "Success");
-      navigate("/track/" + orderId);
-    } catch (error) {
-      toast.error("Payment Saving Failed", "Error");
+      toast.success("Payment successful.");
+      navigate("/orders/" + orderId);
+    } catch (err) {
+      const msg = err?.response?.data;
+      toast.error(typeof msg === "string" && msg ? msg : "Payment could not be confirmed.");
     }
   };
 
-  const onError = (err) => {
-    toast.error("Payment Failed", "Error");
+  const onError = () => {
+    toast.error("Payment failed.");
   };
 
   return (
-    <PayPalButtons
-      createOrder={createOrder}
+    <PayPalSDKButtons
+      createOrder={createPaypalOrder}
       onApprove={onApprove}
       onError={onError}
+      style={{ layout: "vertical", shape: "rect" }}
     />
   );
 }

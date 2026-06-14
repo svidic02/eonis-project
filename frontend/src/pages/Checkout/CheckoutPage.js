@@ -11,6 +11,7 @@ import useDocumentTitle from "../../hooks/useDocumentTitle";
 import classes from "./checkoutPage.module.css";
 import Input from "../../components/Input/Input";
 import Price from "../../components/Price/Price";
+import PayPalButtons, { toUsd } from "../../components/PayPalButtons/PayPalButtons";
 
 export default function CheckoutPage() {
   useDocumentTitle("Footprint · Checkout");
@@ -18,6 +19,7 @@ export default function CheckoutPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [paypalOrder, setPaypalOrder] = useState(null);
   const trackedRef = useRef(false);
 
   useEffect(() => {
@@ -44,6 +46,10 @@ export default function CheckoutPage() {
         promoCode: cart.promo?.code ?? null,
         paymentMethod,
       });
+      if (paymentMethod === "PAYPAL") {
+        setPaypalOrder(created);
+        return;
+      }
       clearCart();
       toast.success("Order placed.");
       if (created.token) {
@@ -58,6 +64,7 @@ export default function CheckoutPage() {
   };
 
   const freeShippingReached = cart.subtotal >= FREE_SHIPPING_OVER;
+  const canUsePaypal = !!user;
 
   return (
     <div className={classes.page}>
@@ -120,18 +127,31 @@ export default function CheckoutPage() {
                 name="paymentMethod"
                 value="COD"
                 checked={paymentMethod === "COD"}
-                onChange={() => setPaymentMethod("COD")}
+                onChange={() => { setPaymentMethod("COD"); setPaypalOrder(null); }}
               />
               <span className={classes.paymentBody}>
                 <span className={classes.paymentLabel}>Cash on delivery</span>
                 <span className={classes.paymentHint}>Pay the courier when your order arrives.</span>
               </span>
             </label>
-            <label className={`${classes.paymentOption} ${classes.paymentDisabled}`}>
-              <input type="radio" name="paymentMethod" value="PAYPAL" disabled />
+            <label
+              className={`${classes.paymentOption} ${paymentMethod === "PAYPAL" ? classes.paymentSelected : ""} ${!canUsePaypal ? classes.paymentDisabled : ""}`}
+            >
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="PAYPAL"
+                checked={paymentMethod === "PAYPAL"}
+                onChange={() => setPaymentMethod("PAYPAL")}
+                disabled={!canUsePaypal}
+              />
               <span className={classes.paymentBody}>
                 <span className={classes.paymentLabel}>PayPal</span>
-                <span className={classes.paymentHint}>Coming soon — RSD not supported.</span>
+                <span className={classes.paymentHint}>
+                  {canUsePaypal
+                    ? "Pay securely with PayPal (sandbox). Charged in USD."
+                    : "Sign in to pay with PayPal."}
+                </span>
               </span>
             </label>
           </div>
@@ -199,9 +219,28 @@ export default function CheckoutPage() {
             <dd className={classes.total}><Price price={cart.total} /></dd>
           </dl>
 
-          <button type="submit" className={classes.submitBtn} disabled={isSubmitting || cart.items.length === 0}>
-            Place order
-          </button>
+          {paymentMethod === "PAYPAL" && (
+            <div className={classes.usdHint}>
+              ≈ ${toUsd(cart.total)} USD will be charged via PayPal
+            </div>
+          )}
+
+          {paymentMethod === "PAYPAL" && paypalOrder ? (
+            <div className={classes.paypalArea}>
+              <p className={classes.paypalNotice}>
+                Order created. Complete payment to confirm.
+              </p>
+              <PayPalButtons order={paypalOrder} />
+            </div>
+          ) : (
+            <button
+              type="submit"
+              className={classes.submitBtn}
+              disabled={isSubmitting || cart.items.length === 0}
+            >
+              {paymentMethod === "PAYPAL" ? "Continue to PayPal" : "Place order"}
+            </button>
+          )}
         </aside>
       </form>
     </div>

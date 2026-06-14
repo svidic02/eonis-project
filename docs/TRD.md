@@ -23,7 +23,7 @@
 | Admin list search + status filter pills                        | ✅ Done                                |
 | Header consolidation (Catalog dropdown + icons)                | ✅ Done                                |
 | Guest checkout (signed token in URL)                           | ✅ Done                                |
-| PayPal payment                                                 | ⏸ Hidden (RSD not supported by PayPal) |
+| PayPal payment                                                 | ✅ Done (sandbox, USD via fixed RSD→USD rate) |
 
 Brand name: **Footprint**.
 
@@ -45,8 +45,9 @@ Brand name: **Footprint**.
 - **Shipping rule:** flat 500 RSD, free over 8.000 RSD subtotal. Constants in both `frontend/src/constants/shipping.js` and `backend/src/constants/shipping.js` (server is authoritative).
 - **Promo codes:** DB-backed (`PromoModel`), admin CRUD at `/promos`, two seeded codes (`WELCOME10` percent-off, `EONIS500` fixed-amount with min subtotal). Validation server-side; client-side codes never trusted.
 - **Single-step checkout** at `/checkout`: shipping fields + payment method radio + sticky breakdown summary + **Place order** button. Successful order navigates to `/orders/:id`, cart auto-clears.
-- **Cash on Delivery** is the active payment method. Order schema gains `paymentMethod` (`COD` | `PAYPAL`) and `OrderStatus.COD_PENDING`.
-- PayPal radio is rendered disabled with a "Coming soon — RSD not supported" hint.
+- **Cash on Delivery** and **PayPal (sandbox)** are the supported payment methods. Order schema gains `paymentMethod` (`COD` | `PAYPAL`) and `OrderStatus.COD_PENDING`.
+- **PayPal flow:** authenticated user picks PayPal → "Continue to PayPal" creates the order in DB with status `NEW` and the cart's stock decrement → PayPal SDK buttons render with amount converted via `RSD_TO_USD` (env-driven, default `0.0091`) → on capture, client POSTs the PayPal order ID to `PUT /api/orders/pay`. The server re-fetches the order from PayPal's REST API, asserts `status === "COMPLETED"` and the captured USD amount matches the converted total (±$0.02), then flips the order to `PAYED`. Client-supplied IDs are never trusted.
+- **Env vars:** backend needs `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_ENV=sandbox`, `RSD_TO_USD`. Frontend needs `REACT_APP_PAYPAL_CLIENT_ID`, `REACT_APP_RSD_TO_USD`. Sandbox buyer accounts are created at developer.paypal.com → Sandbox → Accounts.
 
 ### 3.3 Owner Analytics Dashboard ✅
 
@@ -145,7 +146,7 @@ Brand name: **Footprint**.
 | Frontend      | React, React Router, Axios, React Hook Form       |
 | Backend       | Express, Mongoose, JWT, bcryptjs                  |
 | Database      | MongoDB                                           |
-| Payments      | PayPal SDK (currently disabled — RSD unsupported) |
+| Payments      | PayPal SDK (sandbox; USD via fixed RSD→USD rate, server-verified capture) |
 | Maps          | Leaflet / React-Leaflet                           |
 | Notifications | React Toastify                                    |
 
@@ -223,7 +224,7 @@ Users · Products (incl. variants) · Orders · Status update · Tags · Colors 
 
 ### 10.2 Optional polish (nice-to-haves)
 
-1. **Re-enable PayPal** in EUR (with a fixed display rate or a currency switcher) for parity with TRD §6.
+1. ~~**Re-enable PayPal** in EUR (with a fixed display rate or a currency switcher) for parity with TRD §6.~~ ✅ Shipped — PayPal sandbox in USD via fixed RSD→USD rate; server-verified capture. See §3.2.
 2. **Saved addresses on user profile** so checkout can prefill from a list.
 3. **My-orders dedicated page** at `/my-orders` (currently inlined on Profile; standalone page would be cleaner).
 4. **Order cancellation by customer** while status is `NEW` or `COD_PENDING`.

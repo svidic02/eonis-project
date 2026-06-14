@@ -5,8 +5,8 @@ export const createOrder = async (order) => {
   return data;
 };
 
-export const pay = async (paymentId) => {
-  const { data } = await axios.put("/api/orders/pay", { paymentId });
+export const pay = async (paypalOrderId) => {
+  const { data } = await axios.put("/api/orders/pay", { paypalOrderId });
   return data;
 };
 

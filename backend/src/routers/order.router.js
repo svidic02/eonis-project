@@ -8,6 +8,8 @@ import { ProductModel } from "../models/product.model.js";
 import { PromoModel } from "../models/promo.model.js";
 import { OrderStatus } from "../constants/orderStatus.js";
 import { SHIPPING_FEE, FREE_SHIPPING_OVER } from "../constants/shipping.js";
+import { RSD_TO_USD, PAYPAL_AMOUNT_TOLERANCE } from "../constants/payment.js";
+import { getPaypalOrder } from "../services/paypal.service.js";
 
 const router = Router();
 
@@ -169,14 +171,44 @@ router.put(
   "/pay",
   auth,
   handler(async (req, res) => {
-    const { paymentId } = req.body;
+    const { paypalOrderId } = req.body;
+    if (!paypalOrderId) {
+      return res.status(BAD_REQUEST).send("paypalOrderId is required");
+    }
     const order = await getNewOrderForCurrentUser(req);
     if (!order) {
-      res.status(BAD_REQUEST).send("Order Not Found!");
-      return;
+      return res.status(BAD_REQUEST).send("Order Not Found!");
     }
 
-    order.paymentId = paymentId;
+    let paypalOrder;
+    try {
+      paypalOrder = await getPaypalOrder(paypalOrderId);
+    } catch (err) {
+      console.error("PayPal verification failed:", err.message);
+      return res.status(BAD_REQUEST).send("Could not verify payment with PayPal");
+    }
+
+    if (paypalOrder.status !== "COMPLETED") {
+      return res
+        .status(BAD_REQUEST)
+        .send(`Payment not completed (status: ${paypalOrder.status})`);
+    }
+
+    const unit = paypalOrder.purchase_units?.[0];
+    const capture = unit?.payments?.captures?.[0];
+    const amount = capture?.amount ?? unit?.amount;
+    if (!amount || amount.currency_code !== "USD") {
+      return res.status(BAD_REQUEST).send("Unexpected payment currency");
+    }
+    const paidUsd = parseFloat(amount.value);
+    const expectedUsd = order.totalPrice * RSD_TO_USD;
+    if (Math.abs(paidUsd - expectedUsd) > PAYPAL_AMOUNT_TOLERANCE) {
+      return res
+        .status(BAD_REQUEST)
+        .send(`Payment amount mismatch (paid ${paidUsd}, expected ~${expectedUsd.toFixed(2)})`);
+    }
+
+    order.paymentId = paypalOrderId;
     order.status = OrderStatus.PAYED;
     await order.save();
 

@@ -1,8 +1,8 @@
 # API Endpoints
 
-Complete reference for all REST API endpoints in the WOT-projekat backend.
+Complete reference for all REST API endpoints in the Footprint backend.
 
-**Base URL:** `http://localhost:5000/api`
+**Base URL:** `http://localhost:4000/api`
 
 ## Authentication
 
@@ -13,602 +13,205 @@ Headers:
   access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
+Some endpoints accept optional authentication — they enrich the response if a valid token is present, but won't reject anonymous callers. Guest order lookup uses a signed JWT order token passed as `?t=<token>` instead of `access_token`.
+
 ## Response Format
 
-**Success Response:**
-```json
-{
-  "data": { ... }
-}
-```
-
-**Error Response:**
-```json
-{
-  "error": "Error message",
-  "message": "Detailed error description"
-}
-```
+Most success responses return JSON directly (no wrapping envelope). Error responses are plain-text status messages from the corresponding HTTP error code.
 
 ---
 
 ## User Endpoints
 
-### POST `/api/users/login`
+### `POST /api/users/login`
+Authenticate. **Public.**
 
-Authenticate a user and receive a JWT token.
-
-**Authentication:** None (Public)
-
-**Request Body:**
+Request:
 ```json
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
+{ "email": "user@example.com", "password": "password123" }
 ```
 
-**Success Response (200):**
+Response (200):
 ```json
 {
-  "id": "507f1f77bcf86cd799439011",
+  "id": "...",
   "email": "user@example.com",
   "name": "John Doe",
   "address": "123 Main St",
   "isAdmin": false,
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "token": "eyJhbGciOi..."
 }
 ```
 
-**Error Response (400):**
-```
-"Username or password is invalid."
-```
+Errors: 400 `Username or password is invalid.`
 
 ---
 
-### POST `/api/users/register`
+### `POST /api/users/register`
+Create a new account. **Public.**
 
-Register a new user account.
-
-**Authentication:** None (Public)
-
-**Request Body:**
+Request:
 ```json
-{
-  "name": "John Doe",
-  "email": "user@example.com",
-  "password": "password123",
-  "address": "123 Main St"
-}
+{ "name": "John", "email": "user@example.com", "password": "password123", "address": "123 Main St" }
 ```
 
-**Success Response (200):**
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "email": "user@example.com",
-  "name": "John Doe",
-  "address": "123 Main St",
-  "isAdmin": false,
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-**Error Response (400):**
-```
-"User already exists!"
-```
+Response (200): same shape as `/login`.
+Errors: 400 `User already exists!`
 
 ---
 
-## Food Endpoints
-
-### GET `/api/foods`
-
-Get all food items.
-
-**Authentication:** None (Public)
-
-**Success Response (200):**
-```json
-[
-  {
-    "id": "507f1f77bcf86cd799439011",
-    "name": "Margherita Pizza",
-    "price": 12.99,
-    "tags": ["Pizza", "Italian", "Vegetarian"],
-    "imageUrl": "https://example.com/pizza.jpg",
-    "cookTime": "20-30 min",
-    "createdAt": "2023-09-20T10:30:00.000Z",
-    "updatedAt": "2023-09-20T10:30:00.000Z"
-  }
-]
-```
+### `GET /api/users` (admin path is `/api/admin/users` — see Admin Endpoints)
+Return all users. **Admin.**
 
 ---
 
-### GET `/api/foods/search/:searchTerm`
+### `PUT /api/users/me`
+Update the current user's own profile (name, email, address, password). **Auth required.**
 
-Search foods by name (case-insensitive).
-
-**Authentication:** None (Public)
-
-**URL Parameters:**
-- `searchTerm` (string) - Search query
-
-**Example:** `/api/foods/search/pizza`
-
-**Success Response (200):**
+Request:
 ```json
-[
-  {
-    "id": "507f1f77bcf86cd799439011",
-    "name": "Margherita Pizza",
-    "price": 12.99,
-    "tags": ["Pizza", "Italian"],
-    "imageUrl": "https://example.com/pizza.jpg",
-    "cookTime": "20-30 min"
-  }
-]
+{ "name": "...", "email": "...", "address": "...", "password": "..." }
 ```
+Returns a fresh user payload + token (same shape as login).
 
 ---
 
-### GET `/api/foods/tags`
+## Product Endpoints
 
-Get all food tags with counts.
+### `GET /api/products`
+List all products. **Public.** Supports query parameters for filtering (tag, brand, color, gender, category, price range — see the implementation in `product.router.js`).
 
-**Authentication:** None (Public)
+### `GET /api/products/tags`
+Returns all tags with product counts (used by the home page filter chip row). **Public.**
 
-**Success Response (200):**
-```json
-[
-  {
-    "name": "All",
-    "count": 25
-  },
-  {
-    "name": "Pizza",
-    "count": 8
-  },
-  {
-    "name": "Italian",
-    "count": 6
-  }
-]
-```
+### `GET /api/products/search/:searchTerm`
+Case-insensitive substring search on product name. **Public.**
+
+### `GET /api/products/tag/:tag`
+All products carrying the given tag. **Public.**
+
+### `GET /api/products/:productId`
+Single product detail (variants, images, brand, etc.). **Public.**
+
+### `GET /api/products/:productId/variants`
+Variant-only payload (size, color, stock) for the given product. **Public.**
 
 ---
 
-### GET `/api/foods/tag/:tag`
+## Promo Endpoints
 
-Get all foods with a specific tag.
+### `POST /api/promos/validate`
+Validate a promo code against the cart and return discount info. **Public.**
 
-**Authentication:** None (Public)
-
-**URL Parameters:**
-- `tag` (string) - Tag name
-
-**Example:** `/api/foods/tag/Pizza`
-
-**Success Response (200):**
+Request:
 ```json
-[
-  {
-    "id": "507f1f77bcf86cd799439011",
-    "name": "Margherita Pizza",
-    "price": 12.99,
-    "tags": ["Pizza", "Italian"],
-    "imageUrl": "https://example.com/pizza.jpg",
-    "cookTime": "20-30 min"
-  }
-]
-```
-
----
-
-### GET `/api/foods/:foodId`
-
-Get a single food item by ID.
-
-**Authentication:** None (Public)
-
-**URL Parameters:**
-- `foodId` (string) - MongoDB ObjectId
-
-**Example:** `/api/foods/507f1f77bcf86cd799439011`
-
-**Success Response (200):**
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "name": "Margherita Pizza",
-  "price": 12.99,
-  "tags": ["Pizza", "Italian"],
-  "imageUrl": "https://example.com/pizza.jpg",
-  "cookTime": "20-30 min"
-}
+{ "code": "SUMMER10", "subtotal": 5000 }
 ```
 
 ---
 
 ## Order Endpoints
 
-### POST `/api/orders/create`
+### `GET /api/orders/mine`
+List orders belonging to the current user. **Auth required.**
 
-Create a new order for the current user.
+### `GET /api/orders/:id`
+Fetch a single order. **Auth required** for owner; **public via token** for guest orders when called with `?t=<order-jwt>`.
 
-**Authentication:** Required (JWT)
+### `POST /api/orders/create`
+Create a new order. **Auth required** for registered customers; guest checkout accepted when `guestEmail` is in the body.
 
-**Request Body:**
+The server is authoritative — it recomputes subtotal, shipping, discount, and total from the current product documents and only persists those values. It also atomically decrements stock per variant with rollback on partial failure.
+
+Request:
 ```json
 {
   "name": "John Doe",
-  "address": "123 Main St, City, 12345",
-  "totalPrice": 25.98,
+  "email": "buyer@example.com",
+  "guestEmail": null,
+  "address": "123 Main St",
+  "phone": "+381...",
+  "paymentMethod": "COD",
+  "promoCode": "SUMMER10",
   "items": [
-    {
-      "food": {
-        "id": "507f1f77bcf86cd799439011",
-        "name": "Margherita Pizza",
-        "price": 12.99,
-        "imageUrl": "https://example.com/pizza.jpg"
-      },
-      "quantity": 2,
-      "price": 25.98
-    }
+    { "productId": "...", "size": "42", "colorId": "...", "quantity": 1 }
   ]
 }
 ```
 
-**Success Response (200):**
+Response (200): the persisted order with computed totals, status (`NEW` for PayPal, `COD_PENDING` for COD), and — for guest orders — an `orderToken` to use as `?t=` later.
+
+### `PUT /api/orders/pay`
+Verify a PayPal capture and flip the order to `PAYED`. **Auth required** for registered orders; **token-authorized** for guest orders.
+
+Request:
 ```json
-{
-  "id": "507f191e810c19729de860ea",
-  "name": "John Doe",
-  "address": "123 Main St, City, 12345",
-  "totalPrice": 25.98,
-  "items": [ ... ],
-  "status": "NEW",
-  "user": "507f1f77bcf86cd799439011",
-  "createdAt": "2023-09-20T10:30:00.000Z"
-}
+{ "orderId": "...", "paypalOrderId": "..." }
 ```
 
-**Error Response (400):**
-```
-"Cart Is Empty!"
-```
+The backend re-fetches the PayPal order via `GET /v2/checkout/orders/:id` and asserts `status === COMPLETED` plus amount match before changing state. A client claim of payment is never trusted.
 
-**Error Response (401):**
-```
-Unauthorized (no token or invalid token)
-```
+Errors: 400 / 422 if PayPal verification fails.
 
 ---
 
-### GET `/api/orders/newOrderForCurrentUser`
+## Taxonomy Endpoints (public reads)
 
-Get the current user's active (unpaid) order.
+### `GET /api/tags`
+All tags.
 
-**Authentication:** Required (JWT)
+### `GET /api/brands`
+All brands.
 
-**Success Response (200):**
-```json
-{
-  "id": "507f191e810c19729de860ea",
-  "name": "John Doe",
-  "address": "123 Main St",
-  "totalPrice": 25.98,
-  "items": [ ... ],
-  "status": "NEW",
-  "user": "507f1f77bcf86cd799439011"
-}
-```
+### `GET /api/colors`
+All colors (`name`, `hex`).
 
-**Error Response (400):**
-```
-Bad Request (no active order found)
-```
+### `GET /api/faqs`
+All published FAQ entries.
+
+Write methods for these collections live under `/api/admin/*` — see below.
 
 ---
 
-### PUT `/api/orders/pay`
+## Checkout Attempt Endpoints
 
-Mark an order as paid with PayPal payment ID.
-
-**Authentication:** Required (JWT)
-
-**Request Body:**
-```json
-{
-  "paymentId": "PAYID-M123456789012345678901234"
-}
-```
-
-**Success Response (200):**
-```json
-"507f191e810c19729de860ea"
-```
-(Returns the order ID)
-
-**Error Response (400):**
-```
-"Order Not Found!"
-```
-
----
-
-### GET `/api/orders`
-
-Get all orders (unprotected - should be admin-only in production).
-
-**Authentication:** None (Public) ⚠️
-
-**Success Response (200):**
-```json
-[
-  {
-    "id": "507f191e810c19729de860ea",
-    "name": "John Doe",
-    "address": "123 Main St",
-    "totalPrice": 25.98,
-    "items": [ ... ],
-    "status": "PAYED",
-    "user": "507f1f77bcf86cd799439011",
-    "paymentId": "PAYID-M123456",
-    "createdAt": "2023-09-20T10:30:00.000Z"
-  }
-]
-```
+### `POST /api/checkout-attempts`
+Logs a checkout step (used for funnel analytics on the admin dashboard). **Public.**
 
 ---
 
 ## Admin Endpoints
 
-All admin endpoints require both authentication and admin role.
+All `/api/admin/*` routes require both authentication and the admin role.
 
-### GET `/api/admin/users`
+### Users
+- `GET /api/admin/users` — list all users
+- `GET /api/admin/users/:id` — get user by ID
+- `PUT /api/admin/users/:id` — update user (including `isAdmin` toggle)
+- `DELETE /api/admin/users/:id` — delete user
 
-Get all users.
+### Products
+- `POST /api/admin/products` — create product
+- `PUT /api/admin/products/:productId` — update product
+- `PUT /api/admin/products/:productId/variants` — replace the variant list
+- `DELETE /api/admin/products/:productId` — delete product
 
-**Authentication:** Required (Admin)
+### Orders
+- `GET /api/admin/orders` — list all orders
+- `PUT /api/admin/orders/:id/status` — change order status (see status table below)
 
-**Success Response (200):**
-```json
-[
-  {
-    "id": "507f1f77bcf86cd799439011",
-    "name": "John Doe",
-    "email": "user@example.com",
-    "address": "123 Main St",
-    "isAdmin": false,
-    "password": "$2a$10$...",
-    "createdAt": "2023-09-20T10:30:00.000Z"
-  }
-]
-```
+### Tags / Brands / Colors / Promos / FAQs
+The same shape applies to each taxonomy. Examples:
+- `POST /api/admin/tags`, `PUT /api/admin/tags/:id`, `DELETE /api/admin/tags/:id`
+- `POST /api/admin/brands`, `PUT /api/admin/brands/:id`, `DELETE /api/admin/brands/:id`
+- `POST /api/admin/colors`, `PUT /api/admin/colors/:id`, `DELETE /api/admin/colors/:id`
+- `GET /api/admin/promos`, `POST /api/admin/promos`, `PUT /api/admin/promos/:id`, `DELETE /api/admin/promos/:id`
+- `POST /api/admin/faqs`, `PUT /api/admin/faqs/:id`, `DELETE /api/admin/faqs/:id`
 
-**Error Response (401):**
-```
-Unauthorized (no token)
-```
+A 409 is returned on uniqueness conflicts (e.g. duplicate tag/brand/color name).
 
-**Error Response (403):**
-```
-"Admin access required"
-```
-
----
-
-### GET `/api/admin/users/:id`
-
-Get a specific user by ID.
-
-**Authentication:** Required (Admin)
-
-**URL Parameters:**
-- `id` (string) - MongoDB ObjectId
-
-**Success Response (200):**
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "name": "John Doe",
-  "email": "user@example.com",
-  "address": "123 Main St",
-  "isAdmin": false
-}
-```
-
-**Error Response (400):**
-```
-"Invalid user ID"
-```
-
----
-
-### PUT `/api/admin/users/:id`
-
-Update a user.
-
-**Authentication:** Required (Admin)
-
-**URL Parameters:**
-- `id` (string) - MongoDB ObjectId
-
-**Request Body:**
-```json
-{
-  "name": "John Doe Updated",
-  "email": "newemail@example.com",
-  "password": "newpassword123",
-  "address": "456 New Street",
-  "isAdmin": false
-}
-```
-
-**Success Response (200):**
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "name": "John Doe Updated",
-  "email": "newemail@example.com",
-  "address": "456 New Street",
-  "isAdmin": false,
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-**Error Response (404):**
-```
-"User not found"
-```
-
----
-
-### DELETE `/api/admin/users/:id`
-
-Delete a user.
-
-**Authentication:** Required (Admin)
-
-**URL Parameters:**
-- `id` (string) - MongoDB ObjectId
-
-**Success Response (200):**
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "name": "John Doe",
-  "email": "user@example.com"
-}
-```
-
-**Error Response (400):**
-```
-"User couldn't be deleted!"
-```
-
----
-
-### POST `/api/admin/foods`
-
-Add a new food item.
-
-**Authentication:** Required (Admin)
-
-**Request Body:**
-```json
-{
-  "name": "Margherita Pizza",
-  "price": 12.99,
-  "tags": ["Pizza", "Italian", "Vegetarian"],
-  "cookTime": "20-30 min",
-  "imageUrl": "https://example.com/pizza.jpg"
-}
-```
-
-**Success Response (200):**
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "name": "Margherita Pizza",
-  "price": 12.99,
-  "tags": ["Pizza", "Italian", "Vegetarian"],
-  "cookTime": "20-30 min",
-  "imageUrl": "https://example.com/pizza.jpg",
-  "createdAt": "2023-09-20T10:30:00.000Z"
-}
-```
-
----
-
-### PUT `/api/admin/foods/:foodId`
-
-Update a food item.
-
-**Authentication:** Required (Admin)
-
-**URL Parameters:**
-- `foodId` (string) - MongoDB ObjectId
-
-**Request Body:**
-```json
-{
-  "name": "Updated Pizza",
-  "price": 14.99,
-  "tags": ["Pizza", "Italian"],
-  "cookTime": "25-35 min"
-}
-```
-
-**Success Response (200):**
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "name": "Updated Pizza",
-  "price": 14.99,
-  "tags": ["Pizza", "Italian"],
-  "cookTime": "25-35 min",
-  "imageUrl": "https://example.com/pizza.jpg"
-}
-```
-
-**Error Response (404):**
-```
-"Meal not found"
-```
-
----
-
-### DELETE `/api/admin/foods/:foodId`
-
-Delete a food item.
-
-**Authentication:** Required (Admin)
-
-**URL Parameters:**
-- `foodId` (string) - MongoDB ObjectId
-
-**Success Response (200):**
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "name": "Margherita Pizza"
-}
-```
-
-**Error Response (400):**
-```
-"Food couldn't be deleted!"
-```
-
----
-
-### GET `/api/admin/orders`
-
-Get all orders.
-
-**Authentication:** Required (Admin)
-
-**Success Response (200):**
-```json
-[
-  {
-    "id": "507f191e810c19729de860ea",
-    "name": "John Doe",
-    "address": "123 Main St",
-    "totalPrice": 25.98,
-    "items": [ ... ],
-    "status": "PAYED",
-    "user": "507f1f77bcf86cd799439011",
-    "paymentId": "PAYID-M123456",
-    "createdAt": "2023-09-20T10:30:00.000Z"
-  }
-]
-```
+### Checkout attempts (analytics raw data)
+- `GET /api/admin/checkout-attempts` — list logged checkout funnel events
 
 ---
 
@@ -621,61 +224,71 @@ Get all orders.
 | 401  | Unauthorized (no token)  |
 | 403  | Forbidden (not admin)    |
 | 404  | Not Found                |
+| 409  | Conflict (uniqueness)    |
+| 422  | PayPal verification failed |
 | 500  | Internal Server Error    |
 
 ## Order Status Values
 
-| Status    | Description                          |
-|-----------|--------------------------------------|
-| NEW       | Order created, awaiting payment      |
-| PAYED     | Payment received                     |
-| SHIPPED   | Order shipped (not yet implemented)  |
-| CANCELED  | Order canceled (not yet implemented) |
-| REFUNDED  | Order refunded (not yet implemented) |
+| Status        | Description                                  |
+|---------------|----------------------------------------------|
+| NEW           | PayPal order created, awaiting capture       |
+| COD_PENDING   | Cash-on-delivery order awaiting fulfillment  |
+| PAYED         | Payment captured and verified                |
+| SHIPPED       | Order shipped                                |
+| DELIVERED     | Order delivered                              |
+| CANCELED      | Order canceled                               |
+| REFUNDED      | Order refunded                               |
 
 ## Testing with cURL
 
 **Login:**
 ```bash
-curl -X POST http://localhost:5000/api/users/login \
+curl -X POST http://localhost:4000/api/users/login \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"password123"}'
 ```
 
-**Get all foods:**
+**List products:**
 ```bash
-curl http://localhost:5000/api/foods
+curl http://localhost:4000/api/products
 ```
 
 **Create order (authenticated):**
 ```bash
-curl -X POST http://localhost:5000/api/orders/create \
+curl -X POST http://localhost:4000/api/orders/create \
   -H "Content-Type: application/json" \
   -H "access_token: YOUR_JWT_TOKEN" \
-  -d '{ "name": "John", "address": "123 St", "totalPrice": 25, "items": [...] }'
+  -d '{ "name": "John", "address": "123 St", "phone": "+381...", "paymentMethod": "COD", "items": [...] }'
 ```
 
-**Get all users (admin):**
+**List all users (admin):**
 ```bash
-curl http://localhost:5000/api/admin/users \
+curl http://localhost:4000/api/admin/users \
   -H "access_token: ADMIN_JWT_TOKEN"
+```
+
+**Look up a guest order:**
+```bash
+curl "http://localhost:4000/api/orders/<orderId>?t=<orderToken>"
 ```
 
 ## Testing with Postman
 
 1. Create a new request
 2. Set method (GET, POST, PUT, DELETE)
-3. Set URL: `http://localhost:5000/api/...`
+3. Set URL: `http://localhost:4000/api/...`
 4. Add headers:
    - `Content-Type: application/json`
    - `access_token: YOUR_JWT_TOKEN` (for protected routes)
-5. Add request body (JSON) for POST/PUT requests
+5. Add request body (JSON) for POST/PUT
 6. Send request
 
 ## Notes
 
-- All timestamps are in ISO 8601 format (UTC)
+- All timestamps are ISO 8601 (UTC)
 - MongoDB ObjectIds are 24-character hex strings
 - JWT tokens expire in 30 days
 - Password hashing uses bcryptjs with 10 salt rounds
 - CORS is enabled for `http://localhost:3000`
+- PayPal sandbox uses `PAYPAL_API_BASE=https://api-m.sandbox.paypal.com`

@@ -1,6 +1,6 @@
 # Admin Protection
 
-This document explains how admin routes are protected in the WOT-projekat application using role-based access control.
+This document explains how admin routes are protected in the Footprint application using role-based access control.
 
 ## Overview
 
@@ -104,10 +104,11 @@ router.get("/users", handler(async (req, res) => {
 - `GET /api/admin/users/:id` - Get user by ID
 - `PUT /api/admin/users/:id` - Update user
 - `DELETE /api/admin/users/:id` - Delete user
-- `POST /api/admin/foods` - Add food
-- `PUT /api/admin/foods/:foodId` - Update food
-- `DELETE /api/admin/foods/:foodId` - Delete food
+- `POST /api/products` - Add product (admin)
+- `PUT /api/products/:id` - Update product (admin)
+- `DELETE /api/products/:id` - Delete product (admin)
 - `GET /api/admin/orders` - View all orders
+- Taxonomy CRUD on `/api/tags`, `/api/brands`, `/api/colors`, `/api/promos`, `/api/faqs` (admin-only on write methods)
 
 ---
 
@@ -115,7 +116,7 @@ router.get("/users", handler(async (req, res) => {
 
 For routers with mixed public/admin routes, apply middleware to specific routes:
 
-**File:** `backend/src/routers/food.router.js`
+**File:** `backend/src/routers/product.router.js`
 
 ```javascript
 import authMid from "../middleware/auth.mid.js";
@@ -123,28 +124,28 @@ import adminMid from "../middleware/admin.mid.js";
 
 // Public route - no middleware
 router.get("/", handler(async (req, res) => {
-  const foods = await FoodModel.find({});
-  res.send(foods);
+  const products = await ProductModel.find({});
+  res.send(products);
 }));
 
 // Admin route - both middleware
-router.put("/:foodId", authMid, adminMid, handler(async (req, res) => {
-  // Only admins can update foods
-  const meal = await FoodModel.findByIdAndUpdate(foodId, updatedMeal);
-  res.send(meal);
+router.put("/:id", authMid, adminMid, handler(async (req, res) => {
+  // Only admins can update products
+  const product = await ProductModel.findByIdAndUpdate(id, updatedProduct);
+  res.send(product);
 }));
 
 // Admin route - both middleware
-router.delete("/:foodId", authMid, adminMid, handler(async (req, res) => {
-  // Only admins can delete foods
-  await FoodModel.findByIdAndDelete(foodId);
+router.delete("/:id", authMid, adminMid, handler(async (req, res) => {
+  // Only admins can delete products
+  await ProductModel.findByIdAndDelete(id);
   res.send(result);
 }));
 
 // Admin route - both middleware
-router.post("/addFood", authMid, adminMid, handler(async (req, res) => {
-  // Only admins can add foods
-  const result = await FoodModel.create(newMeal);
+router.post("/", authMid, adminMid, handler(async (req, res) => {
+  // Only admins can create products
+  const result = await ProductModel.create(newProduct);
   res.send(result);
 }));
 ```
@@ -333,10 +334,10 @@ export default function AdminRoute({ children }) {
 />
 
 <Route
-  path="/meals"
+  path="/products"
   element={
     <AdminRoute>
-      <MealsPage />
+      <ProductsPage />
     </AdminRoute>
   }
 />
@@ -363,7 +364,7 @@ By default, registered users have `isAdmin: false`. To create an admin:
 mongosh "your_connection_string"
 
 # Switch to database
-use wot-food-ordering
+use footprint
 
 # Update user to admin
 db.users.updateOne(
@@ -427,13 +428,13 @@ router.delete("/user/:id", handler(async (req, res) => {
   await UserModel.findByIdAndDelete(id);  // Anyone could delete users!
 }));
 
-// food.router.js - ANYONE could do these:
-router.put("/:foodId", handler(async (req, res) => {
-  // Update food - no auth required!
+// product.router.js - ANYONE could do these:
+router.put("/:id", handler(async (req, res) => {
+  // Update product - no auth required!
 }));
 
-router.delete("/:foodId", handler(async (req, res) => {
-  // Delete food - no auth required!
+router.delete("/:id", handler(async (req, res) => {
+  // Delete product - no auth required!
 }));
 ```
 
@@ -464,13 +465,13 @@ router.delete("/user/:id", authMid, adminMid, handler(async (req, res) => {
   // Only admins can delete users
 }));
 
-// food.router.js
-router.put("/:foodId", authMid, adminMid, handler(async (req, res) => {
-  // Only admins can update foods
+// product.router.js
+router.put("/:id", authMid, adminMid, handler(async (req, res) => {
+  // Only admins can update products
 }));
 
-router.delete("/:foodId", authMid, adminMid, handler(async (req, res) => {
-  // Only admins can delete foods
+router.delete("/:id", authMid, adminMid, handler(async (req, res) => {
+  // Only admins can delete products
 }));
 ```
 
@@ -482,13 +483,13 @@ router.delete("/:foodId", authMid, adminMid, handler(async (req, res) => {
 
 ```bash
 # Login as admin
-TOKEN=$(curl -s -X POST http://localhost:5000/api/users/login \
+TOKEN=$(curl -s -X POST http://localhost:4000/api/users/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@example.com","password":"admin123"}' \
   | jq -r '.token')
 
 # Access admin endpoint
-curl http://localhost:5000/api/admin/users \
+curl http://localhost:4000/api/admin/users \
   -H "access_token: $TOKEN"
 
 # Expected: 200 OK with user list
@@ -500,13 +501,13 @@ curl http://localhost:5000/api/admin/users \
 
 ```bash
 # Login as regular user
-TOKEN=$(curl -s -X POST http://localhost:5000/api/users/login \
+TOKEN=$(curl -s -X POST http://localhost:4000/api/users/login \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"password123"}' \
   | jq -r '.token')
 
 # Try to access admin endpoint
-curl http://localhost:5000/api/admin/users \
+curl http://localhost:4000/api/admin/users \
   -H "access_token: $TOKEN"
 
 # Expected: 403 Forbidden
@@ -519,7 +520,7 @@ curl http://localhost:5000/api/admin/users \
 
 ```bash
 # Access admin endpoint without token
-curl http://localhost:5000/api/admin/users
+curl http://localhost:4000/api/admin/users
 
 # Expected: 401 Unauthorized
 ```

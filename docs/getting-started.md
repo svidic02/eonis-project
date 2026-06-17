@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide will help you set up the WOT-projekat food ordering application on your local machine.
+This guide will help you set up the Footprint footwear e-commerce application on your local machine.
 
 ## Prerequisites
 
@@ -19,7 +19,7 @@ Before you begin, ensure you have the following installed:
 
 ```bash
 git clone <repository-url>
-cd wot-project
+cd footwear-app
 ```
 
 ### 2. Backend Setup
@@ -53,11 +53,15 @@ Add the following variables:
 ```env
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret_key
+PAYPAL_CLIENT_ID=your_paypal_sandbox_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_sandbox_client_secret
+PAYPAL_API_BASE=https://api-m.sandbox.paypal.com
+RSD_TO_USD=0.0091
 ```
 
 **MONGO_URI examples:**
-- Local: `mongodb://localhost:27017/wot-food-ordering`
-- Atlas: `mongodb+srv://username:password@cluster.mongodb.net/wot-food-ordering`
+- Local: `mongodb://localhost:27017/footprint`
+- Atlas: `mongodb+srv://username:password@cluster.mongodb.net/footprint`
 
 **JWT_SECRET:**
 Generate a secure random string (32+ characters). You can use:
@@ -82,13 +86,13 @@ npm run dev
 npm start
 ```
 
-The backend server will start on `http://localhost:5000`
+The backend server will start on `http://localhost:4000`
 
 #### Verify Backend is Running
 
 You should see:
 ```
-Listening on port 5000
+Listening on port 4000
 Database connected successfully
 ```
 
@@ -108,9 +112,8 @@ This will install:
 - `react-router-dom` - Client-side routing
 - `axios` - HTTP client
 - `@paypal/react-paypal-js` - PayPal integration
-- `leaflet` and `react-leaflet` - Map components
+- `recharts` - Analytics charts
 - `react-toastify` - Toast notifications
-- `react-switch` - Dark mode toggle
 - `react-hook-form` - Form handling
 
 #### Start the Frontend Development Server
@@ -142,7 +145,7 @@ By default, registered users are **not** admins. To create an admin user:
    ```
 3. Update the user:
    ```javascript
-   use wot-food-ordering  // or your database name
+   use footprint  // or your database name
    db.users.updateOne(
      { email: "admin@example.com" },
      { $set: { isAdmin: true } }
@@ -167,10 +170,7 @@ Register your admin account, then remove this modification.
 
 ### Seeding Initial Data (Optional)
 
-If you want to populate the database with sample foods:
-
-1. Check if `backend/src/data.js` exists with sample data
-2. Create a seed script or manually insert data through the admin panel
+There is no automated seed script. Create initial products, tags, brands, colors, and promos through the admin panel after creating an admin user.
 
 ## Troubleshooting
 
@@ -187,14 +187,14 @@ If you want to populate the database with sample foods:
 - Check that `.env` contains `JWT_SECRET=...`
 - Restart the backend server after creating/modifying `.env`
 
-**Port 5000 already in use**
-- Another application is using port 5000
+**Port 4000 already in use**
+- Another application is using port 4000
 - Stop the other application or change the port in `backend/src/constants/ports.js`
 
 ### Frontend Issues
 
 **"Cannot connect to backend / Network Error"**
-- Verify backend is running on port 5000
+- Verify backend is running on port 4000
 - Check browser console for CORS errors
 - Ensure backend CORS is configured for `http://localhost:3000`
 
@@ -241,10 +241,10 @@ npm start
 
 1. Open `http://localhost:3000`
 2. Register a new user account
-3. Browse foods and add items to cart
-4. Complete checkout and payment flow
+3. Browse products, pick a size/color variant, and add items to cart
+4. Complete checkout (COD or PayPal sandbox)
 5. Make yourself admin (see "Creating an Admin User" above)
-6. Access admin panel at `http://localhost:3000/users`, `/meals`, `/orders`, `/tags`
+6. Access admin panel at `/admin` (dashboard), `/users`, `/products`, `/orders`, `/tags`, `/brands`, `/colors`, `/promos`, `/faqs`, `/admin/analytics`
 
 ## Production Deployment
 

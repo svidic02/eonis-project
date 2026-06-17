@@ -147,7 +147,7 @@ Brand name: **Footprint**.
 | Backend       | Express, Mongoose, JWT, bcryptjs                  |
 | Database      | MongoDB                                           |
 | Payments      | PayPal SDK (sandbox; USD via fixed RSD→USD rate, server-verified capture) |
-| Maps          | Leaflet / React-Leaflet                           |
+| Charts        | Recharts (analytics dashboard)                    |
 | Notifications | React Toastify                                    |
 
 ---
@@ -230,7 +230,7 @@ Users · Products (incl. variants) · Orders · Status update · Tags · Colors 
 4. **Order cancellation by customer** while status is `NEW` or `COD_PENDING`.
 5. **Email or toast on status change** — at least a toast nudge when admin updates a status the customer is viewing.
 6. **Wishlist / favorites** (out-of-scope today; light to add).
-7. **Reviews & star ratings** — `StarRating` component already exists; surfacing it would round out the product detail page.
+7. **Reviews & star ratings** — would round out the product detail page.
 8. **Audit log** of order status transitions (who changed what when).
 9. **Bulk admin actions** — multi-select on Orders/Products list with bulk delete or bulk status change.
 10. **Server-side filtering & pagination** on admin lists once dataset grows past a few hundred rows (client-side search is enough for now).

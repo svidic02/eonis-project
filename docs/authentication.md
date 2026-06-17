@@ -1,10 +1,10 @@
 # Authentication
 
-This document explains how JWT-based authentication works in the WOT-projekat application.
+This document explains how JWT-based authentication works in the Footprint application.
 
 ## Overview
 
-WOT-projekat uses **JWT (JSON Web Tokens)** for stateless authentication. The authentication flow involves:
+Footprint uses **JWT (JSON Web Tokens)** for stateless authentication. The authentication flow involves:
 
 1. User logs in with credentials
 2. Backend generates a JWT token containing user info
@@ -453,7 +453,7 @@ router.post("/create", auth, handler(async (req, res) => {
 ### Manually Test Login
 
 ```bash
-curl -X POST http://localhost:5000/api/users/login \
+curl -X POST http://localhost:4000/api/users/login \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"password123"}'
 ```
@@ -472,7 +472,7 @@ Response:
 ```bash
 TOKEN="your_token_here"
 
-curl http://localhost:5000/api/orders/newOrderForCurrentUser \
+curl http://localhost:4000/api/orders/mine \
   -H "access_token: $TOKEN"
 ```
 

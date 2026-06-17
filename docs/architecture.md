@@ -1,10 +1,10 @@
 # Architecture
 
-This document provides an overview of the WOT-projekat system architecture, folder structure, and key design decisions.
+This document provides an overview of the Footprint system architecture, folder structure, and key design decisions.
 
 ## System Overview
 
-WOT-projekat is a **monorepo** containing a React frontend and Node.js/Express backend that communicate via REST APIs.
+Footprint is a **monorepo** containing a React frontend and a Node.js/Express backend that communicate via REST APIs.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -22,7 +22,7 @@ WOT-projekat is a **monorepo** containing a React frontend and Node.js/Express b
                          │ (JWT in headers)
                          │
 ┌────────────────────────▼──────────────────────────────┐
-│         Express Backend (Port 5000)                    │
+│         Express Backend (Port 4000)                    │
 │  ┌──────────────────────────────────────────────┐    │
 │  │  Middleware Layer                            │    │
 │  │  - CORS                                      │    │
@@ -33,17 +33,18 @@ WOT-projekat is a **monorepo** containing a React frontend and Node.js/Express b
 │                   │                                    │
 │  ┌────────────────▼─────────────────────────────┐    │
 │  │  Routers                                     │    │
-│  │  - /api/users                                │    │
-│  │  - /api/foods                                │    │
-│  │  - /api/orders                               │    │
-│  │  - /api/admin                                │    │
+│  │  - /api/users        /api/orders             │    │
+│  │  - /api/products     /api/admin              │    │
+│  │  - /api/tags         /api/brands             │    │
+│  │  - /api/colors       /api/promos             │    │
+│  │  - /api/faqs         /api/checkout-attempts  │    │
 │  └────────────────┬─────────────────────────────┘    │
 │                   │                                    │
 │  ┌────────────────▼─────────────────────────────┐    │
 │  │  Models (Mongoose)                           │    │
-│  │  - UserModel                                 │    │
-│  │  - FoodModel                                 │    │
-│  │  - OrderModel                                │    │
+│  │  - UserModel, ProductModel, OrderModel       │    │
+│  │  - TagModel, BrandModel, ColorModel          │    │
+│  │  - PromoModel, FAQModel, CheckoutAttemptModel│    │
 │  └────────────────┬─────────────────────────────┘    │
 └────────────────────┼──────────────────────────────────┘
                      │
@@ -51,17 +52,19 @@ WOT-projekat is a **monorepo** containing a React frontend and Node.js/Express b
                      │
 ┌────────────────────▼──────────────────────────────────┐
 │               MongoDB Database                         │
-│  Collections: users, foods, orders                     │
+│  Collections: users, products, orders, tags,           │
+│               brands, colors, promos, faqs,            │
+│               checkoutattempts                         │
 └────────────────────────────────────────────────────────┘
 ```
 
 ## Project Structure
 
 ```
-wot-project/
-├── backend/                      # Node.js/Express backend
+footwear-app/
+├── backend/                          # Node.js/Express backend
 │   ├── src/
-│   │   ├── server.js            # Entry point
+│   │   ├── server.js                # Entry point
 │   │   ├── config/
 │   │   │   └── database.config.js
 │   │   ├── constants/
@@ -69,75 +72,90 @@ wot-project/
 │   │   │   ├── orderStatus.js
 │   │   │   └── ports.js
 │   │   ├── middleware/
-│   │   │   ├── auth.mid.js      # JWT authentication
-│   │   │   └── admin.mid.js     # Admin authorization
+│   │   │   ├── auth.mid.js          # JWT authentication
+│   │   │   └── admin.mid.js         # Admin authorization
 │   │   ├── models/
 │   │   │   ├── user.model.js
-│   │   │   ├── food.model.js
-│   │   │   └── order.model.js
+│   │   │   ├── product.model.js
+│   │   │   ├── order.model.js
+│   │   │   ├── tag.model.js
+│   │   │   ├── brand.model.js
+│   │   │   ├── color.model.js
+│   │   │   ├── promo.model.js
+│   │   │   ├── faq.model.js
+│   │   │   └── checkoutAttempt.model.js
 │   │   ├── routers/
-│   │   │   ├── user.router.js   # Auth & user management
-│   │   │   ├── food.router.js   # Food CRUD
-│   │   │   ├── order.router.js  # Order processing
-│   │   │   └── admin.router.js  # Admin operations
-│   │   └── data.js              # Sample data (optional)
-│   ├── .env                     # Environment variables (not in git)
-│   ├── package.json
-│   └── jsconfig.json
+│   │   │   ├── user.router.js       # Auth & user management
+│   │   │   ├── product.router.js    # Product CRUD + variants
+│   │   │   ├── order.router.js      # Orders + PayPal capture
+│   │   │   ├── tag.router.js        # Tag taxonomy
+│   │   │   ├── brand.router.js      # Brand taxonomy
+│   │   │   ├── color.router.js      # Color taxonomy
+│   │   │   ├── promo.router.js      # Promo codes
+│   │   │   ├── faq.router.js        # FAQ entries
+│   │   │   ├── checkoutAttempt.router.js
+│   │   │   └── admin.router.js      # Admin-only operations
+│   │   ├── services/
+│   │   │   └── paypal.service.js    # OAuth + capture verification
+│   │   └── utils/
+│   │       └── orderToken.js        # Guest order JWT
+│   ├── .env                         # Environment variables (not in git)
+│   └── package.json
 │
-├── frontend/                    # React frontend
+├── frontend/                        # React frontend
 │   ├── public/
-│   │   ├── index.html
-│   │   └── basics/              # Static assets
+│   │   └── index.html
 │   ├── src/
-│   │   ├── index.js             # React entry point
-│   │   ├── App.js               # Root component
-│   │   ├── AppRoutes.js         # Route definitions
-│   │   ├── components/          # Reusable components
-│   │   │   ├── Header/
-│   │   │   ├── Footer/
-│   │   │   ├── Thumbnails/      # Food grid display
-│   │   │   ├── Search/
-│   │   │   ├── Tags/
-│   │   │   ├── AuthRoute/       # Protected route wrapper
-│   │   │   ├── AdminRoute/      # Admin route wrapper
-│   │   │   ├── Loading/
-│   │   │   ├── PayPalButtons/
-│   │   │   ├── Map/             # Leaflet map
-│   │   │   └── ...
-│   │   ├── pages/               # Route components
-│   │   │   ├── Home/
-│   │   │   ├── Food/            # Single food details
+│   │   ├── index.js                 # React entry point
+│   │   ├── App.js                   # Root component
+│   │   ├── AppRoutes.js             # Route definitions
+│   │   ├── components/              # Reusable components
+│   │   │   ├── Header/  Footer/  Loading/  Title/
+│   │   │   ├── Thumbnails/          # Product grid
+│   │   │   ├── Filters/  Search/  SearchInput/  Tags/
+│   │   │   ├── VariantSelector/  VariantsEditor/  ImagesEditor/
+│   │   │   ├── PayPalButtons/  Price/
+│   │   │   ├── AdminTaxonomy/       # Shared list/input for taxonomies
+│   │   │   ├── ProductsList/  ProductInput/  ProductAdd/
+│   │   │   ├── TagsList/  TagInput/  BrandsList/  BrandInput/
+│   │   │   ├── ColorsList/  ColorInput/  PromosList/  PromoInput/
+│   │   │   ├── FAQsList/  FAQInput/
+│   │   │   ├── OrdersList/  OrderItemsList/
+│   │   │   ├── UserList/  UserInput/
+│   │   │   ├── AuthRoute/  AdminRoute/  CustomerRoute/
+│   │   │   ├── Input/  InputContainer/  Button/  ConfirmationDialog/
+│   │   │   └── NotFound/
+│   │   ├── pages/                   # Route components
+│   │   │   ├── Home/                # Browse + filter
+│   │   │   ├── Product/             # Product detail
 │   │   │   ├── Cart/
-│   │   │   ├── Checkout/
-│   │   │   ├── Payment/
-│   │   │   ├── Login/
-│   │   │   ├── Register/
-│   │   │   ├── Profile/
-│   │   │   └── Admin/           # Admin pages
-│   │   │       ├── Users/
-│   │   │       ├── Meals/
-│   │   │       ├── Orders/
-│   │   │       ├── Tags/
-│   │   │       ├── UserInfo/    # Add/edit user
-│   │   │       └── MealInfo/    # Add/edit meal
-│   │   ├── hooks/               # Custom React hooks
-│   │   │   ├── useAuth.js       # Auth state & methods
-│   │   │   ├── useCart.js       # Cart state
-│   │   │   └── useLoading.js    # Loading state
-│   │   ├── services/            # API clients
-│   │   │   ├── userService.js
-│   │   │   ├── foodService.js
-│   │   │   └── orderService.js
-│   │   └── interceptors/        # Axios interceptors
-│   │       ├── authInterceptor.js    # Adds JWT to requests
-│   │       └── loadingInterceptor.js # Loading UI
-│   ├── package.json
-│   └── .gitignore
+│   │   │   ├── Checkout/            # Single-step COD or PayPal
+│   │   │   ├── Login/  Register/
+│   │   │   ├── Profile/             # Profile + order history
+│   │   │   ├── Contact/             # Demo contact form
+│   │   │   └── Admin/               # Admin sub-pages
+│   │   ├── hooks/
+│   │   │   ├── useAuth.js           # Auth state & methods
+│   │   │   ├── useCart.js           # Cart state
+│   │   │   ├── useDocumentTitle.js
+│   │   │   └── useLoading.js
+│   │   ├── services/                # API clients
+│   │   │   ├── userService.js     productService.js
+│   │   │   ├── orderService.js    tagService.js
+│   │   │   ├── brandService.js    colorService.js
+│   │   │   ├── promoService.js    faqService.js
+│   │   │   └── checkoutService.js
+│   │   ├── utils/
+│   │   │   ├── analytics.js         # Client-side aggregation
+│   │   │   ├── dateWindow.js
+│   │   │   └── facets.js
+│   │   └── interceptors/
+│   │       ├── authInterceptor.js   # Adds access_token header
+│   │       └── loadingInterceptor.js
+│   └── package.json
 │
-├── docs/                        # Documentation
+├── docs/                            # Documentation
 ├── README.md
-├── CLAUDE.md                    # AI assistant instructions
 └── .gitignore
 ```
 
@@ -153,7 +171,7 @@ The server initialization flow:
 3. Initialize Express app
 4. Configure middleware (CORS, JSON parser)
 5. Register routers
-6. Start listening on port 5000
+6. Start listening on port 4000
 ```
 
 ### Middleware Stack
@@ -164,10 +182,11 @@ Requests flow through middleware in this order:
 1. CORS middleware (allows requests from localhost:3000)
 2. express.json() (parses JSON bodies)
 3. Route-specific middleware:
-   - auth.mid.js (validates JWT token)
+   - auth.mid.js (validates JWT token from access_token header)
    - admin.mid.js (checks admin role)
 4. Route handler
-5. Response sent to client
+5. Global error handler (formats ValidationError → 400)
+6. Response sent to client
 ```
 
 ### Data Models
@@ -178,20 +197,28 @@ Requests flow through middleware in this order:
   name: String (required)
   email: String (required, unique)
   password: String (required, hashed with bcryptjs)
-  address: String (required)
+  address: String
   isAdmin: Boolean (default: false)
-  timestamps: true (createdAt, updatedAt)
+  timestamps: true
 }
 ```
 
-**Food Model** (`food.model.js`):
+**Product Model** (`product.model.js`):
 ```javascript
 {
   name: String (required)
-  price: Number (required)
-  tags: [String] (array of tags)
-  imageUrl: String (required)
-  cookTime: String (required)
+  description: String
+  price: Number (required, RSD)
+  brand: ObjectId → Brand
+  gender: String (men / women / unisex / kids)
+  category: String
+  tags: [ObjectId] → Tag
+  images: [String] (URLs)
+  variants: [{
+    size: String (required)
+    color: ObjectId → Color (required)
+    stock: Number (required, default 0)
+  }]
   timestamps: true
 }
 ```
@@ -200,190 +227,160 @@ Requests flow through middleware in this order:
 ```javascript
 {
   name: String (required)
+  email: String
+  guestEmail: String (set when user is null)
   address: String (required)
-  paymentId: String (optional, from PayPal)
-  totalPrice: Number (required)
-  items: [OrderItemSchema] (array of order items)
+  phone: String (required for COD)
+  paymentMethod: String ("COD" | "PAYPAL")
+  paypalOrderId: String (set after PayPal create)
+  paymentId: String (set after PayPal capture)
+  subtotal, shipping, discount, total: Number
+  promoCode: String
+  items: [OrderItemSchema]
   status: String (default: "NEW")
-  user: ObjectId (required, references User)
+  user: ObjectId → User (null for guest)
   timestamps: true
 }
 
 OrderItemSchema:
 {
-  food: FoodSchema (embedded food document)
-  price: Number (calculated: food.price * quantity)
-  quantity: Number (required)
+  product: ProductSnapshot (embedded snapshot — name, price, image, brand)
+  size: String, color: String
+  quantity: Number, price: Number
 }
 ```
 
+**Taxonomy models** (Tag, Brand, Color, Promo, FAQ): small documents with `name` (unique) and entity-specific fields (e.g. `hex` on Color, `percent` + `active` on Promo).
+
 ### API Router Organization
 
-**Public Routes** - No authentication required:
-- `POST /api/users/login`
-- `POST /api/users/register`
-- `GET /api/foods/*` (browse, search, view)
+**Public routes** — no authentication required:
+- `POST /api/users/login`, `POST /api/users/register`
+- `GET /api/products/*`, `GET /api/tags`, `GET /api/brands`, `GET /api/colors`, `GET /api/faqs`
+- `POST /api/promos/validate`
+- `POST /api/orders` (guest checkout supported via `guestEmail`)
+- `GET /api/orders/:id?t=<token>` (guest order lookup via signed JWT)
 
-**Protected Routes** - Requires authentication:
-- `POST /api/orders/create`
-- `GET /api/orders/newOrderForCurrentUser`
-- `PUT /api/orders/pay`
+**Protected routes** — require authentication:
+- `GET /api/users/getuser`, `PUT /api/users/profile`
+- `POST /api/orders` (when logged in), `PUT /api/orders/pay`
+- `GET /api/orders/track/:id` (owner only)
 
-**Admin Routes** - Requires admin role:
-- `/api/admin/users/*` (CRUD operations)
-- `/api/admin/foods/*` (CRUD operations)
-- `/api/admin/orders` (view all)
+**Admin routes** — require admin role:
+- `/api/admin/*` (users list, role toggle, analytics, order status changes)
+- `POST/PUT/DELETE /api/products/*`, and the same on `/api/tags`, `/api/brands`, `/api/colors`, `/api/promos`, `/api/faqs`
 
 ## Frontend Architecture
 
 ### Component Hierarchy
 
 ```
-App.js (Theme context provider)
-├── Header (Navigation, dark mode toggle)
+App.js
+├── Header (Navigation, cart count)
 ├── Loading (Global loading indicator)
 ├── AppRoutes (React Router)
-│   ├── Public Routes
-│   │   ├── HomePage (Browse foods)
-│   │   ├── FoodPage (Single food details)
+│   ├── Public routes
+│   │   ├── HomePage           (browse + filter)
+│   │   ├── ProductPage        (variant selection, add-to-cart)
 │   │   ├── CartPage
-│   │   ├── LoginPage
-│   │   └── RegisterPage
-│   ├── AuthRoute (Protected routes wrapper)
-│   │   ├── CheckoutPage
-│   │   └── PaymentPage
-│   └── AdminRoute (Admin routes wrapper)
-│       ├── UsersPage
-│       ├── MealsPage
-│       ├── OrdersPage
-│       └── TagsPage
+│   │   ├── LoginPage / RegisterPage
+│   │   ├── ContactPage / FAQ
+│   │   └── 404 (NotFound)
+│   ├── CustomerRoute (logged-in users)
+│   │   └── CheckoutPage       (COD or PayPal)
+│   ├── AuthRoute (logged-in users)
+│   │   └── ProfilePage        (profile + order history)
+│   └── AdminRoute (admins only)
+│       ├── AdminHomePage / AnalyticsPage
+│       ├── Users / Products / Orders
+│       └── Tags / Brands / Colors / Promos / FAQs
 └── Footer
 ```
 
 ### State Management
 
-**Global State:**
-- **Authentication**: Managed by `useAuth` hook (Context API)
-  - User data stored in localStorage
-  - Provides: `user`, `login()`, `logout()`, `register()`
+**Global state:**
+- **Auth** — `useAuth` hook (Context). User stored in `localStorage`. Provides `user`, `login()`, `logout()`, `register()`.
+- **Cart** — `useCart` hook (Context). Cart stored in `localStorage`. Variant-aware.
+- **Loading** — `useLoading` hook (Context). Drives the global loading bar from Axios interceptors.
 
-- **Cart**: Managed by `useCart` hook (Context API)
-  - Cart data stored in localStorage
-  - Provides: `cart`, `addToCart()`, `removeFromCart()`, `clearCart()`
-
-- **Loading**: Managed by `useLoading` hook (Context API)
-  - Global loading state for API calls
-  - Provides: `showLoading()`, `hideLoading()`
-
-- **Theme**: Managed by `ThemeContext` in `App.js`
-  - Light/dark mode toggle
-  - Provides: `theme`, `toggleTheme()`
-
-**Local State:**
-- Individual components manage their own UI state with `useState`
+**Local state:** components manage UI state with `useState` and React Hook Form.
 
 ### Service Layer
 
-All API calls are centralized in service modules:
-
-**`userService.js`:**
-- `login(email, password)` - Authenticate user
-- `register(userData)` - Create new user
-- `logout()` - Clear user from localStorage
-- `getUser()` - Get current user from localStorage
-- `getAllUsers()` - Admin: fetch all users
-- `getUserById(id)` - Get user details
-- `editUser(userData)` - Update user
-- `deleteUser(userId)` - Delete user
-
-**`foodService.js`:**
-- `getAll()` - Get all foods
-- `search(searchTerm)` - Search foods by name
-- `getAllTags()` - Get all food tags
-- `getAllByTag(tag)` - Filter foods by tag
-- `getById(foodId)` - Get single food details
-
-**`orderService.js`:**
-- `createOrder(order)` - Create new order
-- `getNewOrderForCurrentUser()` - Get current active order
-- `pay(paymentId)` - Process payment
-- `getAllOrders()` - Admin: get all orders
+Each backend domain has a matching service module under `frontend/src/services/`. They wrap Axios calls and return typed-shaped data to the components. The taxonomy services (`tagService`, `brandService`, `colorService`, `promoService`, `faqService`) share the same shape so `AdminTaxonomyList` / `AdminTaxonomyInput` can drive all of them.
 
 ### Routing Strategy
 
-**Public Routes:** Accessible to everyone
-**AuthRoute:** Redirects to `/login` if not authenticated
-**AdminRoute:** Redirects to `/` if not admin
+- **Public routes** — accessible to everyone
+- **CustomerRoute** — gates `/cart` and `/checkout` to logged-in users
+- **AuthRoute** — gates `/profile`
+- **AdminRoute** — gates admin pages; redirects non-admins to `/`
 
 Route protection is enforced **both** on frontend (UX) and backend (security).
 
 ### Axios Interceptors
 
-**Request Interceptor** (`authInterceptor.js`):
-- Automatically adds JWT token to all requests
-- Reads token from localStorage
-- Adds to `access_token` header
+- **`authInterceptor.js`** — request interceptor; reads JWT from `localStorage` and adds it as the `access_token` header.
+- **`loadingInterceptor.js`** — toggles the global loading bar on request start/finish.
 
-**Loading Interceptor** (`loadingInterceptor.js`):
-- Shows loading indicator on request start
-- Hides loading indicator on request completion/error
+### Analytics
+
+`frontend/src/utils/analytics.js` aggregates orders + products in memory (revenue trend, top products, category split, top sizes/brands) so the admin Analytics page can drive Recharts without extra backend endpoints. Adequate at college-project dataset size.
 
 ## Key Design Decisions
 
-### Why JWT?
-- Stateless authentication (no server-side sessions)
-- Scalable (no session storage needed)
-- Works well with REST APIs
-- Contains user info (reduces database queries)
+### Why JWT in `access_token` header (not `Authorization: Bearer`)?
+The custom header is what the project started with and what `auth.mid.js` reads. The frontend interceptor and every doc/example mirrors that.
 
-### Why localStorage?
-- Persists across browser sessions
-- Simple API
-- Automatic with every page load
-- Trade-off: Vulnerable to XSS (ensure input sanitization)
+### Why server-authoritative pricing?
+The client posts the cart, but `order.router.js` recomputes subtotal/discount/shipping/total from the current `Product` documents before saving. A tampered client price never reaches the order.
+
+### Why atomic stock decrement with rollback?
+No replica-set transactions are assumed. The router does sequential `findOneAndUpdate` `$inc` operations per variant; if any one fails the prior decrements are reversed in code. Trades the cleanliness of a transaction for portability.
+
+### Why server-verified PayPal capture?
+On `PUT /api/orders/pay` the backend re-fetches the order from PayPal (`GET /v2/checkout/orders/:id`) and asserts `status === COMPLETED` and amount match before flipping `status` to `PAYED`. A client claiming "I paid" is never enough.
+
+### Why guest checkout via signed JWT?
+Guests don't have accounts to associate with their orders. The order returns a JWT token; the order detail page accepts `?t=<token>` to authorize lookup without an account.
+
+### Why localStorage for auth/cart?
+Persists across sessions; simple. Trade-off: XSS exposure — for a college project this is acceptable.
+
+### Why React Context (not Redux)?
+Global state is small (auth, cart, loading). Context avoids the Redux boilerplate.
 
 ### Why Mongoose?
-- Schema validation
-- Built-in virtuals and methods
-- Middleware hooks (e.g., password hashing)
-- Easier MongoDB queries
+Schema validation, virtuals, middleware hooks (e.g. password hashing), and easier MongoDB queries.
 
-### Why React Context?
-- Avoid prop drilling
-- Global state without Redux overhead
-- Perfect for small to medium apps
-- Built into React
-
-### Why Monorepo?
-- Easier to manage related frontend/backend
-- Shared documentation
-- Single git repository
-- Simpler deployment
+### Why monorepo?
+Single repo for related frontend/backend, shared docs, simpler workflow.
 
 ## Security Considerations
 
-1. **Passwords**: Hashed with bcryptjs (10 salt rounds)
-2. **JWT Secret**: Stored in environment variables
-3. **CORS**: Restricted to localhost:3000 (dev) - configure for production
-4. **Middleware**: Validates JWT on protected routes
-5. **Admin Routes**: Double-checked (frontend + backend)
-6. **Input Validation**: Mongoose schemas + MongoDB ID validation
+1. **Passwords** — hashed with bcryptjs (10 salt rounds).
+2. **JWT secret** — stored in `JWT_SECRET` env var.
+3. **CORS** — restricted to `http://localhost:3000` in dev.
+4. **Auth middleware** — validates JWT on protected routes; admin middleware double-checks the role flag.
+5. **Server-authoritative pricing** — totals recomputed server-side, ignoring client-supplied values.
+6. **PayPal capture verification** — backend re-fetches and asserts on capture status + amount.
+7. **PayPal secret** — `PAYPAL_CLIENT_SECRET` only lives in `backend/.env`; the frontend only sees the public `REACT_APP_PAYPAL_CLIENT_ID`.
+8. **Input validation** — Mongoose schema validators + ObjectId checks at router level.
 
 ## Performance Considerations
 
-1. **MongoDB Indexes**: Unique index on user email
-2. **React Optimization**: Lazy loading could be added for admin routes
-3. **API Calls**: Centralized in service layer (easy to add caching)
-4. **Frontend Build**: Production build minifies and optimizes
+1. **MongoDB indexes** — unique index on user email, on taxonomy names.
+2. **Cached PayPal token** — `paypal.service.js` caches the OAuth2 token until expiry.
+3. **Client-side analytics** — avoids extra backend round-trips at current data volume.
+4. **Frontend build** — production build minifies and code-splits.
 
 ## Future Architecture Improvements
 
-- Add Redis for session management
-- Implement refresh tokens
-- Add request rate limiting
-- Add input validation library (Joi/Yup)
-- Add API versioning (/api/v1/)
-- Separate admin API from user API
-- Add logging service (Winston/Bunyan)
-- Add health check endpoints
-- Implement WebSockets for real-time order tracking
+- Refresh tokens
+- Rate limiting on `/login` and `/register`
+- Server-side pagination + filtering for admin lists as data grows
+- Server-side analytics endpoints (move computation off the client)
+- Real-time order status (WebSockets)
+- Replica-set Mongo + true multi-document transactions for the stock decrement
+- Image upload (currently URL-only)

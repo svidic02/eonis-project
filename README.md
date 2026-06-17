@@ -1,74 +1,85 @@
-# WOT-projekat
+# Footprint — Footwear E-Commerce
 
-A full-stack food ordering web application with separate admin and user interfaces.
+MERN-stack footwear shop built as a university project for EONIS. A React storefront plus an admin panel; an Express + MongoDB backend with JWT auth and PayPal sandbox checkout.
 
 ## Tech Stack
 
-**Frontend:** React, React Router, Axios, PayPal SDK, Leaflet Maps
-**Backend:** Node.js, Express, MongoDB (Mongoose), JWT Authentication
-**Security:** bcryptjs, JWT middleware, role-based access control
+**Frontend:** React (Create React App), React Router DOM, React Hook Form, Axios, CSS Modules, Recharts, React Toastify, `@paypal/react-paypal-js`
+
+**Backend:** Node.js, Express, Mongoose (MongoDB), JSON Web Tokens, bcryptjs, PayPal REST API v2 (sandbox)
 
 ## Quick Start
 
 ### Prerequisites
-- Node.js (v14+)
-- MongoDB instance
+- Node.js (v18+)
+- MongoDB (local or Atlas)
 
 ### Backend
+
 ```bash
 cd backend
 npm install
 ```
 
-Create a `.env` file in the backend folder:
+Create `backend/.env`:
+
 ```env
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
+MONGO_URI=mongodb://localhost:27017/footprint
+JWT_SECRET=<random 64+ char string>
+PAYPAL_CLIENT_ID=<paypal sandbox client id>
+PAYPAL_CLIENT_SECRET=<paypal sandbox client secret>
+PAYPAL_API_BASE=https://api-m.sandbox.paypal.com
+RSD_TO_USD=0.0091
 ```
 
-Start the server:
+Run the server:
+
 ```bash
-npm run dev   # Runs on http://localhost:5000
+npm run dev     # nodemon, runs on http://localhost:4000
 ```
 
 ### Frontend
+
 ```bash
 cd frontend
 npm install
-npm start     # Runs on http://localhost:3000
+```
+
+Create `frontend/.env` (CRA-prefixed values only — never put secrets here):
+
+```env
+REACT_APP_PAYPAL_CLIENT_ID=<same as backend PAYPAL_CLIENT_ID>
+REACT_APP_RSD_TO_USD=0.0091
+```
+
+Run the dev server:
+
+```bash
+npm start       # opens http://localhost:3000
 ```
 
 ## Features
 
-### Implemented ✅
-- **User Authentication:** Register, login, JWT-based auth with protected routes
-- **Browse & Order:** Search foods, filter by tags, shopping cart, checkout with map integration
-- **Payment:** PayPal integration for order processing
-- **Admin Panel:** Manage users, foods, orders, and view tags (protected routes)
-- **UI/UX:** Dark mode, loading states, toast notifications, responsive design
-- **Security:** Password hashing, JWT middleware, admin role verification
-
-### Planned 🚧
-- User order history page
-- Food rating and favorites system
-- Order tracking with status updates
-- User profile editing and picture uploads
-- Tag management (add/edit/delete)
-- Enhanced food descriptions and UI improvements
+- **Authentication** — register, login, JWT-based protected routes, role-based admin gate
+- **Catalog** — products with size/color variants, search, filters (tag, brand, color, gender, category, price)
+- **Cart** — persisted in `localStorage`, variant-aware
+- **Checkout** — single-step form, COD or PayPal sandbox; server-authoritative pricing; promo codes; guest checkout via signed order JWT
+- **PayPal** — server-side capture verification (re-fetches the order from PayPal and asserts `status === COMPLETED` + amount before flipping the order to `PAYED`)
+- **Orders** — customer order history, admin order list with status transitions, atomic stock decrement with rollback
+- **Admin panel** — CRUD for products, tags, brands, colors, promos, FAQs; user management; analytics dashboard (Recharts)
+- **Other pages** — FAQ, Contact (demo form), 404
 
 ## Documentation
 
-> **Note:** Detailed documentation is planned to be added in the `docs/` folder:
-> - `docs/getting-started.md` - Detailed installation and setup
-> - `docs/architecture.md` - System design and folder structure
-> - `docs/api-endpoints.md` - Complete API reference
-> - `docs/authentication.md` - JWT flow and middleware explanation
-> - `docs/admin-protection.md` - Security implementation details
+Detailed docs live in [`docs/`](./docs):
 
-## References
-
-- [CodeWithNasir - Admin Dashboard Tutorial](https://www.youtube.com/watch?v=H9Vp0G--u-Y&list=PLpaspowtqj-f9-5g2Rc1dWm1n2_nNfIl6&index=15&ab_channel=CodeWithNasir)
+- [`getting-started.md`](./docs/getting-started.md) — setup walkthrough
+- [`architecture.md`](./docs/architecture.md) — system design and folder layout
+- [`api-endpoints.md`](./docs/api-endpoints.md) — REST API reference
+- [`authentication.md`](./docs/authentication.md) — JWT flow + middleware
+- [`admin-protection.md`](./docs/admin-protection.md) — role-based access control
+- [`TRD.md`](./docs/TRD.md) — technical requirements
 
 ## License
 
-This project is for educational purposes.
+Educational use.

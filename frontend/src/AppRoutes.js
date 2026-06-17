@@ -115,14 +115,6 @@ export default function AppRoutes() {
           </AdminRoute>
         }
       />
-      {/* <Route
-        path="/tags/:id"
-        element={
-          <AdminRoute>
-            <ProductInfoPage />
-          </AdminRoute>
-        }
-      /> */}
       <Route
         path="/tag/add"
         element={

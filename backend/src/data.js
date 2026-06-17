@@ -29,7 +29,7 @@ export const sample_products = [
     description:
       "A clean court classic. The Stan Smith has stood the test of time as a minimalist tennis shoe turned everyday icon.",
     price: 10000,
-    images: ["https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?w=600&q=80"],
+    images: ["https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=600&q=80"],
     tags: ["Sneakers", "Casual"],
     variants: [
       v("White", 39, 4),
@@ -68,7 +68,7 @@ export const sample_products = [
     description:
       "A workhorse running shoe with responsive React foam and dual Air Zoom units for a smooth, springy ride.",
     price: 14000,
-    images: ["https://images.unsplash.com/photo-1539185441755-769473a23570?w=600&q=80"],
+    images: ["https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&q=80"],
     tags: ["Running", "Sport"],
     variants: [
       v("Blue", 41, 4),
@@ -106,7 +106,7 @@ export const sample_products = [
     description:
       "The original 8-eye boot. Smooth leather, yellow welt stitch, and a Goodyear-welted air-cushioned sole.",
     price: 18000,
-    images: ["https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=600&q=80"],
+    images: ["https://images.unsplash.com/photo-1605812860427-4024433a70fd?w=600&q=80"],
     tags: ["Boots", "Casual"],
     variants: [
       v("Black", 40, 4),
@@ -124,7 +124,7 @@ export const sample_products = [
     category: "Boots",
     description: "The original yellow boot. Waterproof premium leather, padded collar, seam-sealed construction.",
     price: 21000,
-    images: ["https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=600&q=80"],
+    images: ["https://images.unsplash.com/photo-1599012307605-23a0ebe4d321?w=600&q=80"],
     tags: ["Boots"],
     variants: [v("Wheat", 41, 3), v("Wheat", 42, 4), v("Wheat", 43, 2), v("Wheat", 44, 5)],
   },
@@ -135,7 +135,7 @@ export const sample_products = [
     category: "Formal",
     description: "A classic cap-toe oxford in polished leather. Cushioned footbed and rubber sole for all-day comfort.",
     price: 12000,
-    images: ["https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&q=80"],
+    images: ["https://images.unsplash.com/photo-1571859856639-d54ab2c18ba0?w=600&q=80"],
     tags: ["Formal"],
     variants: [
       v("Black", 41, 4),
@@ -154,7 +154,7 @@ export const sample_products = [
     description:
       "Two-strap classic with the famous contoured cork-latex footbed. Adjustable buckles for a perfect fit.",
     price: 11000,
-    images: ["https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&q=80"],
+    images: ["https://images.unsplash.com/photo-1591620460030-0ab8f583dc5b?w=600&q=80"],
     tags: ["Sandals", "Casual"],
     variants: [
       v("Brown", 37, 3),
@@ -212,7 +212,7 @@ export const sample_products = [
     description:
       "A timeless slip-on in supple leather. Hand-stitched apron, leather-lined footbed, and a hard-wearing rubber sole.",
     price: 13500,
-    images: ["https://images.unsplash.com/photo-1582588678413-dbf45f4823e9?w=600&q=80"],
+    images: ["https://images.unsplash.com/photo-1614253429340-98120bd6d753?w=600&q=80"],
     tags: ["Formal"],
     variants: [
       v("Brown", 41, 5),
@@ -231,7 +231,7 @@ export const sample_products = [
     description:
       "Cloud-soft sport slide with a contoured footbed. The post-game / pool-deck staple.",
     price: 4500,
-    images: ["https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&q=80"],
+    images: ["https://images.unsplash.com/photo-1585120824848-8a5cd41493d2?w=600&q=80"],
     tags: ["Sandals", "Sport"],
     variants: [
       v("Black", 41, 6),
@@ -250,7 +250,7 @@ export const sample_products = [
     description:
       "Adjustable hook-and-loop sandal built for the playground, the pool, and the trip back home.",
     price: 4000,
-    images: ["https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&q=80"],
+    images: ["https://images.unsplash.com/photo-1618615098938-84fc29796e76?w=600&q=80"],
     tags: ["Sandals", "Casual"],
     variants: [
       v("Pink", 28, 4),
@@ -269,7 +269,7 @@ export const sample_products = [
     description:
       "The 1460 silhouette on a chunky platform sole. Smooth leather and yellow welt stitch with extra height and attitude.",
     price: 22000,
-    images: ["https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=600&q=80"],
+    images: ["https://images.unsplash.com/photo-1534233650908-b471f2350922?w=600&q=80"],
     tags: ["Boots"],
     variants: [
       v("Black", 37, 4),
@@ -286,7 +286,7 @@ export const sample_products = [
     description:
       "A lightweight kid's runner with breathable mesh, a flexible foam midsole, and a hook-and-loop closure for solo lace-up wins.",
     price: 5500,
-    images: ["https://images.unsplash.com/photo-1539185441755-769473a23570?w=600&q=80"],
+    images: ["https://images.unsplash.com/photo-1597892657493-6847b9640bac?w=600&q=80"],
     tags: ["Running", "Sport"],
     variants: [
       v("Blue", 30, 5),
@@ -306,7 +306,7 @@ export const sample_products = [
     description:
       "A weatherproof leather boot for kids — padded collar, sturdy lugged sole, and the iconic premium upper.",
     price: 8500,
-    images: ["https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=600&q=80"],
+    images: ["https://images.unsplash.com/photo-1605733160314-4fc7dac4bb16?w=600&q=80"],
     tags: ["Boots"],
     variants: [
       v("Wheat", 30, 3),

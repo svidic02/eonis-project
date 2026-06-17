@@ -70,7 +70,9 @@ async function seedProducts() {
   }
 
   for (let product of sample_products) {
-    product.images = (product.images ?? []).map((img) => `/products/${img}`);
+    product.images = (product.images ?? []).map((img) =>
+      /^https?:\/\//i.test(img) ? img : `/products/${img}`
+    );
     await ProductModel.create(product);
   }
   console.log("Products seed is done!");

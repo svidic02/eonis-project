@@ -1,5 +1,8 @@
 import React from "react";
 import classes from "./tags.module.css";
+import { CATEGORIES } from "../../constants/productEnums";
+
+const CATEGORY_NAMES = new Set(CATEGORIES.map((c) => c.value));
 
 export default function Tags({
   tags,
@@ -26,7 +29,7 @@ export default function Tags({
   return (
     <div className={containerClass}>
       {tags
-        .filter((t) => t.name !== "All")
+        .filter((t) => t.name !== "All" && !CATEGORY_NAMES.has(t.name))
         .map((tag) => {
           const active = selected === tag.name;
           return (
